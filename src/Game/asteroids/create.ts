@@ -1,11 +1,12 @@
 import { GAME_WIDTH } from '../hud';
 import { between } from '../utils';
 import { Asteroid } from './asteroid';
+import { createCraters } from './craters';
 import { createAsteroidShape } from './hitbox';
 
-const STARTING_MIN_ASTEROID_SIZE = 50;
-const STARTING_MAX_ASTEROID_SIZE = 100;
-const ASTEROID_SIZE_INCREASE_PER_POINT = 2;
+const STARTING_MIN_ASTEROID_SIZE = 75;
+const STARTING_MAX_ASTEROID_SIZE = 125;
+const ASTEROID_SIZE_INCREASE_PER_POINT = 1;
 
 const ASTEROID_X_SPAWN_SPLIT = 4;
 
@@ -29,10 +30,13 @@ export function createAsteroid(score: number, object: Partial<Asteroid> = {}): A
     r,
     velocity: 140,
     angle: Math.random() * Math.PI * 2,
+    hue: 15 + Math.random() * 25,
+    lightness: 34 + Math.random() * 12,
     active: true
   });
 
   object.shape = createAsteroidShape();
+  object.craters = createCraters(object.shape!);
 
   return object as Asteroid;
 }

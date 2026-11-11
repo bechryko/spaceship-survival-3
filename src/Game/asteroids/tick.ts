@@ -9,7 +9,6 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
 
   if (state.spawnTimer <= 0) {
     spawnAsteroid(state);
-    console.log(state.asteroids.length, state.asteroids.filter(a => a.active).length);
   }
 
   for (const asteroid of state.asteroids.filter(a => a.active)) {
@@ -21,7 +20,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
 
     const hit =
       Math.hypot(lx, ly) <= boundingRadius(SHIP_HULL) + asteroid.r &&
-      polygonsCollide(SHIP_HULL, transformPolygon(asteroid.shape.points, asteroid.r, asteroid.angle, lx, ly));
+      polygonsCollide(SHIP_HULL, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
       return { hit: true };
     }

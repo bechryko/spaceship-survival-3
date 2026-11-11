@@ -6,7 +6,7 @@ export function createSpaceship(): Spaceship {
     color: 'forestgreen',
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT - 70,
-    speed: 380,
+    speed: 200,
     controls: {
       left: false,
       right: false,

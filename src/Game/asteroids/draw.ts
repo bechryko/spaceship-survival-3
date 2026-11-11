@@ -1,7 +1,11 @@
 import { Asteroid } from './asteroid';
 
+const ASTEROID_OUTLINE_WIDTH = 5;
+
+const CRATER_RIM_WIDTH = 3;
+
 export function drawAsteroid(ctx: CanvasRenderingContext2D, asteroid: Asteroid) {
-  const { x, y, r, angle, shape } = asteroid;
+  const { x, y, r, angle, hue, lightness, shape, craters } = asteroid;
 
   ctx.save();
   ctx.translate(x, y);
@@ -9,31 +13,31 @@ export function drawAsteroid(ctx: CanvasRenderingContext2D, asteroid: Asteroid) 
 
   // Body, with a soft highlight toward the upper left
   const asteroidBodyGradient = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
-  asteroidBodyGradient.addColorStop(0, `hsl(${shape.hue} 14% ${shape.lightness + 14}%)`);
-  asteroidBodyGradient.addColorStop(1, `hsl(${shape.hue} 14% ${shape.lightness - 6}%)`);
+  asteroidBodyGradient.addColorStop(0, `hsl(${hue} 14% ${lightness + 14}%)`);
+  asteroidBodyGradient.addColorStop(1, `hsl(${hue} 14% ${lightness - 6}%)`);
 
   ctx.beginPath();
-  shape.points.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px * r, py * r) : ctx.lineTo(px * r, py * r)));
+  shape.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px * r, py * r) : ctx.lineTo(px * r, py * r)));
   ctx.closePath();
   ctx.fillStyle = asteroidBodyGradient;
   ctx.fill();
   ctx.lineJoin = 'round';
-  ctx.lineWidth = Math.max(1, r * 0.06);
-  ctx.strokeStyle = `hsl(${shape.hue} 14% ${shape.lightness - 16}%)`;
+  ctx.lineWidth = ASTEROID_OUTLINE_WIDTH;
+  ctx.strokeStyle = `hsl(${hue} 14% ${lightness - 16}%)`;
   ctx.stroke();
 
   // Craters
-  for (const c of shape.craters) {
+  for (const crater of craters) {
     ctx.beginPath();
-    ctx.arc(c.x * r, c.y * r, c.r * r, 0, Math.PI * 2);
-    ctx.fillStyle = `hsl(${shape.hue} 14% ${shape.lightness - 12}%)`;
+    ctx.arc(crater.x * r, crater.y * r, crater.r * r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${hue} 14% ${lightness - 12}%)`;
     ctx.fill();
 
     // Lit rim on the lower-right edge of each crater
     ctx.beginPath();
-    ctx.arc(c.x * r, c.y * r, c.r * r, 0.2, Math.PI * 0.8);
-    ctx.lineWidth = Math.max(1, r * 0.03);
-    ctx.strokeStyle = `hsl(${shape.hue} 14% ${shape.lightness + 18}%)`;
+    ctx.arc(crater.x * r, crater.y * r, crater.r * r, -angle, 2.2 - angle);
+    ctx.lineWidth = CRATER_RIM_WIDTH;
+    ctx.strokeStyle = `hsl(${hue} 14% ${lightness + 18}%)`;
     ctx.stroke();
   }
 

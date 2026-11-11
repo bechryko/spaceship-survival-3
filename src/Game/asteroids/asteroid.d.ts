@@ -1,3 +1,4 @@
+import { Circle } from '../models';
 import { AsteroidShape } from './hitbox';
 
 export interface Asteroid {
@@ -7,5 +8,8 @@ export interface Asteroid {
   velocity: number;
   angle: number;
   shape: AsteroidShape;
+  craters: readonly Circle[];
+  hue: number;
+  lightness: number;
   active: boolean;
 }
