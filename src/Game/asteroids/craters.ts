@@ -2,8 +2,8 @@ import { Circle, Point } from '../models';
 import { between, boundingRadius } from '../utils';
 import { ASTEROID_MAX_REACH_IN, AsteroidShape } from './hitbox';
 
-const CRATER_MIN_COUNT = 2;
-const CRATER_MAX_COUNT = 5;
+const CRATER_MIN_COUNT = 5;
+const CRATER_MAX_COUNT = 9;
 const CRATER_MIN_SIZE = 0.05;
 const CRATER_MAX_SIZE = 0.2;
 

@@ -1,13 +1,22 @@
 import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
 import { GameState, GameStatus } from './game-state';
 
-const HUD_GAME_OVER_OVERLAY_COLOR = 'rgba(20, 33, 61, 0.78)';
+const HUD_GAME_OVER_OVERLAY_COLOR = 'rgba(18, 27, 45, 0.71)';
 
 const HUD_TEXT_COLOR = '#e8f1f2';
 const HUD_MARGIN_X = 16;
 const HUD_MARGIN_Y = 28;
 const HUD_FONT_SIZE = 18;
 const HUD_FONT_FAMILY = 'system-ui, sans-serif';
+
+export function drawHUD(ctx: CanvasRenderingContext2D, state: GameState, highscore: number): void {
+  ctx.textAlign = 'left';
+  drawText(ctx, `Score: ${state.score}`, HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
+  ctx.textAlign = 'right';
+  drawText(ctx, `Best: ${highscore}`, GAME_WIDTH - HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
+
+  drawOverlays(ctx, state);
+}
 
 function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
   if (state.status !== GameStatus.PLAYING) {
@@ -35,15 +44,6 @@ function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
       HUD_FONT_SIZE
     );
   }
-}
-
-export function drawHUD(ctx: CanvasRenderingContext2D, state: GameState, highscore: number): void {
-  ctx.textAlign = 'left';
-  drawText(ctx, `Score: ${state.score}`, HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
-  ctx.textAlign = 'right';
-  drawText(ctx, `Best: ${highscore}`, GAME_WIDTH - HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
-
-  drawOverlays(ctx, state);
 }
 
 function drawText(

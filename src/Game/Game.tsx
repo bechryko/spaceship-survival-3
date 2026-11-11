@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSettings } from '../context';
 import { drawAsteroid, tickAsteroids } from './asteroids';
-import { drawBackground } from './background';
+import { createStars, drawBackground, tickStars } from './background';
 import { drawHUD, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
 
@@ -12,6 +12,7 @@ const createState = (status = GameStatus.PLAYING): GameState => ({
   status,
   player: createSpaceship(),
   asteroids: [],
+  stars: createStars(),
   score: 0,
   spawnTimer: 0
 });
@@ -88,15 +89,17 @@ export default function Game() {
     window.addEventListener('keyup', onKeyUp);
 
     // ----- Update -----
-    const update = (dt: number) => {
+    const update = (deltaTime: number) => {
       const state = stateRef.current;
       if (state.status !== GameStatus.PLAYING) {
         return;
       }
 
-      tickSpaceships(state, dt);
+      tickStars(state.stars, deltaTime);
 
-      const { hit } = tickAsteroids(state, dt);
+      tickSpaceships(state, deltaTime);
+
+      const { hit } = tickAsteroids(state, deltaTime);
       if (hit) {
         state.status = GameStatus.OVER;
         if (state.score > bestRef.current) {
@@ -109,7 +112,7 @@ export default function Game() {
     const draw = () => {
       const state = stateRef.current;
 
-      drawBackground(ctx);
+      drawBackground(ctx, state.stars);
       for (const asteroid of state.asteroids.filter(a => a.active)) {
         drawAsteroid(ctx, asteroid);
       }

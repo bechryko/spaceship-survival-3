@@ -1,4 +1,5 @@
 import { Asteroid } from '../asteroids';
+import { Star } from '../background';
 import { Spaceship } from '../spaceships';
 
 export enum GameStatus {
@@ -11,6 +12,7 @@ export interface GameState {
   status: GameStatus;
   player: Spaceship;
   asteroids: Asteroid[];
+  stars: Star[];
   score: number;
   spawnTimer: number;
 }
