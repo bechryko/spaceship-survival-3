@@ -1,4 +1,4 @@
-import { GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
+import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
 import { GameState, GameStatus } from './game-state';
 
 const HUD_GAME_OVER_OVERLAY_COLOR = 'rgba(20, 33, 61, 0.78)';
@@ -23,16 +23,17 @@ function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
       700,
       HUD_FONT_SIZE * 2
     );
-    if (state.status === GameStatus.OVER) {
-      drawText(
-        ctx,
-        `Your score: ${state.score}. Press ${START_PAUSE_KEY_CODE} to restart!`,
-        GAME_WIDTH / 2,
-        GAME_HEIGHT / 2 + 20,
-        400,
-        HUD_FONT_SIZE
-      );
-    }
+
+    drawText(
+      ctx,
+      state.status === GameStatus.OVER
+        ? `Your score: ${state.score}. Press ${START_PAUSE_KEY_CODE} to restart or ${EXIT_KEY_CODE} to exit to the menu!`
+        : `Press ${EXIT_KEY_CODE} to exit to the menu!`,
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2 + 20,
+      400,
+      HUD_FONT_SIZE
+    );
   }
 }
 

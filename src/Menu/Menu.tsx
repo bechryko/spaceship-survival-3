@@ -1,13 +1,13 @@
+import { NavLink } from 'react-router';
 import './Menu.css';
 
-type MenuProps = {
-  onStartGame: () => void;
-};
-
-export default function Menu({ onStartGame }: MenuProps) {
+export default function Menu() {
   return (
-    <section>
-      <button onClick={onStartGame}>Play</button>
-    </section>
+    <main className="menu">
+      <h1>Spaceship Survival 3</h1>
+      <section>
+        <NavLink to="/play">Play Singleplayer</NavLink>
+      </section>
+    </main>
   );
 }

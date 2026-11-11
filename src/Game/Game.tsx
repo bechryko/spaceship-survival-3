@@ -1,9 +1,11 @@
 import './Game.css';
 
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
+import { useSettings } from '../context';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { drawBackground } from './background';
-import { drawHUD, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
+import { drawHUD, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
 
 const createState = (status = GameStatus.PLAYING): GameState => ({
@@ -21,12 +23,16 @@ export default function Game() {
 
   const [best, setBest] = useState(0);
 
+  const { settings } = useSettings();
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
 
     // Crisp rendering on HiDPI screens
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = (window.devicePixelRatio || 1) * settings.resolutionMultiplier;
     canvas.width = GAME_WIDTH * dpr;
     canvas.height = GAME_HEIGHT * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -40,6 +46,11 @@ export default function Game() {
       }
 
       switch (event.code) {
+        case EXIT_KEY_CODE:
+          if ([GameStatus.PAUSED, GameStatus.OVER].includes(s.status)) {
+            navigate('/menu');
+          }
+          break;
         case START_PAUSE_KEY_CODE:
           switch (s.status) {
             case GameStatus.PLAYING:
@@ -124,21 +135,7 @@ export default function Game() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, []);
+  });
 
-  return (
-    <canvas
-      ref={canvasRef}
-      aria-label={`High score: ${best}`}
-      style={{
-        width: '100%',
-        maxWidth: GAME_WIDTH,
-        aspectRatio: `${GAME_WIDTH} / ${GAME_HEIGHT}`,
-        touchAction: 'none',
-        display: 'block',
-        margin: '0 auto',
-        borderRadius: 8
-      }}
-    />
-  );
+  return <canvas ref={canvasRef} aria-label={`High score: ${best}`} />;
 }

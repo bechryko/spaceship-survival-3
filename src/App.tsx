@@ -1,21 +1,16 @@
-import { useState } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router';
 import './App.css';
 import Game from './Game/Game';
 import Menu from './Menu/Menu';
 
 export default function App() {
-  const [inGame, setInGame] = useState<boolean>(false);
-
-  function startGame() {
-    setInGame(true);
-  }
-
-  const renderedPage = !inGame ? <Menu onStartGame={startGame}></Menu> : <Game></Game>;
-
   return (
-    <>
-      <h1>Spaceship Survival 3</h1>
-      {renderedPage}
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Menu></Menu>}></Route>
+        <Route path="/menu" element={<Menu></Menu>}></Route>
+        <Route path="/play" element={<Game></Game>}></Route>
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -1,0 +1,7 @@
+canvas {
+  display: block;
+  max-width: 100dvw;
+  max-height: 100dvh;
+  aspect-ratio: 16 / 9;
+  margin: auto;
+}
