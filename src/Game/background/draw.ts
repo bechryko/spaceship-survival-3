@@ -9,9 +9,15 @@ const LARGE_STAR_SPIKE_MAX_MULTIPLIER = 6.5;
 const LARGE_STAR_SPIKE_MIN_WIDTH = 0.7;
 const LARGE_STAR_SPIKE_SIZE_SCALE = 0.12;
 
-export function drawBackground(ctx: CanvasRenderingContext2D, stars: readonly Star[]): void {
-  ctx.fillStyle = BACKGROUND_COLOR;
-  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+export function drawBackground(
+  ctx: CanvasRenderingContext2D,
+  stars: readonly Star[],
+  backgroundColor = BACKGROUND_COLOR,
+  width = GAME_WIDTH,
+  height = GAME_HEIGHT
+): void {
+  ctx.fillStyle = backgroundColor;
+  ctx.fillRect(0, 0, width, height);
 
   for (const star of stars) {
     /* Two sine waves at different speeds give an irregular twinkle instead of a

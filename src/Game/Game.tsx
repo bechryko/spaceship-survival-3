@@ -140,5 +140,5 @@ export default function Game() {
     };
   });
 
-  return <canvas ref={canvasRef} aria-label={`High score: ${best}`} />;
+  return <canvas id="game-canvas" ref={canvasRef} aria-label={`High score: ${best}`} />;
 }

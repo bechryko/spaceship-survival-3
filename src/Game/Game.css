@@ -1,4 +1,4 @@
-canvas {
+canvas#game-canvas {
   display: block;
   max-width: 100dvw;
   max-height: 100dvh;

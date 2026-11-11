@@ -1,3 +1,26 @@
+.menu-screen {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+}
+
+.menu {
+  position: relative;
+  z-index: 1;
+  width: 50rem;
+  height: 100dvh;
+  margin: 0 auto;
+  border-inline: 1px solid var(--border-color);
+  padding: 2.5rem 3.5rem;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: rgba(22, 26, 56, 0.35);
+  backdrop-filter: blur(0.5rem);
+  -webkit-backdrop-filter: blur(0.5rem); /* Safari */
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
 h1 {
   color: var(--heading-color);
   font-size: 56px;
@@ -22,7 +45,7 @@ section {
     background-color: var(--button-background-color);
     padding-block: 0.25rem;
     border-radius: 0.25rem;
-    width: 50%;
+    width: 75%;
     transition: background-color 0.25s ease;
     user-select: none;
 

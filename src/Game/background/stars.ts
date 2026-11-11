@@ -25,10 +25,10 @@ export interface Star {
   tint: string;
 }
 
-export function createStars(): Star[] {
-  return Array.from({ length: STAR_COUNT }, () => ({
-    x: Math.random() * GAME_WIDTH,
-    y: Math.random() * GAME_HEIGHT,
+export function createStars(width = GAME_WIDTH, height = GAME_HEIGHT, starCount = STAR_COUNT): Star[] {
+  return Array.from({ length: starCount }, () => ({
+    x: Math.random() * width,
+    y: Math.random() * height,
     size:
       Math.random() < SMALL_STAR_CHANCE
         ? between(SMALL_STAR_MIN_SIZE, SMALL_STAR_MAX_SIZE, { floor: false })
