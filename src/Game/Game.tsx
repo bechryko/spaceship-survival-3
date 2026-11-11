@@ -110,7 +110,7 @@ export default function Game() {
       const state = stateRef.current;
 
       drawBackground(ctx);
-      for (const asteroid of state.asteroids) {
+      for (const asteroid of state.asteroids.filter(a => a.active)) {
         drawAsteroid(ctx, asteroid);
       }
       drawSpaceship(ctx, state.player);

@@ -7,4 +7,5 @@ export interface Asteroid {
   velocity: number;
   angle: number;
   shape: AsteroidShape;
+  active: boolean;
 }

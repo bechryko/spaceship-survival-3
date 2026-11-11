@@ -5,31 +5,46 @@ import { ASTEROID_SPAWN_TIME } from './constants';
 import { createAsteroid } from './create';
 
 export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
-  // Spawn asteroids – faster as the score climbs
   state.spawnTimer -= deltaTime;
+
   if (state.spawnTimer <= 0) {
-    state.asteroids.push(createAsteroid(state.score));
-    state.score++;
-    state.spawnTimer = ASTEROID_SPAWN_TIME;
+    spawnAsteroid(state);
+    console.log(state.asteroids.length, state.asteroids.filter(a => a.active).length);
   }
 
-  // Move asteroids, cull off-screen, check collisions
-  for (const rock of state.asteroids) {
-    rock.y += rock.velocity * deltaTime;
+  for (const asteroid of state.asteroids.filter(a => a.active)) {
+    asteroid.y += asteroid.velocity * deltaTime;
 
     const { player } = state;
-    const lx = rock.x - player.x;
-    const ly = rock.y - player.y;
+    const lx = asteroid.x - player.x;
+    const ly = asteroid.y - player.y;
 
-    // Test in the ship's local space so the hull polygon never needs re-translating
     const hit =
-      Math.hypot(lx, ly) <= boundingRadius(SHIP_HULL) + rock.r &&
-      polygonsCollide(SHIP_HULL, transformPolygon(rock.shape.points, rock.r, rock.angle, lx, ly));
+      Math.hypot(lx, ly) <= boundingRadius(SHIP_HULL) + asteroid.r &&
+      polygonsCollide(SHIP_HULL, transformPolygon(asteroid.shape.points, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
       return { hit: true };
     }
   }
-  state.asteroids = state.asteroids.filter(r => r.y - r.r < GAME_HEIGHT);
+
+  state.asteroids
+    .filter(a => a.active)
+    .filter(a => a.y - a.r > GAME_HEIGHT)
+    .forEach(a => {
+      a.active = false;
+    });
 
   return { hit: false };
+}
+
+function spawnAsteroid(state: GameState): void {
+  const inactiveAsteroid = state.asteroids.find(a => !a.active);
+  if (inactiveAsteroid) {
+    createAsteroid(state.score, inactiveAsteroid);
+  } else {
+    state.asteroids.push(createAsteroid(state.score));
+  }
+
+  state.score++;
+  state.spawnTimer = ASTEROID_SPAWN_TIME;
 }

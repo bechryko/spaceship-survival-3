@@ -11,7 +11,7 @@ const ASTEROID_X_SPAWN_SPLIT = 4;
 
 let lastSplit = ASTEROID_X_SPAWN_SPLIT;
 
-export function createAsteroid(score: number): Asteroid {
+export function createAsteroid(score: number, object: Partial<Asteroid> = {}): Asteroid {
   const r = between(STARTING_MIN_ASTEROID_SIZE, STARTING_MAX_ASTEROID_SIZE) + ASTEROID_SIZE_INCREASE_PER_POINT * score;
   let split = between(0, ASTEROID_X_SPAWN_SPLIT - 1, { includeMax: false });
   if (split >= lastSplit) {
@@ -23,12 +23,16 @@ export function createAsteroid(score: number): Asteroid {
   const splitEnd = (GAME_WIDTH / ASTEROID_X_SPAWN_SPLIT) * (split + 1);
   const x = between(splitStart, splitEnd, { includeMax: false });
 
-  return {
+  Object.assign(object, {
     x,
     y: -r,
     r,
     velocity: 140,
     angle: Math.random() * Math.PI * 2,
-    shape: createAsteroidShape()
-  };
+    active: true
+  });
+
+  object.shape = createAsteroidShape();
+
+  return object as Asteroid;
 }
