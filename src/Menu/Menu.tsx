@@ -21,7 +21,7 @@ export default function Menu() {
           <NavLink className="button" to="/play">
             Play
           </NavLink>
-          <NavLink className="button" to="./settings">
+          <NavLink className="button" to="menu/settings">
             Settings
           </NavLink>
         </section>

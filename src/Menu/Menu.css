@@ -10,4 +10,9 @@ section {
   align-items: center;
   gap: 1rem;
   padding: 2rem;
+  padding-bottom: 0;
+
+  > * {
+    width: 75%;
+  }
 }

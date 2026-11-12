@@ -26,6 +26,11 @@
   min-height: 100svh;
   box-sizing: border-box;
   overflow: hidden;
+
+  &:has(> #game-canvas) {
+    display: grid;
+    place-items: center;
+  }
 }
 
 body {
@@ -49,22 +54,47 @@ main {
   box-sizing: border-box;
 }
 
-button,
-a.button {
+.button {
+  position: relative;
+  isolation: isolate;
   display: block;
   font-size: 1rem;
+  font-weight: 600;
   color: white;
   text-decoration: none;
   text-align: center;
-  background-color: var(--button-background-color);
-  padding-block: 0.25rem;
-  border-radius: 0.25rem;
-  width: 75%;
-  transition: background-color 0.25s ease;
+  padding-block: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.25);
+  transition: transform 0.1s ease;
   user-select: none;
 
-  &:hover {
-    background-color: var(--button-background-color-hover);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #cfe3ff;
+    outline-offset: 2px;
   }
 }
 

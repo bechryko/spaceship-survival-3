@@ -1,0 +1,8 @@
+main.settings {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+a.button {
+  margin-top: auto;
+}
