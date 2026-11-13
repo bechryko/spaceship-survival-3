@@ -8,15 +8,20 @@ import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import { drawHUD, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
-import { collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
+import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
 const createState = (status = GameStatus.PLAYING): GameState => ({
   status,
+  statistics: {
+    time: 0,
+    asteroidsSpawned: 0,
+    asteroidsDestroyed: 0,
+    abilitiesUsed: 0
+  },
   player: createSpaceship(),
   asteroids: [],
   entities: [],
   stars: createStars(),
-  score: 0,
   spawnTimer: 0
 });
 
@@ -45,26 +50,26 @@ export default function Game() {
 
     // ----- Input -----
     const onKeyDown = (event: KeyboardEvent) => {
-      const s = stateRef.current;
-      const playerControls = s.player.controls;
-      const playerAbilities = s.player.abilities;
+      const state = stateRef.current;
+      const playerControls = state.player.controls;
+      const playerAbilities = state.player.abilities;
       if (playerControlKeys.includes(event.code)) {
         event.preventDefault();
       }
 
       switch (event.code) {
         case EXIT_KEY_CODE:
-          if ([GameStatus.PAUSED, GameStatus.OVER].includes(s.status)) {
+          if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status)) {
             navigate('/menu');
           }
           break;
         case START_PAUSE_KEY_CODE:
-          switch (s.status) {
+          switch (state.status) {
             case GameStatus.PLAYING:
-              s.status = GameStatus.PAUSED;
+              state.status = GameStatus.PAUSED;
               break;
             case GameStatus.PAUSED:
-              s.status = GameStatus.PLAYING;
+              state.status = GameStatus.PLAYING;
               break;
             case GameStatus.OVER:
               stateRef.current = createState(GameStatus.PLAYING);
@@ -81,12 +86,13 @@ export default function Game() {
           forEachAbility(abilityIdx => {
             const ability = playerAbilities[abilityIdx];
             const abilityProfile = playerAbilities.profile[abilityIdx];
-            const almanacEntry = getAlmanacForAbilities(s.player)[abilityIdx];
+            const almanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
 
             if (event.code === ability.key && ability.cooldownTimer === 0) {
-              abilityProfile.callback(s.player, s);
+              abilityProfile.callback(state.player, state);
               ability.activeTimer = almanacEntry.activeTime;
               ability.cooldownTimer = almanacEntry.cooldown + almanacEntry.activeTime;
+              state.statistics.abilitiesUsed++;
             }
           });
       }
@@ -113,20 +119,21 @@ export default function Game() {
         return;
       }
 
+      state.statistics.time += deltaTime;
+
       tickStars(state.stars, deltaTime);
-
       tickSpaceships(state, deltaTime);
-
+      tickEntities(state, deltaTime);
       const { hit } = tickAsteroids(state, deltaTime);
       if (hit) {
         state.status = GameStatus.OVER;
-        if (state.score > bestRef.current) {
-          bestRef.current = state.score;
-          setBest(state.score);
+        const score = calculateScore(state.statistics);
+
+        if (score > bestRef.current) {
+          bestRef.current = score;
+          setBest(score);
         }
       }
-
-      tickEntities(state, deltaTime);
     };
 
     const draw = () => {

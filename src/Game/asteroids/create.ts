@@ -13,8 +13,8 @@ const MIN_X_DISTANCE_FROM_LAST = GAME_WIDTH / 4;
 
 let lastX: number | null = null;
 
-export function createAsteroid(score: number, object: Partial<Asteroid> = {}): Asteroid {
-  const increase = Math.min(MAX_ASTEROID_SIZE_INCREASE, ASTEROID_SIZE_INCREASE_PER_POINT * score);
+export function createAsteroid(asteroidsSpawned: number, object: Partial<Asteroid> = {}): Asteroid {
+  const increase = Math.min(MAX_ASTEROID_SIZE_INCREASE, ASTEROID_SIZE_INCREASE_PER_POINT * asteroidsSpawned);
   const r = between(STARTING_MIN_ASTEROID_SIZE, STARTING_MAX_ASTEROID_SIZE + increase);
 
   const x = pickSpawnX(lastX);

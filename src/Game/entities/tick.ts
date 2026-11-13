@@ -1,6 +1,5 @@
-import { Asteroid } from '../asteroids';
+import { Asteroid, destroyAsteroid } from '../asteroids';
 import { GameState } from '../hud';
-import { explode } from './create';
 import { EntityType, Explosion, Laser, Rocket } from './entities';
 
 export const EXPLOSION_DURATION = 0.6;
@@ -21,6 +20,8 @@ export function tickEntities(state: GameState, deltaTime: number): void {
   }
 }
 
+const ROCKET_EXPLOSION_RADIUS_MULTIPLIER = 1.6;
+
 function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
   const { asteroids } = state;
   const fromY = rocket.y;
@@ -31,13 +32,14 @@ function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
   if (hitIdx !== -1) {
     const target = asteroids[hitIdx];
 
-    explode(state, target.x, target.y, target.r * 1.6);
-    asteroids.splice(hitIdx, 1);
+    destroyAsteroid(target, state, ROCKET_EXPLOSION_RADIUS_MULTIPLIER);
     state.entities.splice(rocketIdx, 1);
   } else if (rocket.y < -30) {
     state.entities.splice(rocketIdx, 1);
   }
 }
+
+const LASER_EXPLOSION_RADIUS_MULTIPLIER = 1.1;
 
 function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
   laser.timeLeft = Math.max(0, laser.timeLeft - deltaTime);
@@ -56,8 +58,7 @@ function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
     const aboveEmitter = asteroid.y - asteroid.r * 0.9 <= beamBottom;
 
     if (onScreen && aboveEmitter && Math.abs(asteroid.x - beamX) <= reach) {
-      explode(state, asteroid.x, asteroid.y, asteroid.r * 1.2);
-      state.asteroids.splice(i, 1);
+      destroyAsteroid(asteroid, state, LASER_EXPLOSION_RADIUS_MULTIPLIER);
     }
   }
 

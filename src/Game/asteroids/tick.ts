@@ -38,13 +38,13 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
 function spawnAsteroid(state: GameState): void {
   const inactiveAsteroid = state.asteroids.find(a => !a.active);
   if (inactiveAsteroid) {
-    createAsteroid(state.score, inactiveAsteroid);
+    createAsteroid(state.statistics.asteroidsSpawned, inactiveAsteroid);
   } else {
-    state.asteroids.push(createAsteroid(state.score));
+    state.asteroids.push(createAsteroid(state.statistics.asteroidsSpawned));
   }
 
-  state.score++;
-  state.spawnTimer = getAsteroidSpawnTimer(state.score);
+  state.statistics.asteroidsSpawned++;
+  state.spawnTimer = getAsteroidSpawnTimer(state.statistics.asteroidsSpawned);
 }
 
 const SPAWN_SLOW_SCORE = 25;

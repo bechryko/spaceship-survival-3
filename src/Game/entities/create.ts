@@ -11,7 +11,6 @@ const EXPLOSION_SPARK_MAX_SIZE = 4;
 export function explode(state: GameState, x: number, y: number, r: number) {
   state.entities.push({
     type: EntityType.EXPLOSION,
-    isDestructive: false,
     x,
     y,
     r,

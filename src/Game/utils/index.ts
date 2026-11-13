@@ -1,3 +1,4 @@
+export * from './calculate-score';
 export * from './canvas-multiline-text';
 export * from './polygons';
 export * from './random';
