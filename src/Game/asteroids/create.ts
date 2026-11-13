@@ -6,23 +6,19 @@ import { createAsteroidShape } from './hitbox';
 
 const STARTING_MIN_ASTEROID_SIZE = 75;
 const STARTING_MAX_ASTEROID_SIZE = 125;
-const ASTEROID_SIZE_INCREASE_PER_POINT = 1;
+const ASTEROID_SIZE_INCREASE_PER_POINT = 1.5;
+const MAX_ASTEROID_SIZE_INCREASE = 75;
 
-const ASTEROID_X_SPAWN_SPLIT = 4;
+const MIN_X_DISTANCE_FROM_LAST = GAME_WIDTH / 4;
 
-let lastSplit = ASTEROID_X_SPAWN_SPLIT;
+let lastX: number | null = null;
 
 export function createAsteroid(score: number, object: Partial<Asteroid> = {}): Asteroid {
-  const r = between(STARTING_MIN_ASTEROID_SIZE, STARTING_MAX_ASTEROID_SIZE) + ASTEROID_SIZE_INCREASE_PER_POINT * score;
-  let split = between(0, ASTEROID_X_SPAWN_SPLIT - 1, { includeMax: false });
-  if (split >= lastSplit) {
-    split++;
-  }
-  lastSplit = split;
+  const increase = Math.min(MAX_ASTEROID_SIZE_INCREASE, ASTEROID_SIZE_INCREASE_PER_POINT * score);
+  const r = between(STARTING_MIN_ASTEROID_SIZE, STARTING_MAX_ASTEROID_SIZE + increase);
 
-  const splitStart = (GAME_WIDTH / ASTEROID_X_SPAWN_SPLIT) * split;
-  const splitEnd = (GAME_WIDTH / ASTEROID_X_SPAWN_SPLIT) * (split + 1);
-  const x = between(splitStart, splitEnd, { includeMax: false });
+  const x = pickSpawnX(lastX);
+  lastX = x;
 
   Object.assign(object, {
     x,
@@ -39,4 +35,22 @@ export function createAsteroid(score: number, object: Partial<Asteroid> = {}): A
   object.craters = createCraters(object.shape!);
 
   return object as Asteroid;
+}
+
+function pickSpawnX(previousX: number | null): number {
+  if (previousX === null) {
+    return Math.random() * GAME_WIDTH;
+  }
+
+  const rightStart = previousX + MIN_X_DISTANCE_FROM_LAST;
+  const leftLength = Math.max(0, previousX - MIN_X_DISTANCE_FROM_LAST);
+  const rightLength = Math.max(0, GAME_WIDTH - rightStart);
+  const totalLength = leftLength + rightLength;
+
+  if (totalLength === 0) {
+    return previousX < GAME_WIDTH / 2 ? GAME_WIDTH : 0;
+  }
+
+  const pick = Math.random() * totalLength;
+  return pick < leftLength ? pick : rightStart + (pick - leftLength);
 }

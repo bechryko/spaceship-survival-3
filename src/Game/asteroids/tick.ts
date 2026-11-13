@@ -1,7 +1,6 @@
 import { GAME_HEIGHT, GameState } from '../hud';
 import { SHIP_HULL } from '../spaceships';
 import { boundingRadius, polygonsCollide, transformPolygon } from '../utils';
-import { ASTEROID_SPAWN_TIME } from './constants';
 import { createAsteroid } from './create';
 
 export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
@@ -45,5 +44,16 @@ function spawnAsteroid(state: GameState): void {
   }
 
   state.score++;
-  state.spawnTimer = ASTEROID_SPAWN_TIME;
+  state.spawnTimer = getAsteroidSpawnTimer(state.score);
+}
+
+const SPAWN_SLOW_SCORE = 25;
+const SPAWN_FAST_SCORE = 100;
+const SPAWN_SLOW_INTERVAL = 1;
+const SPAWN_FAST_INTERVAL = 0.5;
+
+function getAsteroidSpawnTimer(score: number) {
+  const progress = (score - SPAWN_SLOW_SCORE) / (SPAWN_FAST_SCORE - SPAWN_SLOW_SCORE);
+  const t = Math.min(1, Math.max(0, progress));
+  return SPAWN_SLOW_INTERVAL + (SPAWN_FAST_INTERVAL - SPAWN_SLOW_INTERVAL) * t;
 }
