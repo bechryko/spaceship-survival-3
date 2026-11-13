@@ -5,13 +5,16 @@ import { useNavigate } from 'react-router';
 import { useSettings } from '../context';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
+import { drawEntities, tickEntities } from './entities';
 import { drawHUD, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
+import { collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
 const createState = (status = GameStatus.PLAYING): GameState => ({
   status,
   player: createSpaceship(),
   asteroids: [],
+  entities: [],
   stars: createStars(),
   score: 0,
   spawnTimer: 0
@@ -38,11 +41,14 @@ export default function Game() {
     canvas.height = GAME_HEIGHT * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+    const playerControlKeys = collectPlayerControls(stateRef.current.player);
+
     // ----- Input -----
     const onKeyDown = (event: KeyboardEvent) => {
       const s = stateRef.current;
       const playerControls = s.player.controls;
-      if ([playerControls.leftKeyCode, playerControls.rightKeyCode, START_PAUSE_KEY_CODE].includes(event.code)) {
+      const playerAbilities = s.player.abilities;
+      if (playerControlKeys.includes(event.code)) {
         event.preventDefault();
       }
 
@@ -71,6 +77,18 @@ export default function Game() {
         case playerControls.rightKeyCode:
           playerControls.right = true;
           break;
+        default:
+          forEachAbility(abilityIdx => {
+            const ability = playerAbilities[abilityIdx];
+            const abilityProfile = playerAbilities.profile[abilityIdx];
+            const almanacEntry = getAlmanacForAbilities(s.player)[abilityIdx];
+
+            if (event.code === ability.key && ability.cooldownTimer === 0) {
+              abilityProfile.callback(s.player, s);
+              ability.activeTimer = almanacEntry.activeTime;
+              ability.cooldownTimer = almanacEntry.cooldown + almanacEntry.activeTime;
+            }
+          });
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
@@ -107,6 +125,8 @@ export default function Game() {
           setBest(state.score);
         }
       }
+
+      tickEntities(state, deltaTime);
     };
 
     const draw = () => {
@@ -116,6 +136,7 @@ export default function Game() {
       for (const asteroid of state.asteroids.filter(a => a.active)) {
         drawAsteroid(ctx, asteroid);
       }
+      drawEntities(ctx, state.entities);
       drawSpaceship(ctx, state.player);
       drawHUD(ctx, state, bestRef.current);
     };
