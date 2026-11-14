@@ -21,7 +21,7 @@ export function drawHUD(
   ctx.textAlign = 'right';
   drawText(ctx, `Best: ${highscore}`, GAME_WIDTH - HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
 
-  drawAbilityHud(ctx, state.player);
+  drawAbilityHud(ctx, state.player, state);
   if (fpsCounter) {
     drawFps(ctx, fpsCounter);
   }
@@ -30,7 +30,7 @@ export function drawHUD(
 }
 
 const ABILITY_HUD_TOP_MARGIN = 5;
-const ABILITY_HUD_X_MARGIN = 140;
+const ABILITY_HUD_X_MARGIN = 145;
 const ABILITY_HUD_PLAYER_INDICATOR_OFFSET = 7;
 const ABILITY_HUD_SLOT_SIZE = 44;
 const ABILITY_HUD_SLOT_GAP = 15;
@@ -51,8 +51,12 @@ const ABILITY_HUD_SLOT_NAME_TEXT_COLOR = 'rgba(232, 241, 242, 0.7)';
 const ABILITY_HUD_SLOT_NAME_TEXT_SIZE = 11;
 const ABILITY_HUD_SLOT_NAME_LINE_HEIGHT = 12;
 const ABILITY_HUD_SLOT_NAME_TEXT_WEIGHT = 500;
+const ABILITY_HUD_SLOT_DISABLED_BACKGROUND_COLOR = 'rgba(255, 255, 255, 0.04)';
+const ABILITY_HUD_SLOT_DISABLED_BORDER_COLOR = 'rgba(255, 255, 255, 0.18)';
+const ABILITY_HUD_SLOT_DISABLED_TEXT_COLOR = 'rgba(232, 241, 242, 0.3)';
+const ABILITY_HUD_SLOT_DISABLED_NAME_TEXT_COLOR = 'rgba(232, 241, 242, 0.3)';
 
-function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship): void {
+function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
   const { abilities } = player;
   const almanac = getAlmanacForAbilities(player);
   const slots = [
@@ -61,21 +65,24 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship): void 
       label: almanac.q.name.replaceAll(' ', '\n'),
       remaining: abilities.q.cooldownTimer,
       total: almanac.q.cooldown,
-      active: abilities.q.activeTimer
+      active: abilities.q.activeTimer,
+      disabled: player.abilities.profile.q.isDisabled?.(player, state)
     },
     {
       key: 'W',
       label: almanac.w.name.replaceAll(' ', '\n'),
       remaining: abilities.w.cooldownTimer,
       total: almanac.w.cooldown,
-      active: abilities.w.activeTimer
+      active: abilities.w.activeTimer,
+      disabled: player.abilities.profile.w.isDisabled?.(player, state)
     },
     {
       key: 'E',
       label: almanac.e.name.replaceAll(' ', '\n'),
       remaining: abilities.e.cooldownTimer,
       total: almanac.e.cooldown,
-      active: abilities.e.activeTimer
+      active: abilities.e.activeTimer,
+      disabled: player.abilities.profile.e.isDisabled?.(player, state)
     }
   ];
 
@@ -98,13 +105,18 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship): void 
     const x = ABILITY_HUD_X_MARGIN + i * (ABILITY_HUD_SLOT_SIZE + ABILITY_HUD_SLOT_GAP);
     const cx = x + ABILITY_HUD_SLOT_SIZE / 2;
     const cy = totalTopMargin + ABILITY_HUD_SLOT_SIZE / 2;
-    const isActive = slot.active > 0;
-    const isCoolingDown = slot.remaining > 0 && !isActive;
+    const isDisabled = slot.disabled;
+    const isActive = !isDisabled && slot.active > 0;
+    const isCoolingDown = !isDisabled && slot.remaining > 0 && !isActive;
 
     // Glass background
     ctx.beginPath();
     ctx.roundRect(x, totalTopMargin, ABILITY_HUD_SLOT_SIZE, ABILITY_HUD_SLOT_SIZE, ABILITY_HUD_SLOT_BORDER_RADIUS);
-    ctx.fillStyle = isActive ? ABILITY_HUD_SLOT_ACTIVE_BACKGROUND_COLOR : ABILITY_HUD_SLOT_DEFAULT_BACKGROUND_COLOR;
+    ctx.fillStyle = isDisabled
+      ? ABILITY_HUD_SLOT_DISABLED_BACKGROUND_COLOR
+      : isActive
+        ? ABILITY_HUD_SLOT_ACTIVE_BACKGROUND_COLOR
+        : ABILITY_HUD_SLOT_DEFAULT_BACKGROUND_COLOR;
     ctx.fill();
 
     // Cooldown sweep
@@ -121,23 +133,27 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship): void 
       ctx.restore();
     }
 
-    // Border: bright when ready or active, faint while cooling down
+    // Border: bright when ready or active, faint while cooling down, dashed and faint when disabled
     ctx.beginPath();
     ctx.roundRect(x, totalTopMargin, ABILITY_HUD_SLOT_SIZE, ABILITY_HUD_SLOT_SIZE, ABILITY_HUD_SLOT_BORDER_RADIUS);
     ctx.lineWidth = 1.5;
-    ctx.strokeStyle = isActive
-      ? ABILITY_HUD_SLOT_ACTIVE_BORDER_COLOR
-      : isCoolingDown
-        ? ABILITY_HUD_SLOT_COOLDOWN_BORDER_COLOR
-        : ABILITY_HUD_SLOT_READY_BORDER_COLOR;
+    ctx.strokeStyle = isDisabled
+      ? ABILITY_HUD_SLOT_DISABLED_BORDER_COLOR
+      : isActive
+        ? ABILITY_HUD_SLOT_ACTIVE_BORDER_COLOR
+        : isCoolingDown
+          ? ABILITY_HUD_SLOT_COOLDOWN_BORDER_COLOR
+          : ABILITY_HUD_SLOT_READY_BORDER_COLOR;
     ctx.stroke();
 
     // Centre text: key when ready, seconds left while cooling down or active
-    ctx.fillStyle = isActive
-      ? ABILITY_HUD_SLOT_ACTIVE_TEXT_COLOR
-      : isCoolingDown
-        ? ABILITY_HUD_SLOT_COOLDOWN_TEXT_COLOR
-        : ABILITY_HUD_SLOT_READY_TEXT_COLOR;
+    ctx.fillStyle = isDisabled
+      ? ABILITY_HUD_SLOT_DISABLED_TEXT_COLOR
+      : isActive
+        ? ABILITY_HUD_SLOT_ACTIVE_TEXT_COLOR
+        : isCoolingDown
+          ? ABILITY_HUD_SLOT_COOLDOWN_TEXT_COLOR
+          : ABILITY_HUD_SLOT_READY_TEXT_COLOR;
     setFont(ctx, ABILITY_HUD_SLOT_TEXT_WEIGHT, ABILITY_HUD_SLOT_TEXT_SIZE);
     ctx.fillText(
       isActive ? slot.active.toFixed(1) : isCoolingDown ? String(Math.ceil(slot.remaining)) : slot.key,
@@ -146,7 +162,7 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship): void 
     );
 
     // Small ability name under the slot
-    ctx.fillStyle = ABILITY_HUD_SLOT_NAME_TEXT_COLOR;
+    ctx.fillStyle = isDisabled ? ABILITY_HUD_SLOT_DISABLED_NAME_TEXT_COLOR : ABILITY_HUD_SLOT_NAME_TEXT_COLOR;
     setFont(ctx, ABILITY_HUD_SLOT_NAME_TEXT_WEIGHT, ABILITY_HUD_SLOT_NAME_TEXT_SIZE);
     fillMultilineText(
       ctx,

@@ -1,3 +1,7 @@
+import { GameState } from '../hud';
+import { AbilityClass } from './ability-class';
+import { Spaceship } from './spaceship';
+
 export type SpaceshipAbilityIndex = 'q' | 'w' | 'e';
 
 export interface SpaceshipAbilities extends Record<SpaceshipAbilityIndex, SpaceshipAbility> {
@@ -16,4 +20,5 @@ export interface SpaceshipAbilitiesProfile extends Record<SpaceshipAbilityIndex,
 
 export interface SpaceshipAbilityProfile {
   callback: (spaceship: Spaceship, state: GameState) => void;
+  isDisabled?: (spaceship: Spaceship, state: GameState) => boolean;
 }

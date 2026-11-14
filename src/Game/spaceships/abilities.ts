@@ -21,6 +21,9 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
     w: {
       callback: (spaceship: Spaceship) => {
         spaceship.abilities.q.cooldownTimer = 0;
+      },
+      isDisabled: (spaceship: Spaceship) => {
+        return spaceship.abilities.q.cooldownTimer === 0;
       }
     },
     e: {

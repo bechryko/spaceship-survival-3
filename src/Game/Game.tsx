@@ -95,18 +95,24 @@ export default function Game() {
           playerControls.right = true;
           break;
         default:
-          forEachAbility(abilityIdx => {
-            const ability = playerAbilities[abilityIdx];
-            const abilityProfile = playerAbilities.profile[abilityIdx];
-            const almanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
+          if (state.status === GameStatus.PLAYING) {
+            forEachAbility(abilityIdx => {
+              const abilityProfile = playerAbilities.profile[abilityIdx];
+              if (abilityProfile.isDisabled?.(state.player, state)) {
+                return;
+              }
 
-            if (event.code === ability.key && ability.cooldownTimer === 0) {
-              abilityProfile.callback(state.player, state);
-              ability.activeTimer = almanacEntry.activeTime;
-              ability.cooldownTimer = almanacEntry.cooldown + almanacEntry.activeTime;
-              state.statistics.abilitiesUsed++;
-            }
-          });
+              const ability = playerAbilities[abilityIdx];
+              const almanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
+
+              if (event.code === ability.key && ability.cooldownTimer === 0) {
+                abilityProfile.callback(state.player, state);
+                ability.activeTimer = almanacEntry.activeTime;
+                ability.cooldownTimer = almanacEntry.cooldown + almanacEntry.activeTime;
+                state.statistics.abilitiesUsed++;
+              }
+            });
+          }
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
