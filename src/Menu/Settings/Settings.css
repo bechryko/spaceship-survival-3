@@ -6,3 +6,7 @@ main.settings {
 a.button {
   margin-top: auto;
 }
+
+section {
+  gap: 2rem;
+}

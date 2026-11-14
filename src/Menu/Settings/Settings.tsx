@@ -1,7 +1,7 @@
 import './Settings.css';
 
 import { NavLink } from 'react-router';
-import { OptionStepper } from '../../components';
+import { OptionStepper, ToggleSwitch } from '../../components';
 import { useSettings } from '../../context';
 
 const RESOLUTION_OPTIONS = [
@@ -19,6 +19,12 @@ export default function Settings() {
       resolutionMultiplier
     });
 
+  const setShowFps = (showFps: boolean) =>
+    setSettings({
+      ...settings,
+      showFps
+    });
+
   return (
     <main className="settings">
       <h2>Settings</h2>
@@ -29,6 +35,7 @@ export default function Settings() {
           value={settings.resolutionMultiplier}
           onChange={setResolutionMultiplier}
         />
+        <ToggleSwitch label="FPS counter" checked={settings.showFps} onChange={setShowFps} />
         <NavLink className="button" to="/menu">
           Back to Menu
         </NavLink>

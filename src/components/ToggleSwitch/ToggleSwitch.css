@@ -1,0 +1,67 @@
+.toggle {
+  --toggle-width: 3.15rem;
+  --toggle-height: 1.75rem;
+  --toggle-knob-size: 1.25rem;
+  --toggle-padding: calc((var(--toggle-height) - 2px - var(--toggle-knob-size)) / 2);
+
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+}
+
+.toggle-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.toggle-track {
+  position: relative;
+  box-sizing: border-box;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(145deg, rgba(207, 227, 255, 0.5), rgba(207, 227, 255, 0.2));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  &[aria-checked='true']::before {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #cfe3ff;
+    outline-offset: 2px;
+  }
+}
+
+.toggle-knob {
+  position: absolute;
+  top: var(--toggle-padding);
+  left: var(--toggle-padding);
+  width: var(--toggle-knob-size);
+  height: var(--toggle-knob-size);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease;
+}
+
+.toggle-track[aria-checked='true'] .toggle-knob {
+  transform: translateX(calc(var(--toggle-width) - 2px - var(--toggle-knob-size) - var(--toggle-padding) * 2));
+}

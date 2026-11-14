@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 
 interface Settings {
   resolutionMultiplier: number;
+  showFps: boolean;
 }
 
 interface SettingsContextType {
@@ -13,12 +14,14 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>({
-    resolutionMultiplier: 2
+    resolutionMultiplier: 2,
+    showFps: false
   });
 
   return <SettingsContext.Provider value={{ settings, setSettings }}>{children}</SettingsContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSettings() {
   const context = useContext(SettingsContext);
 

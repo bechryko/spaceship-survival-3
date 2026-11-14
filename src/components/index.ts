@@ -1,1 +1,2 @@
-export * from './OptionStepper';
+export * from './OptionStepper/OptionStepper';
+export * from './ToggleSwitch/ToggleSwitch';

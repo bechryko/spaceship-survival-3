@@ -6,7 +6,17 @@ import { useSettings } from '../context';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
-import { drawHUD, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, GameState, GameStatus, START_PAUSE_KEY_CODE } from './hud';
+import {
+  createFpsCounter,
+  drawHUD,
+  EXIT_KEY_CODE,
+  GAME_HEIGHT,
+  GAME_WIDTH,
+  GameState,
+  GameStatus,
+  START_PAUSE_KEY_CODE,
+  tickFps
+} from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
 import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
@@ -35,6 +45,8 @@ export default function Game() {
   const { settings } = useSettings();
 
   const navigate = useNavigate();
+
+  const fpsCounter = createFpsCounter();
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -121,6 +133,7 @@ export default function Game() {
 
       state.statistics.time += deltaTime;
 
+      tickFps(fpsCounter, deltaTime);
       tickStars(state.stars, deltaTime);
       tickSpaceships(state, deltaTime);
       tickEntities(state, deltaTime);
@@ -145,7 +158,7 @@ export default function Game() {
       }
       drawEntities(ctx, state.entities);
       drawSpaceship(ctx, state.player);
-      drawHUD(ctx, state, bestRef.current);
+      drawHUD(ctx, state, bestRef.current, settings.showFps ? fpsCounter : null);
     };
 
     let rafId = 0;
