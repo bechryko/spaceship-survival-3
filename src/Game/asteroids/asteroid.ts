@@ -4,7 +4,8 @@ import { AsteroidShape } from './hitbox';
 export enum AsteroidType {
   REGULAR,
   ICY,
-  ICE_SHARD
+  ICE_SHARD,
+  IRON
 }
 
 export interface Asteroid {

@@ -62,9 +62,9 @@ export const icyAsteroidBlueprint: AsteroidBlueprint = {
   velocity: DEFAULT_ASTEROID_VELOCITY,
   minSize: 75,
   maxSize: 100,
-  sizeIncrease: 2,
+  sizeIncrease: 1.5,
   sizeIncreaseStart: 25,
-  sizeIncreaseMax: 100,
+  sizeIncreaseMax: 75,
   minVertexCount: 11,
   maxVertexCount: 16,
   maxReachIn: 0.6,
@@ -81,6 +81,33 @@ export const icyAsteroidBlueprint: AsteroidBlueprint = {
     maxCount: 11,
     minSize: 0.04,
     maxSize: 0.12
+  }
+};
+
+export const ironAsteroidBlueprint: AsteroidBlueprint = {
+  type: AsteroidType.IRON,
+  velocity: 100,
+  minSize: 60,
+  maxSize: 80,
+  sizeIncrease: 1,
+  sizeIncreaseStart: 25,
+  sizeIncreaseMax: 70,
+  minVertexCount: 9,
+  maxVertexCount: 13,
+  maxReachIn: 0.1,
+  color: {
+    minHue: 0,
+    maxHue: 255,
+    minLightness: 70,
+    maxLightness: 90,
+    minSaturation: 0,
+    maxSaturation: 0
+  },
+  craters: {
+    minCount: 6,
+    maxCount: 10,
+    minSize: 0.04,
+    maxSize: 0.16
   }
 };
 
@@ -111,14 +138,12 @@ export function createIceShardBlueprint(parent: Asteroid): AsteroidBlueprint {
 }
 
 export const ICY_ASTEROID_MIN_BREAK_OFF_TIME = 1;
-export const ICY_ASTEROID_MAX_BREAK_OFF_TIME = 3;
+export const ICY_ASTEROID_MAX_BREAK_OFF_TIME = 4;
 
-export const startingAsteroidDataProvider: Record<AsteroidType, () => AsteroidData> = {
-  [AsteroidType.REGULAR]: () => ({}),
+export const startingAsteroidDataProvider: Partial<Record<AsteroidType, () => AsteroidData>> = {
   [AsteroidType.ICY]: () => ({
     iceShardBreakOffTimer: between(ICY_ASTEROID_MIN_BREAK_OFF_TIME, ICY_ASTEROID_MAX_BREAK_OFF_TIME, { floor: false })
-  }),
-  [AsteroidType.ICE_SHARD]: () => ({})
+  })
 };
 
-export const level2AsteroidBlueprints = [icyAsteroidBlueprint];
+export const level2AsteroidBlueprints = [icyAsteroidBlueprint, ironAsteroidBlueprint];

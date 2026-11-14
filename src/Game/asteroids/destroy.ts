@@ -10,7 +10,11 @@ const ICY_ASTEROID_MAX_SHARD_RELEASE = 7;
 
 const ASTEROID_TYPES_NOT_COUNTING_TOWARDS_STATISTICS = [AsteroidType.ICE_SHARD];
 
-export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionRadiusMultiplier: number): void {
+export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionRadiusMultiplier: number): boolean {
+  if (asteroid.type === AsteroidType.IRON) {
+    return false;
+  }
+
   explode(state, asteroid.x, asteroid.y, asteroid.r * explosionRadiusMultiplier);
 
   const { asteroids } = state;
@@ -39,4 +43,6 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
       });
     }
   }
+
+  return true;
 }

@@ -49,6 +49,7 @@ export function createAsteroid(
   const y = creationModifiers.y ?? -r;
   const velocity = creationModifiers.velocity ?? blueprint.velocity;
   const velocityHorizontal = creationModifiers.velocityHorizontal ?? 0;
+  const data = { ...(startingAsteroidDataProvider[blueprint.type]?.() ?? {}) };
 
   Object.assign(object, <Asteroid>{
     type: blueprint.type,
@@ -64,9 +65,7 @@ export function createAsteroid(
       lightness: between(blueprint.color.minLightness, blueprint.color.maxLightness, { floor: false })
     },
     active: true,
-    data: {
-      ...startingAsteroidDataProvider[blueprint.type]()
-    }
+    data
   });
 
   object.shape = createAsteroidShape(blueprint);

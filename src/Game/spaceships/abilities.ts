@@ -30,6 +30,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       callback: (spaceship: Spaceship, state: GameState) => {
         state.entities.push({
           type: EntityType.LASER,
+          topY: 0,
           getX: () => spaceship.x + AbilityAlmanac[AbilityClass.GUNSHIP].e.sideXOffset,
           getBottomY: () => spaceship.y + AbilityAlmanac[AbilityClass.GUNSHIP].e.launchYOffset,
           width: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserWidth,

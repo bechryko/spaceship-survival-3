@@ -79,6 +79,8 @@ const LASER_GLOW_FADE_COLOR = 'rgba(255, 60, 110, 0)';
 const LASER_CORE_COLOR = 'rgba(255, 230, 235, 0.95)';
 const LASER_EMITTER_GLOW_COLOR = 'rgba(255, 220, 230, 0.9)';
 const LASER_EMITTER_GLOW_RADIUS_MULTIPLIER = 20;
+const LASER_FLARE_GLOW_COLOR = 'rgba(255, 240, 245, 0.95)';
+const LASER_FLARE_WIDTH_MULTIPLIER = 1.5;
 
 function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   const { timeLeft, totalTime } = laser;
@@ -90,6 +92,7 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   const intensity = Math.max(0, Math.min(1, (totalTime - timeLeft) / 0.12, timeLeft / 0.25));
   const x = laser.getX();
   const bottomY = laser.getBottomY();
+  const topY = Math.min(laser.topY, bottomY);
   const pulse = 1 + 0.12 * Math.sin(timeLeft * 70);
 
   ctx.save();
@@ -98,7 +101,7 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   // Soft glow
   const glowRadius = (laser.width * 3 * pulse * intensity) / 2;
   if (glowRadius > 0.25) {
-    const capY = Math.max(0, bottomY - glowRadius);
+    const capY = Math.max(topY, bottomY - glowRadius);
 
     // Straight section: fades sideways
     const glow = ctx.createLinearGradient(x - glowRadius, 0, x + glowRadius, 0);
@@ -106,7 +109,7 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
     glow.addColorStop(0.5, LASER_GLOW_COLOR);
     glow.addColorStop(1, LASER_GLOW_FADE_COLOR);
     ctx.fillStyle = glow;
-    ctx.fillRect(x - glowRadius, 0, glowRadius * 2, capY);
+    ctx.fillRect(x - glowRadius, topY, glowRadius * 2, capY - topY);
 
     // Cap: the same fade, but radially, so it matches the straight section exactly at the join
     const cap = ctx.createRadialGradient(x, capY, 0, x, capY, glowRadius);
@@ -119,15 +122,33 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   // Bright core
   const coreRadius = (laser.width * 0.5 * intensity) / 2;
   if (coreRadius > 0.1) {
-    const coreCapY = Math.max(0, bottomY - coreRadius);
+    const coreCapY = Math.max(topY, bottomY - coreRadius);
     ctx.fillStyle = LASER_CORE_COLOR;
     ctx.beginPath();
-    ctx.moveTo(x - coreRadius, 0);
-    ctx.lineTo(x + coreRadius, 0);
+    ctx.moveTo(x - coreRadius, topY);
+    ctx.lineTo(x + coreRadius, topY);
     ctx.lineTo(x + coreRadius, coreCapY);
     ctx.arc(x, coreCapY, coreRadius, 0, Math.PI);
     ctx.closePath();
     ctx.fill();
+  }
+
+  // Where the beam hits an iron asteroid: a flattened glow, as if the light spreads along its surface
+  if (topY > 0) {
+    const flareRadius = 24 * intensity * pulse;
+    if (flareRadius > 0.5) {
+      ctx.save();
+      ctx.translate(x, topY);
+      ctx.scale(LASER_FLARE_WIDTH_MULTIPLIER, 0.6);
+      const flare = ctx.createRadialGradient(0, 0, 0, 0, 0, flareRadius);
+      flare.addColorStop(0, LASER_FLARE_GLOW_COLOR);
+      flare.addColorStop(1, LASER_GLOW_FADE_COLOR);
+      ctx.fillStyle = flare;
+      ctx.beginPath();
+      ctx.arc(0, 0, flareRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   // Glow at the emitter

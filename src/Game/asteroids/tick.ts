@@ -46,8 +46,8 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
         const angle = Math.random() * Math.PI * 2;
         spawnAsteroid(state, {
           blueprint: createIceShardBlueprint(asteroid),
-          x: asteroid.x + Math.cos(angle) * asteroid.r * 0.8,
-          y: asteroid.y + Math.sin(angle) * asteroid.r * 0.8,
+          x: asteroid.x,
+          y: asteroid.y,
           velocity: asteroid.velocity + Math.sin(angle) * ICY_ASTEROID_ICE_SHARD_VELOCITY,
           velocityHorizontal: Math.cos(angle) * ICY_ASTEROID_ICE_SHARD_VELOCITY,
           notPrimaryAsteroid: true
