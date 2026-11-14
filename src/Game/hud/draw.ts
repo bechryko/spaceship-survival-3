@@ -10,16 +10,10 @@ const HUD_MARGIN_Y = 28;
 const HUD_FONT_SIZE = 18;
 const HUD_FONT_FAMILY = 'system-ui, sans-serif';
 
-export function drawHUD(
-  ctx: CanvasRenderingContext2D,
-  state: GameState,
-  highscore: number,
-  fpsCounter: FpsCounter | null
-): void {
+export function drawHUD(ctx: CanvasRenderingContext2D, state: GameState, fpsCounter: FpsCounter | null): void {
   ctx.textAlign = 'left';
   drawText(ctx, `Asteroids: ${state.statistics.asteroidsSpawned}`, HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
   ctx.textAlign = 'right';
-  drawText(ctx, `Best: ${highscore}`, GAME_WIDTH - HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
 
   drawAbilityHud(ctx, state.player, state);
   if (fpsCounter) {
@@ -225,6 +219,42 @@ const OVERLAY_SCORE_LABEL_VALUE_GAP = 4;
 const OVERLAY_HINT_FONT_SIZE = 16;
 const OVERLAY_HINT_HEIGHT = 22;
 
+function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
+  if (state.status === GameStatus.PLAYING) {
+    return;
+  }
+
+  ctx.fillStyle = HUD_OVERLAY_COLOR;
+  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+  const sections = buildOverlaySections(ctx, state);
+  const contentWidth = Math.max(OVERLAY_PANEL_MIN_CONTENT_WIDTH, ...sections.map(section => section.minWidth));
+  const contentHeight =
+    sections.reduce((sum, section) => sum + section.height, 0) + (sections.length - 1) * OVERLAY_SECTION_GAP;
+  const width = contentWidth + OVERLAY_PANEL_PADDING_X * 2;
+  const height = contentHeight + OVERLAY_PANEL_PADDING_Y * 2;
+  const x = (GAME_WIDTH - width) / 2;
+  const y = (GAME_HEIGHT - height) / 2;
+
+  drawGlassPanel(ctx, x, y, width, height);
+
+  ctx.save();
+  ctx.textBaseline = 'middle';
+  const left = x + OVERLAY_PANEL_PADDING_X;
+  let cursorY = y + OVERLAY_PANEL_PADDING_Y;
+
+  sections.forEach((section, i) => {
+    if (i > 0) {
+      drawDivider(ctx, left, cursorY + OVERLAY_SECTION_GAP / 2, contentWidth);
+      cursorY += OVERLAY_SECTION_GAP;
+    }
+
+    section.draw(left, cursorY, contentWidth);
+    cursorY += section.height;
+  });
+  ctx.restore();
+}
+
 interface OverlaySection {
   minWidth: number;
   height: number;
@@ -252,7 +282,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
         ['Total asteroids', `${statistics.asteroidsSpawned}`],
         ['Asteroids destroyed', `${statistics.asteroidsDestroyed}`]
       ]),
-      buildScoreSection(ctx, 'Total score', `${calculateScore(statistics)}`),
+      buildScoreSection(ctx, 'Total score', calculateScore(statistics), state.highscore),
       buildTextSection(
         ctx,
         `Press ${START_PAUSE_KEY_CODE} to restart or ${EXIT_KEY_CODE} to exit to the menu!`,
@@ -332,68 +362,55 @@ function buildStatsSection(
   };
 }
 
-function buildScoreSection(ctx: CanvasRenderingContext2D, label: string, value: string): OverlaySection {
+const OVERLAY_NEW_HIGHSCORE_COLOR = '#ffd166';
+const OVERLAY_SCORE_NOTE_GAP = 4;
+const OVERLAY_SCORE_NOTE_HEIGHT = 24;
+
+function buildScoreSection(
+  ctx: CanvasRenderingContext2D,
+  label: string,
+  score: number,
+  highscore: number
+): OverlaySection {
   const labelText = label.toUpperCase();
+  const isHighscore = score > highscore;
+  const noteWeight = isHighscore ? 700 : 400;
+  const noteText = isHighscore ? 'New highscore!' : `Highscore: ${highscore}`;
+
   setFont(ctx, 500, OVERLAY_SCORE_LABEL_SIZE);
   const labelWidth = ctx.measureText(labelText).width;
   setFont(ctx, 700, OVERLAY_SCORE_VALUE_SIZE);
-  const valueWidth = ctx.measureText(value).width;
+  const valueWidth = ctx.measureText(String(score)).width;
+  setFont(ctx, noteWeight, HUD_FONT_SIZE);
+  const noteWidth = ctx.measureText(noteText).width;
 
   return {
-    minWidth: Math.max(labelWidth, valueWidth),
-    height: OVERLAY_SCORE_LABEL_HEIGHT + OVERLAY_SCORE_LABEL_VALUE_GAP + OVERLAY_SCORE_VALUE_SIZE,
+    minWidth: Math.max(labelWidth, valueWidth, noteWidth),
+    height:
+      OVERLAY_SCORE_LABEL_HEIGHT +
+      OVERLAY_SCORE_LABEL_VALUE_GAP +
+      OVERLAY_SCORE_VALUE_SIZE +
+      OVERLAY_SCORE_NOTE_GAP +
+      OVERLAY_SCORE_NOTE_HEIGHT,
     draw: (x, y, width) => {
+      const centerX = x + width / 2;
       ctx.textAlign = 'center';
 
       setFont(ctx, 500, OVERLAY_SCORE_LABEL_SIZE);
       ctx.fillStyle = OVERLAY_MUTED_TEXT_COLOR;
-      ctx.fillText(labelText, x + width / 2, y + OVERLAY_SCORE_LABEL_HEIGHT / 2);
+      ctx.fillText(labelText, centerX, y + OVERLAY_SCORE_LABEL_HEIGHT / 2);
 
+      const valueTop = y + OVERLAY_SCORE_LABEL_HEIGHT + OVERLAY_SCORE_LABEL_VALUE_GAP;
       setFont(ctx, 700, OVERLAY_SCORE_VALUE_SIZE);
       ctx.fillStyle = OVERLAY_SCORE_COLOR;
-      ctx.fillText(
-        value,
-        x + width / 2,
-        y + OVERLAY_SCORE_LABEL_HEIGHT + OVERLAY_SCORE_LABEL_VALUE_GAP + OVERLAY_SCORE_VALUE_SIZE / 2
-      );
+      ctx.fillText(String(score), centerX, valueTop + OVERLAY_SCORE_VALUE_SIZE / 2);
+
+      const noteTop = valueTop + OVERLAY_SCORE_VALUE_SIZE + OVERLAY_SCORE_NOTE_GAP;
+      setFont(ctx, noteWeight, HUD_FONT_SIZE);
+      ctx.fillStyle = isHighscore ? OVERLAY_NEW_HIGHSCORE_COLOR : OVERLAY_MUTED_TEXT_COLOR;
+      ctx.fillText(noteText, centerX, noteTop + OVERLAY_SCORE_NOTE_HEIGHT / 2);
     }
   };
-}
-
-function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
-  if (state.status === GameStatus.PLAYING) {
-    return;
-  }
-
-  ctx.fillStyle = HUD_OVERLAY_COLOR;
-  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
-  const sections = buildOverlaySections(ctx, state);
-  const contentWidth = Math.max(OVERLAY_PANEL_MIN_CONTENT_WIDTH, ...sections.map(section => section.minWidth));
-  const contentHeight =
-    sections.reduce((sum, section) => sum + section.height, 0) + (sections.length - 1) * OVERLAY_SECTION_GAP;
-  const width = contentWidth + OVERLAY_PANEL_PADDING_X * 2;
-  const height = contentHeight + OVERLAY_PANEL_PADDING_Y * 2;
-  const x = (GAME_WIDTH - width) / 2;
-  const y = (GAME_HEIGHT - height) / 2;
-
-  drawGlassPanel(ctx, x, y, width, height);
-
-  ctx.save();
-  ctx.textBaseline = 'middle';
-  const left = x + OVERLAY_PANEL_PADDING_X;
-  let cursorY = y + OVERLAY_PANEL_PADDING_Y;
-
-  sections.forEach((section, i) => {
-    if (i > 0) {
-      drawDivider(ctx, left, cursorY + OVERLAY_SECTION_GAP / 2, contentWidth);
-      cursorY += OVERLAY_SECTION_GAP;
-    }
-
-    section.draw(left, cursorY, contentWidth);
-    cursorY += section.height;
-  });
-  ctx.restore();
 }
 
 function drawDivider(ctx: CanvasRenderingContext2D, x: number, y: number, width: number): void {

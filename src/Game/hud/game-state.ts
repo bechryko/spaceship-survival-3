@@ -6,6 +6,7 @@ import { Spaceship } from '../spaceships';
 export interface GameState {
   status: GameStatus;
   statistics: GameStatistics;
+  highscore: number;
   player: Spaceship;
   asteroids: Asteroid[];
   entities: Entity[];

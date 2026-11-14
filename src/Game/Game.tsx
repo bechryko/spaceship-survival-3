@@ -1,11 +1,12 @@
 import './Game.css';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useSettings } from '../context';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
+import { loadHighscore, saveHighscore } from './highscore';
 import {
   createFpsCounter,
   drawHUD,
@@ -28,6 +29,7 @@ const createState = (status = GameStatus.PLAYING): GameState => ({
     asteroidsDestroyed: 0,
     abilitiesUsed: 0
   },
+  highscore: loadHighscore(),
   player: createSpaceship(),
   asteroids: [],
   entities: [],
@@ -38,9 +40,6 @@ const createState = (status = GameStatus.PLAYING): GameState => ({
 export default function Game() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState());
-  const bestRef = useRef(0);
-
-  const [best, setBest] = useState(0);
 
   const { settings } = useSettings();
 
@@ -148,9 +147,8 @@ export default function Game() {
         state.status = GameStatus.OVER;
         const score = calculateScore(state.statistics);
 
-        if (score > bestRef.current) {
-          bestRef.current = score;
-          setBest(score);
+        if (score > state.highscore) {
+          saveHighscore(score);
         }
       }
     };
@@ -164,7 +162,7 @@ export default function Game() {
       }
       drawEntities(ctx, state.entities);
       drawSpaceship(ctx, state.player);
-      drawHUD(ctx, state, bestRef.current, settings.showFps ? fpsCounter : null);
+      drawHUD(ctx, state, settings.showFps ? fpsCounter : null);
     };
 
     let rafId = 0;
@@ -187,5 +185,5 @@ export default function Game() {
     };
   });
 
-  return <canvas id="game-canvas" ref={canvasRef} aria-label={`High score: ${best}`} />;
+  return <canvas id="game-canvas" ref={canvasRef} />;
 }
