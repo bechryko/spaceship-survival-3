@@ -1,4 +1,4 @@
-import { Asteroid } from '../asteroids';
+import { Asteroid, AsteroidBlueprint } from '../asteroids';
 import { Star } from '../background';
 import { Entity } from '../entities';
 import { Spaceship } from '../spaceships';
@@ -6,6 +6,9 @@ import { Spaceship } from '../spaceships';
 export interface GameState {
   status: GameStatus;
   statistics: GameStatistics;
+  asteroidBlueprints: {
+    level2: AsteroidBlueprint;
+  };
   highscore: number;
   player: Spaceship;
   asteroids: Asteroid[];

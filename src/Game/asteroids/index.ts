@@ -1,4 +1,5 @@
-export * from './asteroid.d';
+export * from './asteroid';
+export * from './blueprints';
 export * from './create';
 export * from './destroy';
 export * from './draw';

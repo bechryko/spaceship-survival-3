@@ -33,3 +33,7 @@ export function between(min: number, max: number, config: Partial<BetweenConfig>
   }
   return result;
 }
+
+export function choose<T>(array: T[]): T {
+  return array[between(0, array.length, { includeMax: false })];
+}

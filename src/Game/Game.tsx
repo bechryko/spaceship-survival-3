@@ -3,7 +3,7 @@ import './Game.css';
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { useSettings } from '../context';
-import { drawAsteroid, tickAsteroids } from './asteroids';
+import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import { loadHighscore, saveHighscore } from './highscore';
@@ -19,7 +19,7 @@ import {
   tickFps
 } from './hud';
 import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
-import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
+import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
 const createState = (status = GameStatus.PLAYING): GameState => ({
   status,
@@ -28,6 +28,9 @@ const createState = (status = GameStatus.PLAYING): GameState => ({
     asteroidsSpawned: 0,
     asteroidsDestroyed: 0,
     abilitiesUsed: 0
+  },
+  asteroidBlueprints: {
+    level2: choose(level2AsteroidBlueprints)
   },
   highscore: loadHighscore(),
   player: createSpaceship(),
