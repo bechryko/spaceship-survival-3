@@ -1,23 +1,20 @@
 import { Circle, Point } from '../models';
 import { between, boundingRadius } from '../utils';
+import { AsteroidBlueprint } from './blueprints';
 import { AsteroidShape } from './hitbox';
 
-const CRATER_MIN_COUNT = 5;
-const CRATER_MAX_COUNT = 9;
-const CRATER_MIN_SIZE = 0.05;
-const CRATER_MAX_SIZE = 0.2;
 const CRATER_EDGE_PADDING = 0.05;
 
-const CRATER_MAX_PLACEMENT_ATTEMPTS = 50;
+const CRATER_MAX_PLACEMENT_ATTEMPTS = 40;
 
-export function createCraters(asteroidPoints: AsteroidShape): readonly Circle[] {
+export function createCraters(blueprint: AsteroidBlueprint, asteroidPoints: AsteroidShape): readonly Circle[] {
   const asteroidBoundingRadius = boundingRadius(asteroidPoints);
-  const craterCount = between(CRATER_MIN_COUNT, CRATER_MAX_COUNT);
+  const craterCount = between(blueprint.craters.minCount, blueprint.craters.maxCount);
 
   const craters: Circle[] = [];
   for (let idx = 0; idx < craterCount; idx++) {
     for (let attempt = 0; attempt < CRATER_MAX_PLACEMENT_ATTEMPTS; attempt++) {
-      const coords = getCraterCoords(craterCount, idx, asteroidBoundingRadius);
+      const coords = getCraterCoords(blueprint, craterCount, idx, asteroidBoundingRadius);
 
       if (isInsideAsteroid(coords, asteroidPoints) && !areCoordsOccupied(coords, craters, asteroidPoints)) {
         craters.push(coords);
@@ -29,13 +26,15 @@ export function createCraters(asteroidPoints: AsteroidShape): readonly Circle[] 
   return craters;
 }
 
-function getCraterCoords(craterCount: number, idx: number, asteroidBoundingRadius: number): Circle {
+function getCraterCoords(
+  blueprint: AsteroidBlueprint,
+  craterCount: number,
+  idx: number,
+  asteroidBoundingRadius: number
+): Circle {
   const a = ((Math.PI * 2) / craterCount) * idx;
-  const r = between(CRATER_MIN_SIZE, CRATER_MAX_SIZE, { floor: false });
-  const dist = between(0, Math.random() * (asteroidBoundingRadius - r), {
-    squaredDistribution: true,
-    floor: false
-  });
+  const r = between(blueprint.craters.minSize, blueprint.craters.maxSize, { floor: false });
+  const dist = between(0, asteroidBoundingRadius - r, { squaredDistribution: true, floor: false });
 
   return {
     x: Math.cos(a) * dist,

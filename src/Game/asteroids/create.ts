@@ -1,21 +1,22 @@
 import { GAME_WIDTH } from '../hud';
 import { between } from '../utils';
 import { Asteroid } from './asteroid';
+import { regularAsteroidBlueprint } from './blueprints';
 import { createCraters } from './craters';
 import { createAsteroidShape } from './hitbox';
-
-const STARTING_MIN_ASTEROID_SIZE = 75;
-const STARTING_MAX_ASTEROID_SIZE = 125;
-const ASTEROID_SIZE_INCREASE_PER_POINT = 1.5;
-const MAX_ASTEROID_SIZE_INCREASE = 75;
 
 const MIN_X_DISTANCE_FROM_LAST = GAME_WIDTH / 4;
 
 let lastX: number | null = null;
 
 export function createAsteroid(asteroidsSpawned: number, object: Partial<Asteroid> = {}): Asteroid {
-  const increase = Math.min(MAX_ASTEROID_SIZE_INCREASE, ASTEROID_SIZE_INCREASE_PER_POINT * asteroidsSpawned);
-  const r = between(STARTING_MIN_ASTEROID_SIZE, STARTING_MAX_ASTEROID_SIZE + increase);
+  const blueprint = regularAsteroidBlueprint;
+
+  const increase = Math.min(
+    blueprint.sizeIncreaseMax,
+    blueprint.sizeIncrease * (asteroidsSpawned - blueprint.sizeIncreaseStart)
+  );
+  const r = between(blueprint.minSize, blueprint.maxSize + increase);
 
   const x = pickSpawnX(lastX);
   lastX = x;
@@ -24,15 +25,15 @@ export function createAsteroid(asteroidsSpawned: number, object: Partial<Asteroi
     x,
     y: -r,
     r,
-    velocity: 140,
+    velocity: blueprint.velocity,
     angle: Math.random() * Math.PI * 2,
-    hue: 15 + Math.random() * 25,
-    lightness: 34 + Math.random() * 12,
+    hue: between(blueprint.color.minHue, blueprint.color.maxHue, { floor: false }),
+    lightness: between(blueprint.color.minLightness, blueprint.color.maxLightness, { floor: false }),
     active: true
   });
 
-  object.shape = createAsteroidShape();
-  object.craters = createCraters(object.shape!);
+  object.shape = createAsteroidShape(blueprint);
+  object.craters = createCraters(blueprint, object.shape!);
 
   return object as Asteroid;
 }
