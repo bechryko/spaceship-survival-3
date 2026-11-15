@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "streetsidesoftware.code-spell-checker",
+    "sainoba.px-to-rem",
+    "gruntfuggly.todo-tree",
+    "usernamehw.errorlens"
+  ]
+}
