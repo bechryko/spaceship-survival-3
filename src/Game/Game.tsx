@@ -84,7 +84,7 @@ export default function Game() {
       const state = stateRef.current;
       const playerControls = state.player.controls;
       const playerAbilities = state.player.abilities;
-      if (playerControlKeys.includes(event.code)) {
+      if ([...playerControlKeys, 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
         event.preventDefault();
       }
 
@@ -107,9 +107,11 @@ export default function Game() {
               break;
           }
           break;
+        case 'ArrowLeft':
         case playerControls.leftKeyCode:
           playerControls.left = true;
           break;
+        case 'ArrowRight':
         case playerControls.rightKeyCode:
           playerControls.right = true;
           break;
@@ -137,9 +139,11 @@ export default function Game() {
       const playerAbilities = player.abilities;
 
       switch (event.code) {
+        case 'ArrowLeft':
         case playerControls.leftKeyCode:
           playerControls.left = false;
           break;
+        case 'ArrowRight':
         case playerControls.rightKeyCode:
           playerControls.right = false;
           break;
