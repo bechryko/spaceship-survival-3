@@ -1,20 +1,32 @@
 import './SpaceshipSelect.css';
 
 import { useState, type CSSProperties } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useLocation, useNavigate } from 'react-router';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';
 import { loadColor, saveColor, SPACESHIP_COLORS } from './ColorPicker/spaceship-colors';
 import SpaceshipIcon from './SpaceshipIcon';
-import { getSpaceshipDefinition, GRID_SLOT_COUNT, SPACESHIPS } from './spaceship-catalog';
+import { getSpaceshipDefinition, SPACESHIP_GRID_COLUMNS, SPACESHIP_GRID_ROWS, SPACESHIPS } from './spaceship-catalog';
 
-const SLOTS = Array.from({ length: GRID_SLOT_COUNT }, (_, index) => SPACESHIPS[index] ?? null);
+const SLOTS = Array.from(
+  { length: SPACESHIP_GRID_COLUMNS * SPACESHIP_GRID_ROWS },
+  (_, index) => SPACESHIPS[index] ?? null
+);
+
+interface ReturnState {
+  spaceshipId?: string;
+  color?: string;
+  specialAbilityName?: string;
+}
 
 export default function SpaceshipSelect() {
   const navigate = useNavigate();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const returned = useLocation().state as ReturnState | null;
+
+  const [selectedId, setSelectedId] = useState<string | null>(returned?.spaceshipId ?? null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [color, setColor] = useState(loadColor());
+  const [specialAbilityName, setSpecialAbilityName] = useState(returned?.specialAbilityName);
 
   const previewId = hoveredId ?? selectedId;
   const preview = previewId ? getSpaceshipDefinition(previewId) : null;
@@ -24,14 +36,23 @@ export default function SpaceshipSelect() {
     saveColor(color);
   };
 
-  const start = () => {
+  const selectSpaceship = (id: string) => {
+    if (id === selectedId) {
+      return;
+    }
+
+    setSelectedId(id);
+    setSpecialAbilityName(undefined);
+  };
+
+  const next = () => {
     if (selectedId) {
-      navigate('/play', { state: { spaceshipId: selectedId, color } });
+      navigate('/select/2', { state: { spaceshipId: selectedId, color, specialAbilityName } });
     }
   };
 
   return (
-    <div className="select-screen">
+    <div className="select-screen spaceship-screen">
       <StarBackground />
 
       <div className="select-side">
@@ -76,15 +97,15 @@ export default function SpaceshipSelect() {
           )}
         </div>
 
-        <button type="button" className="button start-button" disabled={!selectedId} onClick={start}>
-          Start
+        <button type="button" className="button start-button" disabled={!selectedId} onClick={next}>
+          Next
         </button>
       </section>
 
       <hr className="select-divider" />
 
       <section className="select-bottom">
-        <div className="slot-grid">
+        <div className="slot-grid" style={{ '--columns': SPACESHIP_GRID_COLUMNS } as CSSProperties}>
           {SLOTS.map((spaceship, index) =>
             spaceship ? (
               <button
@@ -93,7 +114,7 @@ export default function SpaceshipSelect() {
                 className="slot"
                 aria-label={spaceship.name}
                 aria-pressed={spaceship.id === selectedId}
-                onClick={() => setSelectedId(spaceship.id)}
+                onClick={() => selectSpaceship(spaceship.id)}
                 onMouseEnter={() => setHoveredId(spaceship.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onFocus={() => setHoveredId(spaceship.id)}

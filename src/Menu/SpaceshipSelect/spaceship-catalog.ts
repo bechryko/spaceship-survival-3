@@ -45,9 +45,8 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
   }
 ];
 
-export const GRID_COLUMNS = 5;
-export const GRID_ROWS = 2;
-export const GRID_SLOT_COUNT = GRID_COLUMNS * GRID_ROWS;
+export const SPACESHIP_GRID_COLUMNS = 5;
+export const SPACESHIP_GRID_ROWS = 2;
 
 export const DEFAULT_SPACESHIP_ID = SPACESHIPS[0].id;
 

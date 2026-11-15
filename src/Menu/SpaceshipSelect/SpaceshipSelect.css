@@ -25,6 +25,10 @@
   }
 }
 
+.spaceship-select {
+  --slot-grid-max-width: 30rem;
+}
+
 /* ---------- Top: preview and Start ---------- */
 .select-top {
   display: grid;
@@ -202,9 +206,9 @@
 
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(var(--columns, 5), 1fr);
   gap: 1rem;
-  width: min(30rem, 100%);
+  width: min(var(--slot-grid-max-width), 100%);
   user-select: none;
 }
 
@@ -253,9 +257,11 @@
   }
 
   & svg {
+    --size: 55%;
+
     position: relative;
-    width: 55%;
-    height: 55%;
+    width: var(--size);
+    height: var(--size);
   }
 
   &[aria-pressed='true'] {

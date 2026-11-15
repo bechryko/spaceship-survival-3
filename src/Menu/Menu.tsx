@@ -22,7 +22,7 @@ export default function Menu() {
           <span className="version">Version: {version}</span>
         </hgroup>
         <section>
-          <NavLink className="button" to="/select">
+          <NavLink className="button" to="/select/1">
             Play
           </NavLink>
           <NavLink className="button" to="menu/settings">
