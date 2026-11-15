@@ -1,4 +1,5 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
+import { withAlpha } from '../utils';
 import { Star } from './stars';
 
 const BACKGROUND_COLOR = '#161a38';
@@ -76,10 +77,4 @@ function drawLargeStar(ctx: CanvasRenderingContext2D, star: Star, pulse: number)
   ctx.lineTo(x - halfWidth, y);
   ctx.closePath();
   ctx.fill();
-}
-
-/** '#rrggbb' to 'rgba(r, g, b, alpha)' */
-function withAlpha(hex: string, alpha: number): string {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }

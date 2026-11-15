@@ -1,10 +1,14 @@
+import { Spaceship } from '../spaceships';
+
 export enum EntityType {
   ROCKET,
   LASER,
-  EXPLOSION
+  EXPLOSION,
+  BOMB,
+  URGENT_ORDER_ANIMATION
 }
 
-export type Entity = Rocket | Laser | Explosion;
+export type Entity = Rocket | Laser | Explosion | Bomb;
 
 interface EntityBase {
   type: EntityType;
@@ -40,4 +44,14 @@ export interface Spark {
   angle: number;
   distance: number;
   size: number;
+}
+
+export interface Bomb extends EntityBase {
+  type: EntityType.BOMB;
+  x: number;
+  y: number;
+  r: number;
+  age: number;
+  explosionTime: number;
+  owner: Spaceship;
 }

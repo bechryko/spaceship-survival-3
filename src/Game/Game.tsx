@@ -18,13 +18,22 @@ import {
   START_PAUSE_KEY_CODE,
   tickFps
 } from './hud';
-import { AbilityClass, createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
+import {
+  AbilityClass,
+  activateAbility,
+  createSpaceship,
+  drawSpaceship,
+  SpecialAbilityAlmanac,
+  SpecialAbilityName,
+  tickSpaceships
+} from './spaceships';
 import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
 export default function Game() {
   const navigationState = useLocation().state;
   const spaceshipAbilityClass: AbilityClass = navigationState?.spaceshipId;
   const spaceshipColor: string = navigationState?.color;
+  const specialAbilityId: SpecialAbilityName = navigationState?.specialAbilityId;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState());
@@ -50,7 +59,7 @@ export default function Game() {
         level2: choose(level2AsteroidBlueprints)
       },
       highscore: loadHighscore(),
-      player: createSpaceship(spaceshipAbilityClass, spaceshipColor),
+      player: createSpaceship(spaceshipAbilityClass, spaceshipColor, specialAbilityId),
       asteroids: [],
       entities: [],
       stars: createStars(),
@@ -108,25 +117,25 @@ export default function Game() {
           if (state.status === GameStatus.PLAYING) {
             forEachAbility(abilityIdx => {
               const abilityProfile = playerAbilities.profile[abilityIdx];
-              if (abilityProfile.isDisabled?.(state.player, state)) {
-                return;
-              }
-
               const ability = playerAbilities[abilityIdx];
-              const almanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
+              const abilityAlmanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
 
-              if (event.code === ability.key && ability.cooldownTimer === 0) {
-                abilityProfile.callback(state.player, state);
-                ability.activeTimer = almanacEntry.activeTime;
-                ability.cooldownTimer = almanacEntry.cooldown + almanacEntry.activeTime;
-                state.statistics.abilitiesUsed++;
-              }
+              activateAbility(state, event.code, ability, abilityProfile, abilityAlmanacEntry);
             });
+
+            const specialAbility = playerAbilities.r;
+            const specialAbilityProfile = playerAbilities.specialProfile;
+            const specialAbilityAlmanacEntry = SpecialAbilityAlmanac[playerAbilities.special];
+
+            activateAbility(state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
           }
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
-      const playerControls = stateRef.current.player.controls;
+      const { player } = stateRef.current;
+      const playerControls = player.controls;
+      const playerAbilities = player.abilities;
+
       switch (event.code) {
         case playerControls.leftKeyCode:
           playerControls.left = false;
@@ -134,6 +143,8 @@ export default function Game() {
         case playerControls.rightKeyCode:
           playerControls.right = false;
           break;
+        case playerAbilities.r.key:
+          playerAbilities.r.reactivatable = true;
       }
     };
 
@@ -143,10 +154,6 @@ export default function Game() {
     // ----- Update -----
     const update = (deltaTime: number) => {
       const state = stateRef.current;
-      if (state.status !== GameStatus.PLAYING) {
-        return;
-      }
-
       state.statistics.time += deltaTime;
 
       tickFps(fpsCounter, deltaTime);
@@ -178,13 +185,27 @@ export default function Game() {
 
     let rafId = 0;
     let last = performance.now();
+    let pausedState = false;
 
     const frame = (now: number) => {
-      const dt = Math.min((now - last) / 1000, 0.05);
+      const deltaTime = Math.min((now - last) / 1000, 0.05);
       last = now;
 
-      update(dt);
-      draw();
+      const isPaused = stateRef.current.status !== GameStatus.PLAYING;
+
+      if (pausedState && !isPaused) {
+        pausedState = false;
+      }
+
+      if (!pausedState) {
+        update(isPaused ? 0 : deltaTime);
+        draw();
+      }
+
+      if (!pausedState && isPaused) {
+        pausedState = true;
+      }
+
       rafId = requestAnimationFrame(frame);
     };
     rafId = requestAnimationFrame(frame);

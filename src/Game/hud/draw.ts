@@ -1,5 +1,5 @@
-import { Spaceship } from '../spaceships';
-import { calculateScore, fillMultilineText, getAlmanacForAbilities } from '../utils';
+import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
+import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
 import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
 import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';
@@ -53,30 +53,39 @@ const ABILITY_HUD_SLOT_DISABLED_NAME_TEXT_COLOR = 'rgba(232, 241, 242, 0.3)';
 function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
   const { abilities } = player;
   const almanac = getAlmanacForAbilities(player);
+  const specialAlmanac = SpecialAbilityAlmanac[player.abilities.special];
   const slots = [
     {
-      key: 'Q',
-      label: almanac.q.name.replaceAll(' ', '\n'),
+      key: displayKeyCode(abilities.q.key),
+      label: almanac.q.name,
       remaining: abilities.q.cooldownTimer,
       total: almanac.q.cooldown,
       active: abilities.q.activeTimer,
       disabled: player.abilities.profile.q.isDisabled?.(player, state)
     },
     {
-      key: 'W',
-      label: almanac.w.name.replaceAll(' ', '\n'),
+      key: displayKeyCode(abilities.w.key),
+      label: almanac.w.name,
       remaining: abilities.w.cooldownTimer,
       total: almanac.w.cooldown,
       active: abilities.w.activeTimer,
       disabled: player.abilities.profile.w.isDisabled?.(player, state)
     },
     {
-      key: 'E',
-      label: almanac.e.name.replaceAll(' ', '\n'),
+      key: displayKeyCode(abilities.e.key),
+      label: almanac.e.name,
       remaining: abilities.e.cooldownTimer,
       total: almanac.e.cooldown,
       active: abilities.e.activeTimer,
       disabled: player.abilities.profile.e.isDisabled?.(player, state)
+    },
+    {
+      key: displayKeyCode(abilities.r.key),
+      label: player.abilities.special,
+      remaining: abilities.r.cooldownTimer,
+      total: specialAlmanac.cooldown,
+      active: abilities.r.activeTimer,
+      disabled: player.abilities.specialProfile.isDisabled?.(player, state)
     }
   ];
 
@@ -99,9 +108,9 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
     const x = ABILITY_HUD_X_MARGIN + i * (ABILITY_HUD_SLOT_SIZE + ABILITY_HUD_SLOT_GAP);
     const cx = x + ABILITY_HUD_SLOT_SIZE / 2;
     const cy = totalTopMargin + ABILITY_HUD_SLOT_SIZE / 2;
-    const isDisabled = slot.disabled;
-    const isActive = !isDisabled && slot.active > 0;
-    const isCoolingDown = !isDisabled && slot.remaining > 0 && !isActive;
+    const isActive = slot.active > 0;
+    const isCoolingDown = slot.remaining > 0 && !isActive;
+    const isDisabled = slot.disabled && !isCoolingDown;
 
     // Glass background
     ctx.beginPath();
@@ -114,7 +123,7 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
     ctx.fill();
 
     // Cooldown sweep
-    if (isCoolingDown) {
+    if (isCoolingDown && slot.total) {
       ctx.save();
       ctx.clip();
       const start = -Math.PI / 2;
@@ -149,18 +158,15 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
           ? ABILITY_HUD_SLOT_COOLDOWN_TEXT_COLOR
           : ABILITY_HUD_SLOT_READY_TEXT_COLOR;
     setFont(ctx, ABILITY_HUD_SLOT_TEXT_WEIGHT, ABILITY_HUD_SLOT_TEXT_SIZE);
-    ctx.fillText(
-      isActive ? slot.active.toFixed(1) : isCoolingDown ? String(Math.ceil(slot.remaining)) : slot.key,
-      cx,
-      cy + 1
-    );
+    const timeText = isActive ? slot.active.toFixed(1) : isCoolingDown ? String(Math.ceil(slot.remaining)) : slot.key;
+    ctx.fillText(timeText.replaceAll(String(Infinity), '∞'), cx, cy + 1);
 
     // Small ability name under the slot
     ctx.fillStyle = isDisabled ? ABILITY_HUD_SLOT_DISABLED_NAME_TEXT_COLOR : ABILITY_HUD_SLOT_NAME_TEXT_COLOR;
     setFont(ctx, ABILITY_HUD_SLOT_NAME_TEXT_WEIGHT, ABILITY_HUD_SLOT_NAME_TEXT_SIZE);
     fillMultilineText(
       ctx,
-      slot.label,
+      slot.label.replaceAll(' ', '\n'),
       cx,
       totalTopMargin + ABILITY_HUD_SLOT_SIZE + ABILITY_HUD_SLOT_NAME_TEXT_Y_MARGIN,
       { lineHeight: ABILITY_HUD_SLOT_NAME_LINE_HEIGHT }

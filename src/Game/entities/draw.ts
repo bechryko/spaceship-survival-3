@@ -1,4 +1,4 @@
-import { Entity, EntityType, Explosion, Laser, Rocket } from './entities';
+import { Bomb, Entity, EntityType, Explosion, Laser, Rocket } from './entities';
 import { EXPLOSION_DURATION } from './tick';
 
 export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[]): void {
@@ -9,6 +9,9 @@ export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[]):
         break;
       case EntityType.LASER:
         drawLaser(ctx, entity);
+        break;
+      case EntityType.BOMB:
+        drawBomb(ctx, entity);
         break;
     }
   }
@@ -206,6 +209,64 @@ function drawExplosions(ctx: CanvasRenderingContext2D, explosions: Explosion[]) 
       ctx.fill();
     }
   }
+
+  ctx.restore();
+}
+
+function drawBomb(ctx: CanvasRenderingContext2D, bomb: Bomb): void {
+  const urgency = Math.min(1, bomb.age / bomb.explosionTime);
+  const phase = Math.PI * 2 * (3 * bomb.age + (6 * bomb.age * bomb.age) / bomb.explosionTime);
+  const pulse = 0.5 + 0.5 * Math.sin(phase);
+  const { r } = bomb;
+
+  ctx.save();
+  ctx.translate(bomb.x, bomb.y);
+
+  // Warning glow
+  ctx.globalCompositeOperation = 'lighter';
+  const glowRadius = r * (2.2 + 1.4 * urgency * pulse);
+  const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
+  glow.addColorStop(0, `rgba(255, 120, 60, ${0.15 + 0.4 * urgency * pulse})`);
+  glow.addColorStop(1, 'rgba(255, 120, 60, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalCompositeOperation = 'source-over';
+
+  // Small thruster flame behind it
+  const flame = 11 + 4 * Math.sin(bomb.age * 60);
+  const flameGradient = ctx.createLinearGradient(0, r * 0.7, 0, r * 0.7 + flame);
+  flameGradient.addColorStop(0, 'rgba(255, 220, 120, 0.95)');
+  flameGradient.addColorStop(1, 'rgba(255, 90, 30, 0)');
+  ctx.fillStyle = flameGradient;
+  ctx.beginPath();
+  ctx.moveTo(-3.5, r * 0.7);
+  ctx.lineTo(0, r * 0.7 + flame);
+  ctx.lineTo(3.5, r * 0.7);
+  ctx.closePath();
+  ctx.fill();
+
+  // Metal body
+  const body = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r);
+  body.addColorStop(0, '#5a6488');
+  body.addColorStop(0.6, '#1b2038');
+  body.addColorStop(1, '#0b0e1c');
+  ctx.fillStyle = body;
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  ctx.stroke();
+
+  // Core light: yellow at first, turning red and blinking faster as it nears detonation
+  const green = Math.round(214 - 144 * urgency);
+  const blue = Math.round(102 - 32 * urgency);
+  ctx.fillStyle = `rgba(255, ${green}, ${blue}, ${0.55 + 0.45 * pulse})`;
+  ctx.beginPath();
+  ctx.arc(0, -r * 0.1, r * (0.3 + 0.12 * pulse), 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.restore();
 }

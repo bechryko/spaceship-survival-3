@@ -42,32 +42,38 @@ export enum SpecialAbilityName {
 
 interface SpecialAbilityAlmanacEntry {
   shortDescription: string;
+  activeTime: number;
   cooldown?: number;
   [key: string]: string | number | undefined;
 }
 
-const STRONGER_ENGINES_SPEED_BONUS_PERCENT = 20;
-const BOMB_EXPLOSION_DELAY = 4;
+const STRONGER_ENGINES_SPEED_BONUS_PERCENT = 25;
+const BOMB_EXPLOSION_DELAY = 3;
 const SHIELD_GENERATOR_DURATION = 2;
 
 export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlmanacEntry> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
     shortDescription: `Your spaceship moves ${STRONGER_ENGINES_SPEED_BONUS_PERCENT}% faster.`,
+    activeTime: Infinity,
     movementSpeedMultiplier: 1 + STRONGER_ENGINES_SPEED_BONUS_PERCENT / 100
   },
   [SpecialAbilityName.BOMB]: {
-    shortDescription: `Shoots a slow bomb forward. It explodes when you press R again, after ${BOMB_EXPLOSION_DELAY} seconds, or when it touches an asteroid, which it destroys. The blast pushes nearby asteroids away from its center, speeding them up sideways and downwards.`,
-    cooldown: 15,
-    explosionDelay: BOMB_EXPLOSION_DELAY
+    shortDescription: `Shoots a slow bomb forward. It explodes when you press R again, after ${BOMB_EXPLOSION_DELAY} seconds, or when it touches an asteroid, which it destroys. The blast pushes nearby asteroids away from its center.`,
+    activeTime: BOMB_EXPLOSION_DELAY,
+    cooldown: 30,
+    explosionDelay: BOMB_EXPLOSION_DELAY,
+    radius: 10
   },
   [SpecialAbilityName.SHIELD_GENERATOR]: {
-    shortDescription: `Makes your spaceship immune to asteroids for ${SHIELD_GENERATOR_DURATION} seconds.`,
+    shortDescription: `Creates an asteroid shield for ${SHIELD_GENERATOR_DURATION} seconds, so colliding with them destroys them.`,
+    activeTime: SHIELD_GENERATOR_DURATION,
     cooldown: 15,
     duration: SHIELD_GENERATOR_DURATION
   },
   [SpecialAbilityName.URGENT_ORDERS]: {
     shortDescription: 'Halves all active cooldowns of your other abilities.',
-    cooldown: 22,
+    activeTime: 0,
+    cooldown: 20,
     cooldownMultiplier: 0.5
   }
 } as const;

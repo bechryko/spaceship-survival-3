@@ -25,5 +25,5 @@
     "editor.suggest.insertMode": "replace",
     "editor.defaultFormatter": "vscode.json-language-features"
   },
-  "cSpell.words": ["highscore", "hitbox"]
+  "cSpell.words": ["cooldowns", "highscore", "hitbox", "reactivatable"]
 }

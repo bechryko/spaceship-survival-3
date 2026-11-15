@@ -1,13 +1,14 @@
-import { GAME_HEIGHT, GameState } from '../hud';
-import { SHIP_HULL } from '../spaceships';
+import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
+import { isSpaceshipImmune, SHIP_HULL } from '../spaceships';
 import { between, boundingRadius, polygonsCollide, transformPolygon } from '../utils';
-import { AsteroidType } from './asteroid';
+import { Asteroid, AsteroidType } from './asteroid';
 import {
   createIceShardBlueprint,
   ICY_ASTEROID_MAX_BREAK_OFF_TIME,
   ICY_ASTEROID_MIN_BREAK_OFF_TIME
 } from './blueprints';
 import { AsteroidCreationModifiers, createAsteroid } from './create';
+import { destroyAsteroid } from './destroy';
 
 export const ICY_ASTEROID_ICE_SHARD_VELOCITY = 75;
 
@@ -30,7 +31,11 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
       Math.hypot(lx, ly) <= boundingRadius(SHIP_HULL) + asteroid.r &&
       polygonsCollide(SHIP_HULL, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
-      return { hit: true };
+      if (isSpaceshipImmune(player) && asteroid.type !== AsteroidType.IRON) {
+        destroyAsteroid(asteroid, state);
+      } else {
+        return { hit: true };
+      }
     }
 
     if (asteroid.type === AsteroidType.ICY) {
@@ -44,21 +49,27 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
         );
 
         const angle = Math.random() * Math.PI * 2;
-        spawnAsteroid(state, {
+        const iceShard = spawnAsteroid(state, {
           blueprint: createIceShardBlueprint(asteroid),
           x: asteroid.x,
           y: asteroid.y,
-          velocity: asteroid.velocity + Math.sin(angle) * ICY_ASTEROID_ICE_SHARD_VELOCITY,
-          velocityHorizontal: Math.cos(angle) * ICY_ASTEROID_ICE_SHARD_VELOCITY,
+          velocity: asteroid.velocity,
           notPrimaryAsteroid: true
         });
+        pushAsteroid(iceShard, ICY_ASTEROID_ICE_SHARD_VELOCITY, angle);
       }
     }
   }
 
   state.asteroids
-    .filter(a => a.active)
-    .filter(a => a.y - a.r > GAME_HEIGHT)
+    .filter(asteroid => asteroid.active)
+    .filter(
+      asteroid =>
+        asteroid.x < -asteroid.r ||
+        asteroid.x > GAME_WIDTH + asteroid.r ||
+        asteroid.y < -asteroid.r ||
+        asteroid.y > GAME_HEIGHT + asteroid.r
+    )
     .forEach(a => {
       a.active = false;
     });
@@ -66,16 +77,32 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
   return { hit: false };
 }
 
-export function spawnAsteroid(state: GameState, creationModifiers: AsteroidCreationModifiers = {}): void {
+export function spawnAsteroid(state: GameState, creationModifiers: AsteroidCreationModifiers = {}): Asteroid {
   const inactiveAsteroid = state.asteroids.find(a => !a.active);
+  let asteroid: Asteroid;
+
   if (inactiveAsteroid) {
-    createAsteroid(state, creationModifiers, inactiveAsteroid);
+    asteroid = createAsteroid(state, creationModifiers, inactiveAsteroid);
   } else {
-    state.asteroids.push(createAsteroid(state, creationModifiers));
+    asteroid = createAsteroid(state, creationModifiers);
+    state.asteroids.push(asteroid);
   }
 
   state.statistics.asteroidsSpawned++;
   state.spawnTimer = getAsteroidSpawnTimer(state.statistics.asteroidsSpawned);
+
+  return asteroid;
+}
+
+const IRON_ASTEROID_PUSH_FORCE_MULTIPLIER = 0.25;
+
+export function pushAsteroid(asteroid: Asteroid, force: number, angle: number): void {
+  if (asteroid.type === AsteroidType.IRON) {
+    force *= IRON_ASTEROID_PUSH_FORCE_MULTIPLIER;
+  }
+
+  asteroid.velocity += Math.sin(angle) * force;
+  asteroid.velocityHorizontal += Math.cos(angle) * force;
 }
 
 const SPAWN_SLOW_SCORE = 25;
@@ -83,7 +110,7 @@ const SPAWN_FAST_SCORE = 100;
 const SPAWN_SLOW_INTERVAL = 1;
 const SPAWN_FAST_INTERVAL = 0.5;
 
-function getAsteroidSpawnTimer(score: number) {
+function getAsteroidSpawnTimer(score: number): number {
   const progress = (score - SPAWN_SLOW_SCORE) / (SPAWN_FAST_SCORE - SPAWN_SLOW_SCORE);
   const t = Math.min(1, Math.max(0, progress));
   return SPAWN_SLOW_INTERVAL + (SPAWN_FAST_INTERVAL - SPAWN_SLOW_INTERVAL) * t;

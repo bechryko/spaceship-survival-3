@@ -1,9 +1,10 @@
-import { EntityType } from '../entities';
+import { Bomb, detonateBomb, EntityType } from '../entities';
 import { GameState } from '../hud';
-import { AbilityAlmanac } from './ability-almanac';
+import { forEachAbility } from '../utils';
+import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { AbilityClass } from './ability-class';
 import { Spaceship } from './spaceship';
-import { SpaceshipAbilitiesProfile } from './spaceship-abilities';
+import { SpaceshipAbilitiesProfile, SpaceshipAbilityProfile } from './spaceship-abilities';
 
 export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
   [AbilityClass.GUNSHIP]: {
@@ -38,6 +39,52 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
           timeLeft: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserDuration
         });
       }
+    }
+  }
+};
+
+export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfile> = {
+  [SpecialAbilityName.STRONGER_ENGINES]: {
+    callback: () => {}
+  },
+  [SpecialAbilityName.BOMB]: {
+    callback: (spaceship: Spaceship, state: GameState) => {
+      state.entities.push({
+        type: EntityType.BOMB,
+        x: spaceship.x,
+        y: spaceship.y,
+        r: Number(SpecialAbilityAlmanac[SpecialAbilityName.BOMB].radius),
+        age: 0,
+        explosionTime: Number(SpecialAbilityAlmanac[SpecialAbilityName.BOMB].explosionDelay),
+        owner: spaceship
+      });
+    },
+    reactivateCallback: (spaceship: Spaceship, state: GameState) => {
+      const existingBomb = state.entities.find(e => e.type === EntityType.BOMB && e.owner === spaceship);
+      detonateBomb(state, existingBomb as Bomb);
+    }
+  },
+  [SpecialAbilityName.SHIELD_GENERATOR]: {
+    callback: () => {}
+  },
+  [SpecialAbilityName.URGENT_ORDERS]: {
+    callback: (spaceship: Spaceship) => {
+      forEachAbility(a => {
+        spaceship.abilities[a].cooldownTimer *= Number(
+          SpecialAbilityAlmanac[SpecialAbilityName.URGENT_ORDERS].cooldownMultiplier
+        );
+      });
+    },
+    isDisabled: (spaceship: Spaceship) => {
+      let isDisabled = true;
+
+      forEachAbility(a => {
+        if (spaceship.abilities[a].cooldownTimer > 0) {
+          isDisabled = false;
+        }
+      });
+
+      return isDisabled;
     }
   }
 };
