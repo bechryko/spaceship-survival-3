@@ -10,13 +10,13 @@ const initialAbilityStats: Omit<SpaceshipAbility, 'key'> = {
   activeTimer: 0
 };
 
-export function createSpaceship(): Spaceship {
+export function createSpaceship(abilityClass: AbilityClass): Spaceship {
   return {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT - 70,
     speed: 200,
     abilities: {
-      profile: abilities[AbilityClass.GUNSHIP],
+      profile: abilities[abilityClass],
       q: {
         ...initialAbilityStats,
         key: 'KeyQ'
@@ -28,7 +28,7 @@ export function createSpaceship(): Spaceship {
       e: {
         ...initialAbilityStats,
         key: 'KeyE',
-        cooldownTimer: AbilityAlmanac[AbilityClass.GUNSHIP].e.cooldown
+        cooldownTimer: AbilityAlmanac[abilityClass].e.cooldown
       }
     },
     controls: {

@@ -1,7 +1,7 @@
 import './Game.css';
 
 import { useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useLocation, useNavigate } from 'react-router';
 import { useSettings } from '../context';
 import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
@@ -18,37 +18,44 @@ import {
   START_PAUSE_KEY_CODE,
   tickFps
 } from './hud';
-import { createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
+import { AbilityClass, createSpaceship, drawSpaceship, tickSpaceships } from './spaceships';
 import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
-const createState = (status = GameStatus.PLAYING): GameState => ({
-  status,
-  statistics: {
-    time: 0,
-    asteroidsSpawned: 0,
-    asteroidsDestroyed: 0,
-    abilitiesUsed: 0
-  },
-  asteroidBlueprints: {
-    level2: choose(level2AsteroidBlueprints)
-  },
-  highscore: loadHighscore(),
-  player: createSpaceship(),
-  asteroids: [],
-  entities: [],
-  stars: createStars(),
-  spawnTimer: 0
-});
-
 export default function Game() {
+  const navigationState = useLocation().state;
+  const spaceshipAbilityClass: AbilityClass = navigationState?.spaceshipId;
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState());
 
   const { settings } = useSettings();
-
   const navigate = useNavigate();
+  if (!spaceshipAbilityClass) {
+    navigate('/select');
+  }
 
   const fpsCounter = createFpsCounter();
+
+  function createState(status = GameStatus.PLAYING): GameState {
+    return {
+      status,
+      statistics: {
+        time: 0,
+        asteroidsSpawned: 0,
+        asteroidsDestroyed: 0,
+        abilitiesUsed: 0
+      },
+      asteroidBlueprints: {
+        level2: choose(level2AsteroidBlueprints)
+      },
+      highscore: loadHighscore(),
+      player: createSpaceship(spaceshipAbilityClass),
+      asteroids: [],
+      entities: [],
+      stars: createStars(),
+      spawnTimer: 0
+    };
+  }
 
   useEffect(() => {
     const canvas = canvasRef.current!;

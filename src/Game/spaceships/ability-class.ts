@@ -1,3 +1,3 @@
 export enum AbilityClass {
-  GUNSHIP
+  GUNSHIP = 'gunship'
 }

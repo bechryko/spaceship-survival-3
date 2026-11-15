@@ -18,7 +18,7 @@ export default function Menu() {
       <main className="menu">
         <h1>Spaceship Survival 3</h1>
         <section>
-          <NavLink className="button" to="/play">
+          <NavLink className="button" to="/select">
             Play
           </NavLink>
           <NavLink className="button" to="menu/settings">
