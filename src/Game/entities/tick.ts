@@ -2,6 +2,13 @@ import { Asteroid, AsteroidType, destroyAsteroid, pushAsteroid } from '../astero
 import { GameState } from '../hud';
 import { explode } from './create';
 import { Bomb, EntityType, Explosion, Laser, Rocket } from './entities';
+import {
+  getAsteroidSpanInBeam,
+  getBombContactY,
+  getDistanceToAsteroid,
+  isAsteroidHitByLaser,
+  LaserBeam
+} from './hit-tests';
 
 export const EXPLOSION_DURATION = 0.6;
 
@@ -48,12 +55,12 @@ function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
 }
 
 const LASER_EXPLOSION_RADIUS_MULTIPLIER = 1.1;
-const LASER_HIT_SCALE = 0.8;
 
 function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
   laser.timeLeft = Math.max(0, laser.timeLeft - deltaTime);
 
-  laser.topY = getLaserTopY(laser, state.asteroids);
+  const beam: LaserBeam = { x: laser.getX(), width: laser.width, bottomY: laser.getBottomY() };
+  laser.topY = getLaserTopY(beam, state.asteroids);
 
   for (let i = state.asteroids.length - 1; i >= 0; i--) {
     const asteroid = state.asteroids[i];
@@ -61,12 +68,7 @@ function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
       continue;
     }
 
-    const reach = asteroid.r * LASER_HIT_SCALE + laser.width / 2;
-    const isInColumn = Math.abs(asteroid.x - laser.getX()) <= reach;
-    const lowestPoint = asteroid.y + asteroid.r * LASER_HIT_SCALE;
-    const highestPoint = asteroid.y - asteroid.r * LASER_HIT_SCALE;
-
-    if (isInColumn && lowestPoint >= laser.topY && highestPoint <= laser.getBottomY()) {
+    if (isAsteroidHitByLaser(asteroid, beam, laser.topY)) {
       destroyAsteroid(asteroid, state, LASER_EXPLOSION_RADIUS_MULTIPLIER);
     }
   }
@@ -97,10 +99,10 @@ export function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void 
   bomb.y -= BOMB_SPEED * deltaTime;
   bomb.age += deltaTime;
 
-  const asteroidIndex = findBombContact(bomb, fromY, state.asteroids);
-  if (asteroidIndex !== -1) {
-    const target = state.asteroids[asteroidIndex];
-    destroyAsteroid(target, state);
+  const contact = findBombContact(bomb, fromY, state.asteroids);
+  if (contact) {
+    bomb.y = contact.y; // explode where it actually touched, not where the frame happened to end
+    destroyAsteroid(state.asteroids[contact.index], state);
 
     detonateBomb(state, bomb);
   } else if (bomb.age >= bomb.explosionTime) {
@@ -108,34 +110,26 @@ export function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void 
   }
 }
 
-const BOMB_HIT_SCALE = 0.9;
-
 /**
- * Swept test along the bomb's path this frame, so a slow bomb can't skip an asteroid on a long frame.
- * Returns the first asteroid it touches and the y where they met, or null.
+ * Swept test along the bomb's path this frame, against each asteroid's real outline, so a slow bomb
+ * can't skip an asteroid on a long frame. Returns the first asteroid the bomb meets travelling up
+ * (not just the first in the list) and the y where they touched, or null.
  */
-function findBombContact(bomb: Bomb, fromY: number, asteroids: Asteroid[]): number {
+function findBombContact(bomb: Bomb, fromY: number, asteroids: Asteroid[]): { index: number; y: number } | null {
+  let best: { index: number; y: number } | null = null;
+
   for (let i = 0; i < asteroids.length; i++) {
-    const asteroid = asteroids[i];
-    if (!asteroid.active) {
+    if (!asteroids[i].active) {
       continue;
     }
 
-    const reach = asteroid.r * BOMB_HIT_SCALE + bomb.r;
-    const dx = asteroid.x - bomb.x;
-    if (Math.abs(dx) > reach) {
-      continue;
+    const y = getBombContactY(asteroids[i], bomb.x, fromY, bomb.y, bomb.r);
+    if (y !== null && (best === null || y > best.y)) {
+      best = { index: i, y };
     }
-
-    const half = Math.sqrt(reach * reach - dx * dx);
-    if (asteroid.y + half < bomb.y || asteroid.y - half > fromY) {
-      continue;
-    }
-
-    return i;
   }
 
-  return -1;
+  return best;
 }
 
 const BOMB_BLAST_RADIUS = 150;
@@ -150,7 +144,7 @@ export function detonateBomb(state: GameState, bomb: Bomb): void {
     const dy = asteroid.y - y;
     const distance = Math.hypot(dx, dy);
 
-    const edgeDistance = Math.max(0, distance - asteroid.r);
+    const edgeDistance = getDistanceToAsteroid(asteroid, x, y);
     if (edgeDistance > BOMB_BLAST_RADIUS) {
       continue;
     }
@@ -205,26 +199,23 @@ function findRocketHit(x: number, fromY: number, toY: number, asteroids: readonl
   return best;
 }
 
-function getLaserTopY(laser: Laser, asteroids: Asteroid[]): number {
+function getLaserTopY(beam: LaserBeam, asteroids: Asteroid[]): number {
   let topY = 0;
-  const bottomY = laser.getBottomY();
 
   for (const asteroid of asteroids) {
     if (!asteroid.active || asteroid.type !== AsteroidType.IRON) {
       continue;
     }
 
-    const reach = asteroid.r * LASER_HIT_SCALE + laser.width / 2;
-    const dx = Math.abs(asteroid.x - laser.getX());
-    const isBesideBeam = dx > reach;
-    const isBelowEmitter = asteroid.y - asteroid.r * LASER_HIT_SCALE > bottomY;
-    if (isBesideBeam || isBelowEmitter) {
+    // The part of the iron asteroid's outline inside the beam's column
+    const span = getAsteroidSpanInBeam(asteroid, beam);
+    const isBelowEmitter = span !== null && span.minY > beam.bottomY; // already flew past the ship
+    if (!span || isBelowEmitter) {
       continue;
     }
 
-    // Bottom edge of the asteroid's circle at the beam's x position
-    const lowestY = asteroid.y + Math.sqrt(reach * reach - dx * dx);
-    topY = Math.max(topY, Math.min(lowestY, bottomY));
+    // The beam stops at the lowest point of that part
+    topY = Math.max(topY, Math.min(span.maxY, beam.bottomY));
   }
 
   return topY;
