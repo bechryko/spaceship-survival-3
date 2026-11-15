@@ -1,13 +1,21 @@
 import './App.css';
 
+import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Game from './Game/Game';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
+import { version } from './version';
 
 export default function App() {
+  useEffect(() => {
+    if (version.toLowerCase().startsWith('beta')) {
+      document.title = 'Spaceship Survival 3 (Beta)';
+    }
+  }, []);
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/spaceship-survival-3">
       <Routes>
         <Route path="/" element={<Menu></Menu>}></Route>
         <Route path="/menu/*" element={<Menu></Menu>}></Route>
