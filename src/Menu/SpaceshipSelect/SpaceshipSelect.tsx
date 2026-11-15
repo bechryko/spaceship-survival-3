@@ -3,8 +3,10 @@ import './SpaceshipSelect.css';
 import { useState, type CSSProperties } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import StarBackground from '../StarBackground';
+import ColorPicker from './ColorPicker/ColorPicker';
+import { loadColor, saveColor, SPACESHIP_COLORS } from './ColorPicker/spaceship-colors';
 import SpaceshipIcon from './SpaceshipIcon';
-import { GRID_SLOT_COUNT, SPACESHIPS, getSpaceshipDefinition } from './spaceship-catalog';
+import { getSpaceshipDefinition, GRID_SLOT_COUNT, SPACESHIPS } from './spaceship-catalog';
 
 const SLOTS = Array.from({ length: GRID_SLOT_COUNT }, (_, index) => SPACESHIPS[index] ?? null);
 
@@ -12,13 +14,19 @@ export default function SpaceshipSelect() {
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [color, setColor] = useState(loadColor());
 
   const previewId = hoveredId ?? selectedId;
   const preview = previewId ? getSpaceshipDefinition(previewId) : null;
 
+  const changeColor = (color: string) => {
+    setColor(color);
+    saveColor(color);
+  };
+
   const start = () => {
     if (selectedId) {
-      navigate('/play', { state: { spaceshipId: selectedId } });
+      navigate('/play', { state: { spaceshipId: selectedId, color } });
     }
   };
 
@@ -26,16 +34,20 @@ export default function SpaceshipSelect() {
     <div className="select-screen">
       <StarBackground />
 
-      <NavLink className="button back-button" to="/menu">
-        Back to Menu
-      </NavLink>
+      <div className="select-side">
+        <NavLink className="button back-button" to="/menu">
+          Back to Menu
+        </NavLink>
+
+        <ColorPicker label="Change Color" colors={SPACESHIP_COLORS} value={color} onChange={changeColor} />
+      </div>
 
       <section className="select-top">
         <div className="preview" aria-live="polite">
           {preview ? (
             <>
-              <div className="preview-icon" style={{ '--ship-color': preview.color } as CSSProperties}>
-                <SpaceshipIcon color={preview.color} flame="animated" />
+              <div className="preview-icon" style={{ '--ship-color': color } as CSSProperties}>
+                <SpaceshipIcon color={color} flame="animated" />
               </div>
 
               <div className="preview-details">
@@ -64,13 +76,7 @@ export default function SpaceshipSelect() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="button start-button"
-          disabled={!selectedId}
-          aria-describedby="start-hint"
-          onClick={start}
-        >
+        <button type="button" className="button start-button" disabled={!selectedId} onClick={start}>
           Start
         </button>
       </section>
@@ -93,7 +99,7 @@ export default function SpaceshipSelect() {
                 onFocus={() => setHoveredId(spaceship.id)}
                 onBlur={() => setHoveredId(null)}
               >
-                <SpaceshipIcon color={spaceship.color} flame="static" />
+                <SpaceshipIcon color={color} flame="static" />
               </button>
             ) : (
               <span key={`empty-${index}`} className="slot slot-empty" aria-hidden="true" />

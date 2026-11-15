@@ -10,12 +10,18 @@
   color: #e8f1f2;
   background: rgba(18, 27, 45, 0.7);
 
-  .back-button {
+  .select-side {
+    display: grid;
+    gap: 0.75rem;
     position: absolute;
     top: clamp(1rem, 4vw, 2.5rem);
     left: clamp(1rem, 4vw, 2.5rem);
-    width: auto;
-    padding-inline: 1.25rem;
+    width: max-content;
+
+    .back-button {
+      width: auto;
+      padding-inline: 1.25rem;
+    }
   }
 }
 
@@ -40,6 +46,12 @@
 .select-top .start-button {
   width: min(16rem, 100%);
   margin-top: auto;
+}
+
+@media (max-width: 72rem) {
+  .select-top {
+    padding-top: 13.5rem;
+  }
 }
 
 .preview-empty {

@@ -24,13 +24,14 @@ import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlman
 export default function Game() {
   const navigationState = useLocation().state;
   const spaceshipAbilityClass: AbilityClass = navigationState?.spaceshipId;
+  const spaceshipColor: string = navigationState?.color;
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState());
 
   const { settings } = useSettings();
   const navigate = useNavigate();
-  if (!spaceshipAbilityClass) {
+  if (!spaceshipAbilityClass || !spaceshipColor) {
     navigate('/select');
   }
 
@@ -49,7 +50,7 @@ export default function Game() {
         level2: choose(level2AsteroidBlueprints)
       },
       highscore: loadHighscore(),
-      player: createSpaceship(spaceshipAbilityClass),
+      player: createSpaceship(spaceshipAbilityClass, spaceshipColor),
       asteroids: [],
       entities: [],
       stars: createStars(),

@@ -10,7 +10,7 @@ const initialAbilityStats: Omit<SpaceshipAbility, 'key'> = {
   activeTimer: 0
 };
 
-export function createSpaceship(abilityClass: AbilityClass): Spaceship {
+export function createSpaceship(abilityClass: AbilityClass, color: string): Spaceship {
   return {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT - 70,
@@ -37,6 +37,6 @@ export function createSpaceship(abilityClass: AbilityClass): Spaceship {
       leftKeyCode: 'KeyA',
       rightKeyCode: 'KeyD'
     },
-    color: 'forestgreen'
+    color
   };
 }
