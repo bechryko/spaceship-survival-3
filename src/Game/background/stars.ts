@@ -1,14 +1,13 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
-import { between } from '../utils';
+import { between, choose } from '../utils';
 
-const STAR_COUNT = 140;
-const STAR_TINTS = ['#ffffff', '#cfe3ff', '#fff1c9']; // white, icy blue, warm yellow
-
-const SMALL_STAR_CHANCE = 0.85;
+const STAR_COUNT = 160;
+const STAR_TINTS = ['#ffffff', '#cfe3ff', '#fff1c9', '#ffecf6'];
+const SMALL_STAR_CHANCE = 0.875;
 const SMALL_STAR_MIN_SIZE = 1;
 const SMALL_STAR_MAX_SIZE = 1.8;
 const LARGE_STAR_MIN_SIZE = 2;
-const LARGE_STAR_MAX_SIZE = 4;
+const LARGE_STAR_MAX_SIZE = 4.5;
 
 const MIN_BRIGHTNESS = 0.4;
 
@@ -36,6 +35,6 @@ export function createStars(width = GAME_WIDTH, height = GAME_HEIGHT, starCount 
     brightness: between(MIN_BRIGHTNESS, 1, { floor: false }),
     speed: between(MIN_TWINKLE_SPEED, MAX_TWINKLE_SPEED, { floor: false }),
     phase: Math.random() * Math.PI * 2,
-    tint: STAR_TINTS[Math.floor(Math.random() * STAR_TINTS.length)]
+    tint: choose(STAR_TINTS)
   }));
 }
