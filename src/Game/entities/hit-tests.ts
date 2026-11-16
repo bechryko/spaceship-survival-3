@@ -169,12 +169,13 @@ export function getAsteroidSpanInBeam(asteroid: Asteroid, beam: LaserBeam): { mi
   return minY <= maxY ? { minY, maxY } : null;
 }
 
-// ---------- Bomb ----------
+// ---------- Rocket and bomb ----------
 /**
- * Where a circle of `radius` travelling straight up along `x` first touches the asteroid's real outline,
- * as the y of the circle's centre, or null if it doesn't touch it between `fromY` and `toY` (toY < fromY).
+ * Where a circle of `radius` travelling straight up along `x` (a rocket or a bomb) first touches the
+ * asteroid's real outline, as the y of the circle's centre, or null if it doesn't touch it between
+ * `fromY` and `toY` (toY < fromY).
  */
-export function getBombContactY(
+export function getSweptCircleContactY(
   asteroid: Asteroid,
   x: number,
   fromY: number,
