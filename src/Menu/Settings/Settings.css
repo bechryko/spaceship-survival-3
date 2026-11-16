@@ -1,12 +1,48 @@
 main.settings {
   display: grid;
   grid-template-rows: auto 1fr;
+
+  box-sizing: border-box;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+
+  section {
+    gap: 1.5rem;
+    padding: 1.5rem 2rem;
+
+    a.back-button {
+      margin-top: auto;
+    }
+  }
 }
 
-a.button {
-  margin-top: auto;
-}
+.settings-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: min(100%, 24rem);
+  margin-inline: auto;
+  color: rgba(232, 241, 242, 0.75);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 
-section {
-  gap: 2rem;
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+  }
+
+  &::before {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.22));
+  }
+
+  &::after {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+  }
 }

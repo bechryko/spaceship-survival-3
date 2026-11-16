@@ -29,6 +29,9 @@ import {
 } from './spaceships';
 import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
+const DEBUG_SLOW_GAME_SPEED = 0.1;
+const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
+
 export default function Game() {
   const navigationState = useLocation().state;
   const spaceshipAbilityClass: AbilityClass = navigationState?.spaceshipId;
@@ -49,6 +52,7 @@ export default function Game() {
   function createState(status = GameStatus.PLAYING): GameState {
     return {
       status,
+      speed: 1,
       statistics: {
         time: 0,
         asteroidsSpawned: 0,
@@ -131,6 +135,19 @@ export default function Game() {
 
             activateAbility(state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
           }
+          if (settings.debugControls) {
+            switch (event.code) {
+              case 'Comma':
+                state.speed = 1;
+                break;
+              case 'Period':
+                state.speed = DEBUG_SLOW_GAME_SPEED;
+                break;
+              case 'Slash':
+                state.speed = DEBUG_EXTRA_SLOW_GAME_SPEED;
+                break;
+            }
+          }
       }
     };
     const onKeyUp = (event: KeyboardEvent) => {
@@ -157,10 +174,12 @@ export default function Game() {
 
     // ----- Update -----
     const update = (deltaTime: number) => {
+      const originalDeltaTime = deltaTime;
       const state = stateRef.current;
+      deltaTime *= state.speed;
       state.statistics.time += deltaTime;
 
-      tickFps(fpsCounter, deltaTime);
+      tickFps(fpsCounter, originalDeltaTime);
       tickStars(state.stars, deltaTime);
       tickSpaceships(state, deltaTime);
       tickEntities(state, deltaTime);
@@ -184,7 +203,7 @@ export default function Game() {
       }
       drawEntities(ctx, state.entities);
       drawSpaceship(ctx, state.player);
-      drawHUD(ctx, state, settings.showFps ? fpsCounter : null);
+      drawHUD(ctx, state, settings, settings.showFps ? fpsCounter : null);
     };
 
     let rafId = 0;

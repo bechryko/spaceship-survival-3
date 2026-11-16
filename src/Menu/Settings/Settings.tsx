@@ -2,7 +2,7 @@ import './Settings.css';
 
 import { NavLink } from 'react-router';
 import { OptionStepper, ToggleSwitch } from '../../components';
-import { useSettings } from '../../context';
+import { Settings, useSettings } from '../../context';
 
 const RESOLUTION_OPTIONS = [
   { value: 1, label: 'Low (960×540)' },
@@ -13,16 +13,10 @@ const RESOLUTION_OPTIONS = [
 export default function Settings() {
   const { settings, setSettings } = useSettings();
 
-  const setResolutionMultiplier = (resolutionMultiplier: number) =>
+  const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) =>
     setSettings({
       ...settings,
-      resolutionMultiplier
-    });
-
-  const setShowFps = (showFps: boolean) =>
-    setSettings({
-      ...settings,
-      showFps
+      [key]: value
     });
 
   return (
@@ -33,10 +27,27 @@ export default function Settings() {
           label="Resolution"
           options={RESOLUTION_OPTIONS}
           value={settings.resolutionMultiplier}
-          onChange={setResolutionMultiplier}
+          onChange={value => updateSetting('resolutionMultiplier', value)}
         />
-        <ToggleSwitch label="FPS counter" checked={settings.showFps} onChange={setShowFps} />
-        <NavLink className="button" to="/menu">
+
+        <h3 className="settings-divider">Debug Settings</h3>
+        <ToggleSwitch
+          label="FPS counter"
+          checked={settings.showFps}
+          onChange={checked => updateSetting('showFps', checked)}
+        />
+        <ToggleSwitch
+          label="Debug controls"
+          checked={settings.debugControls}
+          onChange={checked => updateSetting('debugControls', checked)}
+        />
+        <ToggleSwitch
+          label="Debug statistics"
+          checked={settings.debugStatistics}
+          onChange={checked => updateSetting('debugStatistics', checked)}
+        />
+
+        <NavLink className="button back-button" to="/menu">
           Back to Menu
         </NavLink>
       </section>

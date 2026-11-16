@@ -5,6 +5,7 @@ import { Spaceship } from '../spaceships';
 
 export interface GameState {
   status: GameStatus;
+  speed: number;
   statistics: GameStatistics;
   asteroidBlueprints: {
     level2: AsteroidBlueprint;

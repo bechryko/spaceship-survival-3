@@ -2,17 +2,17 @@
   display: grid;
   place-items: center;
   min-height: 100dvh;
-}
 
-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
-  padding-bottom: 0;
+  section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    padding-bottom: 0;
 
-  > * {
-    width: 75%;
+    > * {
+      width: 75%;
+    }
   }
 }

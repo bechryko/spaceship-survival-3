@@ -1,3 +1,4 @@
+import { Settings } from '../../context';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
 import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
@@ -10,14 +11,22 @@ const HUD_MARGIN_Y = 28;
 const HUD_FONT_SIZE = 18;
 const HUD_FONT_FAMILY = 'system-ui, sans-serif';
 
-export function drawHUD(ctx: CanvasRenderingContext2D, state: GameState, fpsCounter: FpsCounter | null): void {
+export function drawHUD(
+  ctx: CanvasRenderingContext2D,
+  state: GameState,
+  settings: Settings,
+  fpsCounter: FpsCounter | null
+): void {
   ctx.textAlign = 'left';
   drawText(ctx, `Asteroids: ${state.statistics.asteroidsSpawned}`, HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
   ctx.textAlign = 'right';
 
   drawAbilityHud(ctx, state.player, state);
   if (fpsCounter) {
-    drawFps(ctx, fpsCounter);
+    drawFps(ctx, fpsCounter, state.speed !== 1);
+  }
+  if (settings.debugStatistics) {
+    drawDebugStatistics(ctx, state);
   }
 
   drawOverlays(ctx, state);
@@ -176,24 +185,65 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
   ctx.restore();
 }
 
-const FPS_MARGIN = 10;
-const FPS_FONT_WEIGHT = 500;
-const FPS_FONT_SIZE = 14;
-const FPS_COLOR = 'rgba(232, 241, 242, 0.6)';
+const DEBUG_HUD_MARGIN = 10;
+const DEBUG_HUD_FONT_WEIGHT = 500;
+const DEBUG_HUD_FONT_SIZE = 14;
+const DEBUG_HUD_TEXT_COLOR = 'rgba(232, 241, 242, 0.6)';
+
+const FPS_BOTTOM_MARGIN = DEBUG_HUD_MARGIN;
 const FPS_LOW_COLOR = '#ff8f8f';
 const FPS_LOW_THRESHOLD = 30;
 
-export function drawFps(ctx: CanvasRenderingContext2D, counter: FpsCounter): void {
+function drawFps(ctx: CanvasRenderingContext2D, counter: FpsCounter, isGameSlowed: boolean): void {
   if (counter.fps === 0) {
     return;
   }
 
+  const additionalText = isGameSlowed ? ' (actual)' : '';
+
   ctx.save();
-  setFont(ctx, FPS_FONT_WEIGHT, FPS_FONT_SIZE);
-  ctx.fillStyle = counter.fps < FPS_LOW_THRESHOLD ? FPS_LOW_COLOR : FPS_COLOR;
+  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_HUD_FONT_SIZE);
+  ctx.fillStyle = counter.fps < FPS_LOW_THRESHOLD ? FPS_LOW_COLOR : DEBUG_HUD_TEXT_COLOR;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
-  ctx.fillText(`${Math.round(counter.fps)} FPS`, FPS_MARGIN, GAME_HEIGHT - FPS_MARGIN);
+  ctx.fillText(`${Math.round(counter.fps)} FPS` + additionalText, DEBUG_HUD_MARGIN, GAME_HEIGHT - FPS_BOTTOM_MARGIN);
+  ctx.restore();
+}
+
+const DEBUG_STATISTICS_TOP_MARGIN = GAME_HEIGHT / 3;
+const DEBUG_STATISTICS_GAP = 5;
+
+function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): void {
+  ctx.save();
+  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_HUD_FONT_SIZE);
+  ctx.fillStyle = DEBUG_HUD_TEXT_COLOR;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(
+    `Asteroids: ${state.asteroids.length} (${state.asteroids.filter(a => a.active).length} active)`,
+    DEBUG_HUD_MARGIN,
+    DEBUG_STATISTICS_TOP_MARGIN
+  );
+  ctx.fillText(
+    `Entities: ${state.entities.length}`,
+    DEBUG_HUD_MARGIN,
+    DEBUG_STATISTICS_TOP_MARGIN + DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP
+  );
+  ctx.fillText(
+    `Stars: ${state.stars.length}`,
+    DEBUG_HUD_MARGIN,
+    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 2
+  );
+  ctx.fillText(
+    `Game status: ${state.status}`,
+    DEBUG_HUD_MARGIN,
+    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 3
+  );
+  ctx.fillText(
+    `Game speed: ${state.speed * 100}%`,
+    DEBUG_HUD_MARGIN,
+    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 4
+  );
   ctx.restore();
 }
 
