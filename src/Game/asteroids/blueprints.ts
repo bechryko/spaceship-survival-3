@@ -1,30 +1,25 @@
+import { Range } from '../models';
 import { between } from '../utils';
 import { Asteroid, AsteroidData, AsteroidType } from './asteroid';
 
 export interface AsteroidBlueprint {
   type: AsteroidType;
-  velocity: number;
+  velocity: number | Range;
   minSize: number;
   maxSize: number;
   sizeIncrease: number;
   sizeIncreaseStart: number;
   sizeIncreaseMax: number;
-  minVertexCount: number;
-  maxVertexCount: number;
+  vertexCount: number | Range;
   maxReachIn: number;
   color: {
-    minHue: number;
-    maxHue: number;
-    minLightness: number;
-    maxLightness: number;
-    minSaturation: number;
-    maxSaturation: number;
+    hue: number | Range;
+    lightness: number | Range;
+    saturation: number | Range;
   };
   craters: {
-    minCount: number;
-    maxCount: number;
-    minSize: number;
-    maxSize: number;
+    count: number | Range;
+    size: number | Range;
   };
 }
 
@@ -38,22 +33,31 @@ export const regularAsteroidBlueprint: AsteroidBlueprint = {
   sizeIncrease: 1.5,
   sizeIncreaseStart: 0,
   sizeIncreaseMax: 75,
-  minVertexCount: 9,
-  maxVertexCount: 13,
+  vertexCount: {
+    min: 9,
+    max: 13
+  },
   maxReachIn: 0.25,
   color: {
-    minHue: 15,
-    maxHue: 40,
-    minLightness: 34,
-    maxLightness: 46,
-    minSaturation: 14,
-    maxSaturation: 14
+    hue: {
+      min: 15,
+      max: 40
+    },
+    lightness: {
+      min: 34,
+      max: 46
+    },
+    saturation: 14
   },
   craters: {
-    minCount: 5,
-    maxCount: 9,
-    minSize: 0.05,
-    maxSize: 0.2
+    count: {
+      min: 5,
+      max: 9
+    },
+    size: {
+      min: 0.05,
+      max: 0.2
+    }
   }
 };
 
@@ -65,49 +69,70 @@ export const icyAsteroidBlueprint: AsteroidBlueprint = {
   sizeIncrease: 1.5,
   sizeIncreaseStart: 25,
   sizeIncreaseMax: 75,
-  minVertexCount: 11,
-  maxVertexCount: 16,
+  vertexCount: {
+    min: 11,
+    max: 16
+  },
   maxReachIn: 0.6,
   color: {
-    minHue: 195,
-    maxHue: 215,
-    minLightness: 58,
-    maxLightness: 72,
-    minSaturation: 45,
-    maxSaturation: 65
+    hue: {
+      min: 195,
+      max: 215
+    },
+    lightness: {
+      min: 58,
+      max: 72
+    },
+    saturation: {
+      min: 45,
+      max: 65
+    }
   },
   craters: {
-    minCount: 7,
-    maxCount: 11,
-    minSize: 0.04,
-    maxSize: 0.12
+    count: {
+      min: 7,
+      max: 11
+    },
+    size: {
+      min: 0.04,
+      max: 0.12
+    }
   }
 };
 
 export const ironAsteroidBlueprint: AsteroidBlueprint = {
   type: AsteroidType.IRON,
-  velocity: 100,
-  minSize: 60,
-  maxSize: 80,
-  sizeIncrease: 1,
+  velocity: {
+    min: 100,
+    max: DEFAULT_ASTEROID_VELOCITY
+  },
+  minSize: 55,
+  maxSize: 75,
+  sizeIncrease: 0.75,
   sizeIncreaseStart: 25,
-  sizeIncreaseMax: 70,
-  minVertexCount: 9,
-  maxVertexCount: 13,
+  sizeIncreaseMax: 75,
+  vertexCount: {
+    min: 9,
+    max: 13
+  },
   maxReachIn: 0.1,
   color: {
-    minHue: 0,
-    maxHue: 255,
-    minLightness: 70,
-    maxLightness: 90,
-    minSaturation: 0,
-    maxSaturation: 0
+    hue: 0,
+    lightness: {
+      min: 70,
+      max: 90
+    },
+    saturation: 0
   },
   craters: {
-    minCount: 6,
-    maxCount: 10,
-    minSize: 0.04,
-    maxSize: 0.16
+    count: {
+      min: 6,
+      max: 10
+    },
+    size: {
+      min: 0.04,
+      max: 0.16
+    }
   }
 };
 
@@ -118,21 +143,15 @@ export function createIceShardBlueprint(parent: Asteroid): AsteroidBlueprint {
     minSize: parent.r * 0.25,
     maxSize: parent.r * 0.3,
     sizeIncrease: 0,
-    minVertexCount: 5,
-    maxVertexCount: 7,
-    maxReachIn: 0.8,
-    color: {
-      minHue: parent.color.hue,
-      maxHue: parent.color.hue,
-      minLightness: parent.color.lightness,
-      maxLightness: parent.color.lightness,
-      minSaturation: parent.color.saturation,
-      maxSaturation: parent.color.saturation
+    vertexCount: {
+      min: 5,
+      max: 7
     },
+    maxReachIn: 0.8,
+    color: { ...parent.color },
     craters: {
       ...icyAsteroidBlueprint.craters,
-      minCount: 0,
-      maxCount: 0
+      count: 0
     }
   };
 }

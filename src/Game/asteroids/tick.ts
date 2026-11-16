@@ -10,7 +10,8 @@ import {
 import { AsteroidCreationModifiers, createAsteroid } from './create';
 import { destroyAsteroid } from './destroy';
 
-export const ICY_ASTEROID_ICE_SHARD_VELOCITY = 75;
+const ICY_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
+const ICY_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
 
 export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
   state.spawnTimer -= deltaTime;
@@ -56,7 +57,11 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
           velocity: asteroid.velocity,
           notPrimaryAsteroid: true
         });
-        pushAsteroid(iceShard, ICY_ASTEROID_ICE_SHARD_VELOCITY, angle);
+        pushAsteroid(
+          iceShard,
+          between(ICY_ASTEROID_ICE_SHARD_MIN_VELOCITY, ICY_ASTEROID_ICE_SHARD_MAX_VELOCITY),
+          angle
+        );
       }
     }
   }

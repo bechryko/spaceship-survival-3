@@ -1,5 +1,5 @@
 import { Circle, Point } from '../models';
-import { between, boundingRadius } from '../utils';
+import { between, boundingRadius, getNumberOrRangeValue } from '../utils';
 import { AsteroidBlueprint } from './blueprints';
 import { AsteroidShape } from './hitbox';
 
@@ -9,7 +9,7 @@ const CRATER_MAX_PLACEMENT_ATTEMPTS = 40;
 
 export function createCraters(blueprint: AsteroidBlueprint, asteroidPoints: AsteroidShape): readonly Circle[] {
   const asteroidBoundingRadius = boundingRadius(asteroidPoints);
-  const craterCount = between(blueprint.craters.minCount, blueprint.craters.maxCount);
+  const craterCount = getNumberOrRangeValue(blueprint.craters.count);
 
   const craters: Circle[] = [];
   for (let idx = 0; idx < craterCount; idx++) {
@@ -33,7 +33,7 @@ function getCraterCoords(
   asteroidBoundingRadius: number
 ): Circle {
   const a = ((Math.PI * 2) / craterCount) * idx;
-  const r = between(blueprint.craters.minSize, blueprint.craters.maxSize, { floor: false });
+  const r = getNumberOrRangeValue(blueprint.craters.size, false);
   const dist = between(0, asteroidBoundingRadius - r, { squaredDistribution: true, floor: false });
 
   return {

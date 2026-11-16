@@ -3,10 +3,12 @@ import { GameState } from '../hud';
 import { between } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import { createIceShardBlueprint } from './blueprints';
-import { ICY_ASTEROID_ICE_SHARD_VELOCITY, pushAsteroid, spawnAsteroid } from './tick';
+import { pushAsteroid, spawnAsteroid } from './tick';
 
 const ICY_ASTEROID_MIN_SHARD_RELEASE = 4;
-const ICY_ASTEROID_MAX_SHARD_RELEASE = 7;
+const ICY_ASTEROID_MAX_SHARD_RELEASE = 6;
+const ICY_ASTEROID_MIN_SHARD_SPEED = 20;
+const ICY_ASTEROID_MAX_SHARD_SPEED = 150;
 
 const ASTEROID_TYPES_NOT_COUNTING_TOWARDS_STATISTICS = [AsteroidType.ICE_SHARD];
 
@@ -34,7 +36,11 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
         velocity: asteroid.velocity,
         notPrimaryAsteroid: true
       });
-      pushAsteroid(iceShard, ICY_ASTEROID_ICE_SHARD_VELOCITY * distanceMultiplier, angle);
+      pushAsteroid(
+        iceShard,
+        between(ICY_ASTEROID_MIN_SHARD_SPEED, ICY_ASTEROID_MAX_SHARD_SPEED) * distanceMultiplier,
+        angle
+      );
     }
   }
 

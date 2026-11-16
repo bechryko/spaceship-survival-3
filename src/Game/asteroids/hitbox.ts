@@ -1,5 +1,5 @@
 import { Point } from '../models';
-import { between } from '../utils';
+import { between, getNumberOrRangeValue } from '../utils';
 import { AsteroidBlueprint } from './blueprints';
 
 const VERTEX_ROTATION_JITTER = 0.3;
@@ -7,7 +7,7 @@ const VERTEX_ROTATION_JITTER = 0.3;
 export type AsteroidShape = readonly Point[];
 
 export function createAsteroidShape(blueprint: AsteroidBlueprint): AsteroidShape {
-  const vertexCount = between(blueprint.minVertexCount, blueprint.maxVertexCount);
+  const vertexCount = getNumberOrRangeValue(blueprint.vertexCount);
   const averageRotation = (Math.PI * 2) / vertexCount;
 
   const points: Point[] = [];

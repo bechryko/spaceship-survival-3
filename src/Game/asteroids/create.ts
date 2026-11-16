@@ -1,5 +1,5 @@
 import { GAME_WIDTH, GameState } from '../hud';
-import { between } from '../utils';
+import { between, getNumberOrRangeValue } from '../utils';
 import { Asteroid } from './asteroid';
 import { AsteroidBlueprint, regularAsteroidBlueprint, startingAsteroidDataProvider } from './blueprints';
 import { createCraters } from './craters';
@@ -47,7 +47,7 @@ export function createAsteroid(
   }
 
   const y = creationModifiers.y ?? -r;
-  const velocity = creationModifiers.velocity ?? blueprint.velocity;
+  const velocity = creationModifiers.velocity ?? getNumberOrRangeValue(blueprint.velocity);
   const velocityHorizontal = creationModifiers.velocityHorizontal ?? 0;
   const data = { ...(startingAsteroidDataProvider[blueprint.type]?.() ?? {}) };
 
@@ -60,9 +60,9 @@ export function createAsteroid(
     velocityHorizontal,
     angle: Math.random() * Math.PI * 2,
     color: {
-      hue: between(blueprint.color.minHue, blueprint.color.maxHue, { floor: false }),
-      saturation: between(blueprint.color.minSaturation, blueprint.color.maxSaturation, { floor: false }),
-      lightness: between(blueprint.color.minLightness, blueprint.color.maxLightness, { floor: false })
+      hue: getNumberOrRangeValue(blueprint.color.hue),
+      saturation: getNumberOrRangeValue(blueprint.color.saturation),
+      lightness: getNumberOrRangeValue(blueprint.color.lightness)
     },
     active: true,
     data

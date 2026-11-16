@@ -1,4 +1,6 @@
+import { Range } from '../models';
 import { AbilityAlmanac, Spaceship, SpaceshipAbilityIndex } from '../spaceships';
+import { between } from './random';
 
 export function forEachAbility(callback: (ability: SpaceshipAbilityIndex) => void, includeSpecial = false): void {
   const abilities = ['q', 'w', 'e'];
@@ -52,4 +54,8 @@ export function easeOutCubic(t: number): number {
 
 export function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
+}
+
+export function getNumberOrRangeValue(value: number | Range, isInteger = true): number {
+  return typeof value === 'number' ? value : between(value.min, value.max, { floor: isInteger });
 }
