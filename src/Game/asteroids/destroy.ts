@@ -5,10 +5,10 @@ import { Asteroid, AsteroidType } from './asteroid';
 import { createIceShardBlueprint } from './blueprints';
 import { pushAsteroid, spawnAsteroid } from './tick';
 
-const ICY_ASTEROID_MIN_SHARD_RELEASE = 4;
-const ICY_ASTEROID_MAX_SHARD_RELEASE = 6;
-const ICY_ASTEROID_MIN_SHARD_SPEED = 20;
-const ICY_ASTEROID_MAX_SHARD_SPEED = 150;
+const ICE_ASTEROID_MIN_SHARD_RELEASE = 4;
+const ICE_ASTEROID_MAX_SHARD_RELEASE = 6;
+const ICE_ASTEROID_MIN_SHARD_SPEED = 20;
+const ICE_ASTEROID_MAX_SHARD_SPEED = 150;
 
 const ASTEROID_TYPES_NOT_COUNTING_TOWARDS_STATISTICS = [AsteroidType.ICE_SHARD];
 
@@ -23,8 +23,8 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
     state.statistics.asteroidsDestroyed++;
   }
 
-  if (asteroid.type === AsteroidType.ICY) {
-    for (let i = 0; i < between(ICY_ASTEROID_MIN_SHARD_RELEASE, ICY_ASTEROID_MAX_SHARD_RELEASE); i++) {
+  if (asteroid.type === AsteroidType.ICE) {
+    for (let i = 0; i < between(ICE_ASTEROID_MIN_SHARD_RELEASE, ICE_ASTEROID_MAX_SHARD_RELEASE); i++) {
       const angle = Math.random() * Math.PI * 2;
       const distanceMultiplier = between(0, 1, { squaredDistribution: true, floor: false });
       const distance = asteroid.r * distanceMultiplier;
@@ -38,7 +38,7 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
       });
       pushAsteroid(
         iceShard,
-        between(ICY_ASTEROID_MIN_SHARD_SPEED, ICY_ASTEROID_MAX_SHARD_SPEED) * distanceMultiplier,
+        between(ICE_ASTEROID_MIN_SHARD_SPEED, ICE_ASTEROID_MAX_SHARD_SPEED) * distanceMultiplier,
         angle
       );
     }

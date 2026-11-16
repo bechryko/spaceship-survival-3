@@ -3,7 +3,7 @@ import { AsteroidShape } from './hitbox';
 
 export enum AsteroidType {
   REGULAR,
-  ICY,
+  ICE,
   ICE_SHARD,
   IRON
 }

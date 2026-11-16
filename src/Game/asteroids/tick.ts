@@ -4,14 +4,14 @@ import { between, boundingRadius, polygonsCollide, transformPolygon } from '../u
 import { Asteroid, AsteroidType } from './asteroid';
 import {
   createIceShardBlueprint,
-  ICY_ASTEROID_MAX_BREAK_OFF_TIME,
-  ICY_ASTEROID_MIN_BREAK_OFF_TIME
+  ICE_ASTEROID_MAX_BREAK_OFF_TIME,
+  ICE_ASTEROID_MIN_BREAK_OFF_TIME
 } from './blueprints';
 import { AsteroidCreationModifiers, createAsteroid } from './create';
 import { destroyAsteroid } from './destroy';
 
-const ICY_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
-const ICY_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
+const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
+const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
 
 export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
   state.spawnTimer -= deltaTime;
@@ -39,13 +39,13 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
       }
     }
 
-    if (asteroid.type === AsteroidType.ICY) {
+    if (asteroid.type === AsteroidType.ICE) {
       asteroid.data.iceShardBreakOffTimer! = Math.max(0, asteroid.data.iceShardBreakOffTimer! - deltaTime);
 
       if (asteroid.data.iceShardBreakOffTimer! === 0) {
         asteroid.data.iceShardBreakOffTimer! = between(
-          ICY_ASTEROID_MIN_BREAK_OFF_TIME,
-          ICY_ASTEROID_MAX_BREAK_OFF_TIME,
+          ICE_ASTEROID_MIN_BREAK_OFF_TIME,
+          ICE_ASTEROID_MAX_BREAK_OFF_TIME,
           { floor: false }
         );
 
@@ -59,7 +59,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
         });
         pushAsteroid(
           iceShard,
-          between(ICY_ASTEROID_ICE_SHARD_MIN_VELOCITY, ICY_ASTEROID_ICE_SHARD_MAX_VELOCITY),
+          between(ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY, ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY),
           angle
         );
       }

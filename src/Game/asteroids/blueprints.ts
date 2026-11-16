@@ -61,8 +61,8 @@ export const regularAsteroidBlueprint: AsteroidBlueprint = {
   }
 };
 
-export const icyAsteroidBlueprint: AsteroidBlueprint = {
-  type: AsteroidType.ICY,
+export const iceAsteroidBlueprint: AsteroidBlueprint = {
+  type: AsteroidType.ICE,
   velocity: DEFAULT_ASTEROID_VELOCITY,
   minSize: 75,
   maxSize: 100,
@@ -138,7 +138,7 @@ export const ironAsteroidBlueprint: AsteroidBlueprint = {
 
 export function createIceShardBlueprint(parent: Asteroid): AsteroidBlueprint {
   return {
-    ...icyAsteroidBlueprint,
+    ...iceAsteroidBlueprint,
     type: AsteroidType.ICE_SHARD,
     minSize: parent.r * 0.25,
     maxSize: parent.r * 0.3,
@@ -150,19 +150,19 @@ export function createIceShardBlueprint(parent: Asteroid): AsteroidBlueprint {
     maxReachIn: 0.8,
     color: { ...parent.color },
     craters: {
-      ...icyAsteroidBlueprint.craters,
+      ...iceAsteroidBlueprint.craters,
       count: 0
     }
   };
 }
 
-export const ICY_ASTEROID_MIN_BREAK_OFF_TIME = 1;
-export const ICY_ASTEROID_MAX_BREAK_OFF_TIME = 4;
+export const ICE_ASTEROID_MIN_BREAK_OFF_TIME = 1;
+export const ICE_ASTEROID_MAX_BREAK_OFF_TIME = 4;
 
 export const startingAsteroidDataProvider: Partial<Record<AsteroidType, () => AsteroidData>> = {
-  [AsteroidType.ICY]: () => ({
-    iceShardBreakOffTimer: between(ICY_ASTEROID_MIN_BREAK_OFF_TIME, ICY_ASTEROID_MAX_BREAK_OFF_TIME, { floor: false })
+  [AsteroidType.ICE]: () => ({
+    iceShardBreakOffTimer: between(ICE_ASTEROID_MIN_BREAK_OFF_TIME, ICE_ASTEROID_MAX_BREAK_OFF_TIME, { floor: false })
   })
 };
 
-export const level2AsteroidBlueprints = [icyAsteroidBlueprint, ironAsteroidBlueprint];
+export const level2AsteroidBlueprints = [iceAsteroidBlueprint, ironAsteroidBlueprint];
