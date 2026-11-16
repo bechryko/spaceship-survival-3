@@ -2,7 +2,7 @@ import './SpecialAbilitySelect.css';
 
 import { useState, type CSSProperties } from 'react';
 import { NavLink, Navigate, useLocation, useNavigate } from 'react-router';
-import { DEFAULT_SPACESHIP_COLOR } from '../SpaceshipSelect/ColorPicker/spaceship-colors';
+import { loadColor } from '../SpaceshipSelect/ColorPicker/spaceship-colors';
 import SpaceshipIcon from '../SpaceshipSelect/SpaceshipIcon';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
@@ -16,7 +16,6 @@ import {
 
 interface SelectionState {
   spaceshipId?: string;
-  color?: string;
   specialAbilityName?: string;
 }
 
@@ -39,7 +38,7 @@ export default function AbilitySelect() {
 
   const { spaceshipId } = state;
   const spaceship = getSpaceshipDefinition(spaceshipId);
-  const color = state.color ?? DEFAULT_SPACESHIP_COLOR;
+  const color = loadColor();
 
   const previewId = hoveredId ?? selectedId;
   const ability = previewId ? getSpecialAbility(previewId) : undefined;

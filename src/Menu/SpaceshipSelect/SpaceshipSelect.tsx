@@ -15,7 +15,6 @@ const SLOTS = Array.from(
 
 interface ReturnState {
   spaceshipId?: string;
-  color?: string;
   specialAbilityName?: string;
 }
 
@@ -47,7 +46,7 @@ export default function SpaceshipSelect() {
 
   const next = () => {
     if (selectedId) {
-      navigate('/select/2', { state: { spaceshipId: selectedId, color, specialAbilityName } });
+      navigate('/select/2', { state: { spaceshipId: selectedId, specialAbilityName } });
     }
   };
 

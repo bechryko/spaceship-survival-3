@@ -1,7 +1,7 @@
 import { Settings } from '../../context';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
-import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
+import { BACK_TO_SELECTION_KEY_CODE, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
 import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';
 
@@ -325,6 +325,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
     700,
     HUD_OVERLAY_STATUS_TEXT_FONT_SIZE,
     OVERLAY_TITLE_HEIGHT,
+    null,
     HUD_TEXT_COLOR
   );
 
@@ -341,10 +342,11 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
       buildScoreSection(ctx, 'Total score', calculateScore(statistics), state.highscore),
       buildTextSection(
         ctx,
-        `Press ${START_PAUSE_KEY_CODE} to restart or ${EXIT_KEY_CODE} to exit to the menu!`,
+        `Press ${START_PAUSE_KEY_CODE} to restart, ${BACK_TO_SELECTION_KEY_CODE} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
         400,
         OVERLAY_HINT_FONT_SIZE,
         OVERLAY_HINT_HEIGHT,
+        400,
         OVERLAY_MUTED_TEXT_COLOR
       )
     ];
@@ -353,10 +355,11 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
       title,
       buildTextSection(
         ctx,
-        `Press ${EXIT_KEY_CODE} to exit to the menu!`,
+        `Press ${EXIT_KEY_CODE} to exit to the menu or\n${BACK_TO_SELECTION_KEY_CODE} to go back to spaceship selection!`,
         400,
         OVERLAY_HINT_FONT_SIZE,
         OVERLAY_HINT_HEIGHT,
+        300,
         OVERLAY_MUTED_TEXT_COLOR
       )
     ];
@@ -372,18 +375,19 @@ function buildTextSection(
   weight: number,
   size: number,
   height: number,
+  width: number | null,
   color: string
 ): OverlaySection {
   setFont(ctx, weight, size);
 
   return {
-    minWidth: ctx.measureText(text).width,
+    minWidth: width ?? ctx.measureText(text).width,
     height,
     draw: (x, y, width) => {
       setFont(ctx, weight, size);
       ctx.fillStyle = color;
       ctx.textAlign = 'center';
-      ctx.fillText(text, x + width / 2, y + height / 2);
+      fillMultilineText(ctx, text, x + width / 2, y + height / 2);
     }
   };
 }
