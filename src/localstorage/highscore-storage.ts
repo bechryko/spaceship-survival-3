@@ -1,4 +1,4 @@
-import { createLocalstorageKey } from '../localstorage-key';
+import { createLocalstorageKey } from './localstorage-key';
 
 const HIGHSCORE_STORAGE_KEY = createLocalstorageKey('highscore');
 

@@ -3,11 +3,10 @@ import './Game.css';
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSettings } from '../context';
-import { loadColor } from '../Menu/SpaceshipSelect/ColorPicker/spaceship-colors';
+import { loadColor, loadHighscore, saveHighscore } from '../localstorage';
 import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
-import { loadHighscore, saveHighscore } from './highscore';
 import {
   BACK_TO_SELECTION_KEY_CODE,
   createFpsCounter,

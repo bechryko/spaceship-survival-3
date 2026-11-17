@@ -2,9 +2,10 @@ import './SpaceshipSelect.css';
 
 import { useState, type CSSProperties } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router';
+import { loadColor, saveColor } from '../../localstorage';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';
-import { loadColor, saveColor, SPACESHIP_COLORS } from './ColorPicker/spaceship-colors';
+import { SPACESHIP_COLORS } from './ColorPicker/spaceship-colors';
 import SpaceshipIcon from './SpaceshipIcon';
 import { getSpaceshipDefinition, SPACESHIP_GRID_COLUMNS, SPACESHIP_GRID_ROWS, SPACESHIPS } from './spaceship-catalog';
 
