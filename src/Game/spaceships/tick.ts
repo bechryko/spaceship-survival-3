@@ -1,7 +1,6 @@
 import { GAME_WIDTH, GameState } from '../hud';
 import { forEachAbility } from '../utils';
 import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
-import { SHIP_HALF_WIDTH } from './hitbox';
 import { Spaceship } from './spaceship';
 
 export function tickSpaceships(state: GameState, deltaTime: number): void {
@@ -10,8 +9,10 @@ export function tickSpaceships(state: GameState, deltaTime: number): void {
 
 function tickSpaceship(spaceship: Spaceship, deltaTime: number): void {
   const dir = Number(spaceship.controls.right) - Number(spaceship.controls.left);
+  const halfWidth = spaceship.shape.width / 2;
+
   spaceship.x += dir * calculateSpaceshipSpeed(spaceship) * deltaTime;
-  spaceship.x = Math.max(SHIP_HALF_WIDTH, Math.min(GAME_WIDTH - SHIP_HALF_WIDTH, spaceship.x));
+  spaceship.x = Math.max(halfWidth, Math.min(GAME_WIDTH - halfWidth, spaceship.x));
 
   forEachAbility(abilityIdx => {
     const ability = spaceship.abilities[abilityIdx];

@@ -2,6 +2,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { abilities, specialAbilities } from './abilities';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { AbilityClass } from './ability-class';
+import { spaceshipAbilityClassShipShapeMap } from './hitbox';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbility } from './spaceship-abilities';
 
@@ -49,6 +50,7 @@ export function createSpaceship(
       leftKeyCode: 'KeyA',
       rightKeyCode: 'KeyD'
     },
-    color
+    color,
+    shape: spaceshipAbilityClassShipShapeMap[abilityClass]
   };
 }

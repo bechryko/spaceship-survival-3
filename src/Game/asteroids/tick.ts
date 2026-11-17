@@ -1,5 +1,5 @@
 import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
-import { isSpaceshipImmune, SHIP_HULL } from '../spaceships';
+import { isSpaceshipImmune } from '../spaceships';
 import { between, boundingRadius, polygonsCollide, transformPolygon } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import {
@@ -25,12 +25,13 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     asteroid.x += asteroid.velocityHorizontal * deltaTime;
 
     const { player } = state;
+    const { hitbox } = player.shape;
     const lx = asteroid.x - player.x;
     const ly = asteroid.y - player.y;
 
     const hit =
-      Math.hypot(lx, ly) <= boundingRadius(SHIP_HULL) + asteroid.r &&
-      polygonsCollide(SHIP_HULL, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
+      Math.hypot(lx, ly) <= boundingRadius(hitbox) + asteroid.r &&
+      polygonsCollide(hitbox, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
       if (isSpaceshipImmune(player) && asteroid.type !== AsteroidType.IRON) {
         destroyAsteroid(asteroid, state);

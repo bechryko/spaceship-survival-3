@@ -1,6 +1,5 @@
 import { between, boundingRadius, clamp01, easeOutBack, withAlpha } from '../utils';
 import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
-import { SHIP_HULL, SHIP_SCALE } from './hitbox';
 import { Spaceship } from './spaceship';
 
 export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
@@ -9,9 +8,11 @@ export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceshi
 
   drawFlame(ctx, spaceship);
 
+  const { hull, spine, cockpit } = spaceship.shape;
+
   // Hull
   ctx.beginPath();
-  SHIP_HULL.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+  hull.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
   ctx.closePath();
   ctx.fillStyle = spaceship.color;
   ctx.fill();
@@ -22,15 +23,14 @@ export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceshi
 
   // Centre spine
   ctx.beginPath();
-  ctx.moveTo(0, -22 * SHIP_SCALE);
-  ctx.lineTo(0, 20 * SHIP_SCALE);
+  spine.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
   ctx.stroke();
 
   // Cockpit
   ctx.fillStyle = '#bde0fe';
   ctx.beginPath();
-  ctx.ellipse(0, -6 * SHIP_SCALE, 3.5 * SHIP_SCALE, 7 * SHIP_SCALE, 0, 0, Math.PI * 2);
+  ctx.ellipse(cockpit.cx, cockpit.cy, cockpit.rx, cockpit.ry, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -41,90 +41,87 @@ export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceshi
 }
 
 const NORMAL_FLAME_COLOR = '#ffb703';
+const NORMAL_FLAME_WIDTH = 10;
 
 function drawFlame(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
   const isStrongerFlame = spaceship.abilities.special === SpecialAbilityName.STRONGER_ENGINES;
+  const { engines } = spaceship.shape;
 
-  if (!isStrongerFlame) {
-    const flameSize = between(10, 18, { floor: false }) * SHIP_SCALE;
-    const y = 24 * SHIP_SCALE;
+  engines.forEach(engine => {
+    const y = engine[1];
 
-    // Glow behind the flame
-    const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, flameSize);
-    glow.addColorStop(0, withAlpha(NORMAL_FLAME_COLOR, 0.35));
-    glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(0, y + 4, flameSize, 0, Math.PI * 2);
-    ctx.fill();
+    if (!isStrongerFlame) {
+      const flameSize = between(12, 20, { floor: false });
 
-    // Flickering flame
-    ctx.fillStyle = NORMAL_FLAME_COLOR;
-    ctx.beginPath();
-    ctx.moveTo(-4 * SHIP_SCALE, y);
-    ctx.lineTo(0, y + flameSize);
-    ctx.lineTo(4 * SHIP_SCALE, y);
-    ctx.closePath();
-    ctx.fill();
-  } else {
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-
-    const phase = Math.random();
-    const thrust = between(0.55, 1, { floor: false });
-    const y = 24 * SHIP_SCALE;
-
-    // Glow behind the flame
-    const glowRadius = 14 + 12 * thrust;
-    const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, glowRadius);
-    glow.addColorStop(0, `rgba(140, 215, 255, ${0.35 + 0.25 * thrust})`);
-    glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(0, y + 4, glowRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Flame
-    const flicker = 0.85 + 0.15 * Math.sin(phase * 45) + 0.08 * Math.sin(phase * 93);
-    const length = (16 + 16 * thrust) * flicker;
-    const halfWidth = 5 + 1.5 * thrust;
-    const body = ctx.createLinearGradient(0, y, 0, y + length);
-    body.addColorStop(0, 'rgba(235, 250, 255, 0.95)');
-    body.addColorStop(0.5, 'rgba(120, 200, 255, 0.7)');
-    body.addColorStop(1, 'rgba(60, 120, 255, 0)');
-    ctx.fillStyle = body;
-    teardropPath(ctx, 0, y, halfWidth, length, 0);
-    ctx.fill();
-
-    // Sparks drifting backwards and fading out
-    const sparkCount = 5;
-    const trail = 40 + 30 * thrust;
-    for (let k = 0; k < sparkCount; k++) {
-      const t = (((phase * 1.8 + k / sparkCount) % 1) + 1) % 1;
-      const sx = (Math.random() - 0.5) * 10 * t;
-      const sy = y + length * 0.5 + t * trail;
-
-      ctx.fillStyle = `rgba(190, 235, 255, ${(1 - t) * 0.75 * thrust})`;
+      // Glow behind the flame
+      const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, flameSize);
+      glow.addColorStop(0, withAlpha(NORMAL_FLAME_COLOR, 0.35));
+      glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
+      ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(sx, sy, 0.5 + 1.4 * (1 - t), 0, Math.PI * 2);
+      ctx.arc(0, y + 4, flameSize, 0, Math.PI * 2);
       ctx.fill();
-    }
 
-    ctx.restore();
-  }
+      // Flickering flame
+      ctx.fillStyle = NORMAL_FLAME_COLOR;
+      ctx.beginPath();
+      ctx.moveTo(-NORMAL_FLAME_WIDTH / 2, y);
+      ctx.lineTo(0, y + flameSize);
+      ctx.lineTo(NORMAL_FLAME_WIDTH / 2, y);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      const phase = Math.random();
+      const thrust = between(0.55, 1, { floor: false });
+
+      // Glow behind the flame
+      const glowRadius = 14 + 12 * thrust;
+      const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, glowRadius);
+      glow.addColorStop(0, `rgba(140, 215, 255, ${0.35 + 0.25 * thrust})`);
+      glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(0, y + 4, glowRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Flame
+      const flicker = 0.85 + 0.15 * Math.sin(phase * 45) + 0.08 * Math.sin(phase * 93);
+      const length = (16 + 16 * thrust) * flicker;
+      const halfWidth = 5 + 1.5 * thrust;
+      const body = ctx.createLinearGradient(0, y, 0, y + length);
+      body.addColorStop(0, 'rgba(235, 250, 255, 0.95)');
+      body.addColorStop(0.5, 'rgba(120, 200, 255, 0.7)');
+      body.addColorStop(1, 'rgba(60, 120, 255, 0)');
+      ctx.fillStyle = body;
+      teardropPath(ctx, 0, y, halfWidth, length);
+      ctx.fill();
+
+      // Sparks drifting backwards and fading out
+      const sparkCount = 5;
+      const trail = 40 + 30 * thrust;
+      for (let k = 0; k < sparkCount; k++) {
+        const t = (((phase * 1.8 + k / sparkCount) % 1) + 1) % 1;
+        const sx = (Math.random() - 0.5) * 10 * t;
+        const sy = y + length * 0.5 + t * trail;
+
+        ctx.fillStyle = `rgba(190, 235, 255, ${(1 - t) * 0.75 * thrust})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 0.5 + 1.4 * (1 - t), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+  });
 }
 
-function teardropPath(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  halfWidth: number,
-  length: number,
-  sway: number
-): void {
+function teardropPath(ctx: CanvasRenderingContext2D, x: number, y: number, halfWidth: number, length: number): void {
   ctx.beginPath();
   ctx.moveTo(x - halfWidth, y);
-  ctx.quadraticCurveTo(x - halfWidth * 0.6, y + length * 0.55, x + sway, y + length);
+  ctx.quadraticCurveTo(x - halfWidth * 0.6, y + length * 0.55, x, y + length);
   ctx.quadraticCurveTo(x + halfWidth * 0.6, y + length * 0.55, x + halfWidth, y);
   ctx.closePath();
 }
@@ -141,7 +138,7 @@ function drawShield(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
   const fade = clamp01(shieldTimeLeft / SHIELD_FADE_TIME);
   const flicker = shieldTimeLeft < SHIELD_WARNING_TIME && Math.sin(shieldTimeLeft * 45) < 0 ? 0.5 : 1;
   const alpha = fade * flicker;
-  const radius = boundingRadius(SHIP_HULL) * appear;
+  const radius = boundingRadius(spaceship.shape.hull) * appear;
   if (radius < 1) {
     return;
   }

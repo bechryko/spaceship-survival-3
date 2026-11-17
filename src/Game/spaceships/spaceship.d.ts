@@ -1,3 +1,4 @@
+import { SpaceshipShape } from './hitbox';
 import { SpaceshipAbilities } from './spaceship-abilities';
 
 export interface Spaceship {
@@ -7,6 +8,7 @@ export interface Spaceship {
   abilities: SpaceshipAbilities;
   controls: SpaceshipControls;
   color: string;
+  shape: SpaceshipShape;
 }
 
 export interface SpaceshipControls {
