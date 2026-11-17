@@ -45,7 +45,7 @@ export default function AbilitySelect() {
 
   const start = () => {
     if (selectedId) {
-      navigate('/play', { state: { spaceshipId, color, specialAbilityId: selectedId } });
+      navigate('/play', { state: { spaceshipId, specialAbilityId: selectedId } });
     }
   };
 
@@ -54,11 +54,7 @@ export default function AbilitySelect() {
       <StarBackground />
 
       <div className="select-side">
-        <NavLink
-          className="button back-button"
-          to="/select/1"
-          state={{ spaceshipId, color, specialAbilityName: selectedId }}
-        >
+        <NavLink className="button back-button" to="/select/1" state={{ spaceshipId, specialAbilityName: selectedId }}>
           Back
         </NavLink>
       </div>

@@ -15,6 +15,7 @@ export function drawHUD(
   ctx: CanvasRenderingContext2D,
   state: GameState,
   settings: Settings,
+  isQuickPlay: boolean,
   fpsCounter: FpsCounter | null
 ): void {
   ctx.textAlign = 'left';
@@ -29,7 +30,7 @@ export function drawHUD(
     drawDebugStatistics(ctx, state);
   }
 
-  drawOverlays(ctx, state);
+  drawOverlays(ctx, state, isQuickPlay);
 }
 
 const ABILITY_HUD_TOP_MARGIN = 5;
@@ -275,7 +276,7 @@ const OVERLAY_SCORE_LABEL_VALUE_GAP = 4;
 const OVERLAY_HINT_FONT_SIZE = 16;
 const OVERLAY_HINT_HEIGHT = 22;
 
-function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
+function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState, isQuickPlay: boolean): void {
   if (state.status === GameStatus.PLAYING) {
     return;
   }
@@ -283,7 +284,7 @@ function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState): void {
   ctx.fillStyle = HUD_OVERLAY_COLOR;
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  const sections = buildOverlaySections(ctx, state);
+  const sections = buildOverlaySections(ctx, state, isQuickPlay);
   const contentWidth = Math.max(OVERLAY_PANEL_MIN_CONTENT_WIDTH, ...sections.map(section => section.minWidth));
   const contentHeight =
     sections.reduce((sum, section) => sum + section.height, 0) + (sections.length - 1) * OVERLAY_SECTION_GAP;
@@ -317,7 +318,7 @@ interface OverlaySection {
   draw: (x: number, y: number, width: number) => void;
 }
 
-function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): OverlaySection[] {
+function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, isQuickPlay: boolean): OverlaySection[] {
   ctx.save();
   const title = buildTextSection(
     ctx,
@@ -332,6 +333,27 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
   let sections: OverlaySection[];
   if (state.status === GameStatus.OVER) {
     const { statistics } = state;
+
+    const controlTextSection = isQuickPlay
+      ? buildTextSection(
+          ctx,
+          `Press ${START_PAUSE_KEY_CODE} to restart!`,
+          400,
+          OVERLAY_HINT_FONT_SIZE,
+          OVERLAY_HINT_HEIGHT,
+          null,
+          OVERLAY_MUTED_TEXT_COLOR
+        )
+      : buildTextSection(
+          ctx,
+          `Press ${START_PAUSE_KEY_CODE} to restart, ${BACK_TO_SELECTION_KEY_CODE} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
+          400,
+          OVERLAY_HINT_FONT_SIZE,
+          OVERLAY_HINT_HEIGHT,
+          400,
+          OVERLAY_MUTED_TEXT_COLOR
+        );
+
     sections = [
       title,
       buildStatsSection(ctx, [
@@ -340,29 +362,30 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState): 
         ['Asteroids destroyed', `${statistics.asteroidsDestroyed}`]
       ]),
       buildScoreSection(ctx, 'Total score', calculateScore(statistics), state.highscore),
-      buildTextSection(
-        ctx,
-        `Press ${START_PAUSE_KEY_CODE} to restart, ${BACK_TO_SELECTION_KEY_CODE} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
-        400,
-        OVERLAY_HINT_FONT_SIZE,
-        OVERLAY_HINT_HEIGHT,
-        400,
-        OVERLAY_MUTED_TEXT_COLOR
-      )
+      controlTextSection
     ];
   } else {
-    sections = [
-      title,
-      buildTextSection(
-        ctx,
-        `Press ${EXIT_KEY_CODE} to exit to the menu or\n${BACK_TO_SELECTION_KEY_CODE} to go back to spaceship selection!`,
-        400,
-        OVERLAY_HINT_FONT_SIZE,
-        OVERLAY_HINT_HEIGHT,
-        300,
-        OVERLAY_MUTED_TEXT_COLOR
-      )
-    ];
+    const controlTextSection = isQuickPlay
+      ? buildTextSection(
+          ctx,
+          `Press ${EXIT_KEY_CODE} to exit to the menu!`,
+          400,
+          OVERLAY_HINT_FONT_SIZE,
+          OVERLAY_HINT_HEIGHT,
+          null,
+          OVERLAY_MUTED_TEXT_COLOR
+        )
+      : buildTextSection(
+          ctx,
+          `Press ${EXIT_KEY_CODE} to exit to the menu or\n${BACK_TO_SELECTION_KEY_CODE} to go back to spaceship selection!`,
+          400,
+          OVERLAY_HINT_FONT_SIZE,
+          OVERLAY_HINT_HEIGHT,
+          300,
+          OVERLAY_MUTED_TEXT_COLOR
+        );
+
+    sections = [title, controlTextSection];
   }
 
   ctx.restore();

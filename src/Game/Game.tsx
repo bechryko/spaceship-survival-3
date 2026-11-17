@@ -3,6 +3,7 @@ import './Game.css';
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSettings } from '../context';
+import { loadColor } from '../Menu/SpaceshipSelect/ColorPicker/spaceship-colors';
 import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
@@ -35,22 +36,27 @@ const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
 
 export default function Game() {
   const navigationState = useLocation().state;
-  const spaceshipAbilityClass: AbilityClass = navigationState?.spaceshipId;
-  const spaceshipColor: string = navigationState?.color;
-  const specialAbilityId: SpecialAbilityName = navigationState?.specialAbilityId;
+  const isQuickPlay = Boolean(navigationState?.quickPlay);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState>(createState());
 
   const { settings } = useSettings();
   const navigate = useNavigate();
-  if (!spaceshipAbilityClass || !spaceshipColor) {
+  if (!navigationState?.spaceshipId || !navigationState?.specialAbilityId) {
     navigate('/select/1');
   }
 
   const fpsCounter = createFpsCounter();
 
   function createState(status = GameStatus.PLAYING): GameState {
+    const spaceshipAbilityClass: AbilityClass = isQuickPlay
+      ? choose(Object.values(AbilityClass))
+      : navigationState?.spaceshipId;
+    const specialAbilityId: SpecialAbilityName = isQuickPlay
+      ? choose(Object.values(SpecialAbilityName))
+      : navigationState?.specialAbilityId;
+
     return {
       status,
       speed: 1,
@@ -64,7 +70,7 @@ export default function Game() {
         level2: choose(level2AsteroidBlueprints)
       },
       highscore: loadHighscore(),
-      player: createSpaceship(spaceshipAbilityClass, spaceshipColor, specialAbilityId),
+      player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
       asteroids: [],
       entities: [],
       stars: createStars(),
@@ -100,10 +106,8 @@ export default function Game() {
           }
           break;
         case BACK_TO_SELECTION_KEY_CODE:
-          if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status)) {
-            navigate('/select/1', {
-              state: { spaceshipId: spaceshipAbilityClass, specialAbilityName: specialAbilityId }
-            });
+          if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status) && !isQuickPlay) {
+            navigate('/select/1', { state: navigationState });
           }
           break;
         case START_PAUSE_KEY_CODE:
@@ -211,7 +215,7 @@ export default function Game() {
       }
       drawEntities(ctx, state.entities);
       drawSpaceship(ctx, state.player);
-      drawHUD(ctx, state, settings, settings.showFps ? fpsCounter : null);
+      drawHUD(ctx, state, settings, isQuickPlay, settings.showFps ? fpsCounter : null);
     };
 
     let rafId = 0;
