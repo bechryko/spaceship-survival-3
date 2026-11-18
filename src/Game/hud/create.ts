@@ -42,7 +42,8 @@ export function createGameState(config: GameStateConfig, status = GameStatus.PLA
     stars: createStars(),
     spawnTimer: {
       spawnTime: 0,
-      timer: 0
+      timer: 0,
+      doubleAsteroidSpawn: -1
     }
   };
 }

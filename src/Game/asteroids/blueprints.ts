@@ -62,14 +62,14 @@ export const iceAsteroidBlueprint: AsteroidBlueprint = {
   velocity: DEFAULT_ASTEROID_VELOCITY,
   minSize: 75,
   maxSize: 100,
-  sizeIncrease: 1.5,
+  sizeIncrease: 1.75,
   sizeIncreaseStart: 25,
-  sizeIncreaseMax: 75,
+  sizeIncreaseMax: 125,
   vertexCount: {
     min: 11,
     max: 16
   },
-  maxReachIn: 0.6,
+  maxReachIn: 0.65,
   color: {
     hue: {
       min: 195,
@@ -102,11 +102,11 @@ export const ironAsteroidBlueprint: AsteroidBlueprint = {
     min: 100,
     max: DEFAULT_ASTEROID_VELOCITY
   },
-  minSize: 55,
-  maxSize: 75,
-  sizeIncrease: 0.75,
+  minSize: 60,
+  maxSize: 85,
+  sizeIncrease: 0.5,
   sizeIncreaseStart: 25,
-  sizeIncreaseMax: 75,
+  sizeIncreaseMax: 50,
   vertexCount: {
     min: 9,
     max: 13

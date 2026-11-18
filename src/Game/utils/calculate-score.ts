@@ -2,8 +2,8 @@ import { GameState } from '../hud';
 
 const ASTEROID_DESTROY_SCORE = 2;
 const ABILITY_USE_SCORE = -1;
-const KNOWLEDGE_SCORE_BULK = 10;
-const KNOWLEDGE_SCORE_AMOUNT = 5;
+const KNOWLEDGE_SCORE_BULK = 15;
+const KNOWLEDGE_SCORE_AMOUNT = 2;
 
 export function calculateScore(state: GameState): number {
   const { statistics, player } = state;

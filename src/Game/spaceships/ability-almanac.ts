@@ -14,8 +14,8 @@ const GUNSHIP_CANNON_X_OFFSET = 26;
 const GUNSHIP_LASER_DURATION = 2;
 
 const SCIENTIST_PROBE_MAX_FLIGHT_TIME = 1.25;
-const SCIENTIST_PROBE_MIN_ANALYSIS_TIME = 0.25;
-const SCIENTIST_PROBE_MAX_ANALYSIS_TIME = 1.5;
+const SCIENTIST_PROBE_MIN_ANALYSIS_TIME = 0.333;
+const SCIENTIST_PROBE_MAX_ANALYSIS_TIME = 1.75;
 const SCIENTIST_SHOCKWAVE_SLOW = 0.4;
 const SCIENTIST_PLASMA_JET_ACTIVE_TIME = 6;
 const SCIENTIST_PLASMA_JET_COOLDOWN_MULTIPLIER = 3.5;
@@ -56,7 +56,7 @@ export const AbilityAlmanac = {
       longDescription: `Launches a probe forward that gets destroyed in ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds. But if it reaches an asteroid, it attaches to its surface and analyzes it. After ${SCIENTIST_PROBE_MIN_ANALYSIS_TIME}-${SCIENTIST_PROBE_MAX_ANALYSIS_TIME} seconds (depending on the asteroid's size) the analysis is complete and the asteroid explodes, but if there is another asteroid nearby, the probe attaches to that, and this goes on in a chain. For each analysis the spaceship gets a knowledge point, and each knowledge point gives ${SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE * 100}% chance to survive an asteroid hit, for up to ${SPACESHIP_MAX_SURVIVE_CHANCE * 100}%. This chance is doubled against ice shards.`,
       cooldown: 7,
       flySpeed: 150,
-      transferSpeed: 400,
+      transferSpeed: 450,
       radius: 6,
       maxFlightTime: SCIENTIST_PROBE_MAX_FLIGHT_TIME,
       minAnalysisTime: SCIENTIST_PROBE_MIN_ANALYSIS_TIME,

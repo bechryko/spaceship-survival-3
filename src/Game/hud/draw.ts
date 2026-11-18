@@ -258,10 +258,12 @@ const DEBUG_STATISTICS_GAP = 5;
 function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): void {
   const spawnChanceObject = SPAWN_CHANCES.findLast(sco => sco.threshold <= state.statistics.asteroidsSpawned);
   const level2AsteroidChance = spawnChanceObject?.level2Chance ?? 0;
+  const { doubleAsteroidSpawn } = state.spawnTimer;
 
   const debugStatisticsLines = [
     `Asteroids: ${state.asteroids.length} (${state.asteroids.filter(a => a.active).length} active)`,
     `Asteroid spawn timer: ${state.spawnTimer.timer.toFixed(1)}s / ${state.spawnTimer.spawnTime.toFixed(3)}s`,
+    `Double asteroid countdown: ${doubleAsteroidSpawn < 0 ? 'off' : doubleAsteroidSpawn}`,
     `Level 2 asteroid: ${state.asteroidBlueprints.level2.type} (${level2AsteroidChance * 100}% chance)`,
     `Entities: ${state.entities.length}`,
     `Stars: ${state.stars.length} (${state.stars.filter(s => s.size <= SMALL_STAR_MAX_SIZE).length} small, ${state.stars.filter(s => s.size > SMALL_STAR_MAX_SIZE).length} big)`,

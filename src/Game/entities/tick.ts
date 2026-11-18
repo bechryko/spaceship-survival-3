@@ -139,7 +139,7 @@ function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: numb
     }
   }
 
-  if (probe.y > GAME_HEIGHT + probeStats.radius * 2) {
+  if (probe.y > GAME_HEIGHT + probeStats.radius + (probe.target?.r ?? 0)) {
     state.entities.splice(
       state.entities.findIndex(e => e === probe),
       1
@@ -245,8 +245,6 @@ function tickShockwave(wave: Shockwave, state: GameState, deltaTime: number): vo
   }
 }
 
-const PLASMA_JET_IRON_ASTEROID_STRENGTH_RESISTANCE = 0.25;
-
 function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number): void {
   const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
 
@@ -297,18 +295,17 @@ function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number
       // Backward push
       const along = clamp01((nozzleY - asteroid.y) / range);
       const strength = plasmaJet.intensity * (1 - plasmaJetStats.falloff * along);
-      const strengthMultiplier = asteroid.type === AsteroidType.IRON ? PLASMA_JET_IRON_ASTEROID_STRENGTH_RESISTANCE : 1;
       const inertia = clamp(
         asteroid.r / plasmaJetStats.referenceRadius,
         plasmaJetStats.minInertia,
         plasmaJetStats.maxInertia
       );
-      asteroid.velocity -= ((plasmaJetStats.backAcceleration * strength * strengthMultiplier) / inertia) * deltaTime;
+      asteroid.velocity -= ((plasmaJetStats.backAcceleration * strength) / inertia) * deltaTime;
 
       // Sideways push
       const dx = asteroid.x - spaceship.x;
       const side = dx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(dx);
-      const push = ((plasmaJetStats.sideAcceleration * strength * strengthMultiplier) / inertia) * deltaTime;
+      const push = ((plasmaJetStats.sideAcceleration * strength) / inertia) * deltaTime;
       asteroid.velocityHorizontal += side * push;
 
       plasmaJet.affected.push(asteroid);
