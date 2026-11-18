@@ -14,6 +14,29 @@ const SLOTS = Array.from(
   (_, index) => SPACESHIPS[index] ?? null
 );
 
+const ENGINE_POWER_MAX_LEVELS = 5;
+
+/** "Engine power" with five rising bars, as many lit as the ship's speed level. */
+function EnginePower({ level }: { level: number }) {
+  const lit = Math.min(ENGINE_POWER_MAX_LEVELS, Math.max(0, Math.round(level)));
+
+  return (
+    <div className="engine-power" role="img" aria-label={`Engine power: ${lit} out of ${ENGINE_POWER_MAX_LEVELS}`}>
+      <span className="engine-power-label">Engine power</span>
+      <span className="engine-power-bars" aria-hidden="true">
+        {Array.from({ length: ENGINE_POWER_MAX_LEVELS }, (_, index) => (
+          <span
+            key={index}
+            className="engine-power-bar"
+            data-lit={index < lit}
+            style={{ height: `${40 + index * 15}%` }}
+          />
+        ))}
+      </span>
+    </div>
+  );
+}
+
 interface ReturnState {
   spaceshipId?: string;
   specialAbilityName?: string;
@@ -76,6 +99,7 @@ export default function SpaceshipSelect() {
                   {preview.name}
                   {preview.id === selectedId && <span className="preview-tag">Selected</span>}
                 </h2>
+                <EnginePower level={preview.speedLevel} />
                 <p className="preview-description">{preview.description}</p>
 
                 <ul className="abilities">

@@ -3,8 +3,11 @@ import { AbilityClass } from './ability-class';
 import { SPACESHIP_MAX_SURVIVE_CHANCE, SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE } from './utils';
 
 export const SpeedAlmanac: Record<number, number> = {
+  1: 170,
   2: 185,
-  3: 200
+  3: 200,
+  4: 215,
+  5: 230
 };
 
 const GUNSHIP_CANNON_X_OFFSET = 26;
