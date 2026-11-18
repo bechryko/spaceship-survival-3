@@ -1,6 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
 import { isSpaceshipImmune } from '../spaceships';
-import { between, boundingRadius, polygonsCollide, transformPolygon } from '../utils';
+import { between, boundingRadius, clamp01, polygonsCollide, transformPolygon } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import {
   createIceShardBlueprint,
@@ -14,9 +14,9 @@ const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
 const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
 
 export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
-  state.spawnTimer -= deltaTime;
+  state.spawnTimer.timer += deltaTime;
 
-  if (state.spawnTimer <= 0) {
+  if (state.spawnTimer.timer >= state.spawnTimer.spawnTime) {
     spawnAsteroid(state);
   }
 
@@ -95,7 +95,8 @@ export function spawnAsteroid(state: GameState, creationModifiers: AsteroidCreat
   }
 
   state.statistics.asteroidsSpawned++;
-  state.spawnTimer = getAsteroidSpawnTimer(state.statistics.asteroidsSpawned);
+  state.spawnTimer.spawnTime = getAsteroidSpawnTimer(state.statistics.asteroidsSpawned);
+  state.spawnTimer.timer = 0;
 
   return asteroid;
 }
@@ -111,13 +112,12 @@ export function pushAsteroid(asteroid: Asteroid, force: number, angle: number): 
   asteroid.velocityHorizontal += Math.cos(angle) * force;
 }
 
-const SPAWN_SLOW_SCORE = 25;
-const SPAWN_FAST_SCORE = 100;
+const SPAWN_SLOW_THRESHOLD = 50;
+const SPAWN_FAST_THRESHOLD = 75;
 const SPAWN_SLOW_INTERVAL = 1;
-const SPAWN_FAST_INTERVAL = 0.5;
+const SPAWN_FAST_INTERVAL = 0.75;
 
-function getAsteroidSpawnTimer(score: number): number {
-  const progress = (score - SPAWN_SLOW_SCORE) / (SPAWN_FAST_SCORE - SPAWN_SLOW_SCORE);
-  const t = Math.min(1, Math.max(0, progress));
-  return SPAWN_SLOW_INTERVAL + (SPAWN_FAST_INTERVAL - SPAWN_SLOW_INTERVAL) * t;
+function getAsteroidSpawnTimer(asteroidsSpawned: number): number {
+  const progress = (asteroidsSpawned - SPAWN_SLOW_THRESHOLD) / (SPAWN_FAST_THRESHOLD - SPAWN_SLOW_THRESHOLD);
+  return SPAWN_SLOW_INTERVAL + (SPAWN_FAST_INTERVAL - SPAWN_SLOW_INTERVAL) * clamp01(progress);
 }

@@ -3,32 +3,26 @@ import './Game.css';
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSettings } from '../context';
-import { loadColor, loadHighscore, saveHighscore } from '../localstorage';
-import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
-import { createStars, drawBackground, tickStars } from './background';
+import { saveHighscore } from '../localstorage';
+import { drawAsteroid, tickAsteroids } from './asteroids';
+import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import {
   BACK_TO_SELECTION_KEY_CODE,
   createFpsCounter,
+  createGameState,
   drawHUD,
   EXIT_KEY_CODE,
   GAME_HEIGHT,
   GAME_WIDTH,
   GameState,
+  GameStateConfig,
   GameStatus,
   START_PAUSE_KEY_CODE,
   tickFps
 } from './hud';
-import {
-  AbilityClass,
-  activateAbility,
-  createSpaceship,
-  drawSpaceship,
-  SpecialAbilityAlmanac,
-  SpecialAbilityName,
-  tickSpaceships
-} from './spaceships';
-import { calculateScore, choose, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
+import { activateAbility, drawSpaceship, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
+import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
 const DEBUG_SLOW_GAME_SPEED = 0.1;
 const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
@@ -36,9 +30,18 @@ const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
 export default function Game() {
   const navigationState = useLocation().state;
   const isQuickPlay = Boolean(navigationState?.quickPlay);
+  const gameStateConfig: GameStateConfig = isQuickPlay
+    ? {
+        isQuickPlay
+      }
+    : {
+        isQuickPlay,
+        abilityClass: navigationState?.spaceshipId,
+        specialAbilityName: navigationState?.specialAbilityId
+      };
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef<GameState>(createState());
+  const stateRef = useRef<GameState>(createGameState(gameStateConfig));
 
   const { settings } = useSettings();
   const navigate = useNavigate();
@@ -47,35 +50,6 @@ export default function Game() {
   }
 
   const fpsCounter = createFpsCounter();
-
-  function createState(status = GameStatus.PLAYING): GameState {
-    const spaceshipAbilityClass: AbilityClass = isQuickPlay
-      ? choose(Object.values(AbilityClass))
-      : navigationState?.spaceshipId;
-    const specialAbilityId: SpecialAbilityName = isQuickPlay
-      ? choose(Object.values(SpecialAbilityName))
-      : navigationState?.specialAbilityId;
-
-    return {
-      status,
-      speed: 1,
-      statistics: {
-        time: 0,
-        asteroidsSpawned: 0,
-        asteroidsDestroyed: 0,
-        abilitiesUsed: 0
-      },
-      asteroidBlueprints: {
-        level2: choose(level2AsteroidBlueprints)
-      },
-      highscore: loadHighscore(),
-      player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
-      asteroids: [],
-      entities: [],
-      stars: createStars(),
-      spawnTimer: 0
-    };
-  }
 
   useEffect(() => {
     const canvas = canvasRef.current!;
@@ -118,7 +92,7 @@ export default function Game() {
               state.status = GameStatus.PLAYING;
               break;
             case GameStatus.OVER:
-              stateRef.current = createState(GameStatus.PLAYING);
+              stateRef.current = createGameState(gameStateConfig, GameStatus.PLAYING);
               break;
           }
           break;

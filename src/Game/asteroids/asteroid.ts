@@ -2,10 +2,10 @@ import { Circle, HSLColor } from '../models';
 import { AsteroidShape } from './hitbox';
 
 export enum AsteroidType {
-  REGULAR,
-  ICE,
-  ICE_SHARD,
-  IRON
+  REGULAR = 'regular',
+  ICE = 'ice',
+  ICE_SHARD = 'ice_shard',
+  IRON = 'iron'
 }
 
 export interface Asteroid {

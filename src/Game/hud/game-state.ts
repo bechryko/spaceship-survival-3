@@ -15,7 +15,7 @@ export interface GameState {
   asteroids: Asteroid[];
   entities: Entity[];
   stars: Star[];
-  spawnTimer: number;
+  spawnTimer: AsteroidSpawnTimer;
 }
 
 export enum GameStatus {
@@ -29,4 +29,9 @@ export interface GameStatistics {
   asteroidsSpawned: number;
   asteroidsDestroyed: number;
   abilitiesUsed: number;
+}
+
+export interface AsteroidSpawnTimer {
+  spawnTime: number;
+  timer: number;
 }

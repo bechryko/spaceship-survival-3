@@ -1,4 +1,6 @@
 import { Settings } from '../../context';
+import { SPAWN_CHANCES } from '../asteroids';
+import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
 import { BACK_TO_SELECTION_KEY_CODE, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
@@ -254,36 +256,33 @@ const DEBUG_STATISTICS_TOP_MARGIN = GAME_HEIGHT / 3;
 const DEBUG_STATISTICS_GAP = 5;
 
 function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): void {
+  const spawnChanceObject = SPAWN_CHANCES.findLast(sco => sco.threshold <= state.statistics.asteroidsSpawned);
+  const level2AsteroidChance = spawnChanceObject?.level2Chance ?? 0;
+
+  const debugStatisticsLines = [
+    `Asteroids: ${state.asteroids.length} (${state.asteroids.filter(a => a.active).length} active)`,
+    `Asteroid spawn timer: ${state.spawnTimer.timer.toFixed(1)}s / ${state.spawnTimer.spawnTime.toFixed(3)}s`,
+    `Level 2 asteroid: ${state.asteroidBlueprints.level2.type} (${level2AsteroidChance * 100}% chance)`,
+    `Entities: ${state.entities.length}`,
+    `Stars: ${state.stars.length} (${state.stars.filter(s => s.size <= SMALL_STAR_MAX_SIZE).length} small, ${state.stars.filter(s => s.size > SMALL_STAR_MAX_SIZE).length} big)`,
+    `Game status: ${state.status}`,
+    `Game speed: ${state.speed * 100}%`
+  ];
+
   ctx.save();
   setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_HUD_FONT_SIZE);
   ctx.fillStyle = DEBUG_HUD_TEXT_COLOR;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
-  ctx.fillText(
-    `Asteroids: ${state.asteroids.length} (${state.asteroids.filter(a => a.active).length} active)`,
-    DEBUG_HUD_MARGIN,
-    DEBUG_STATISTICS_TOP_MARGIN
+
+  debugStatisticsLines.forEach((line, idx) =>
+    ctx.fillText(
+      line,
+      DEBUG_HUD_MARGIN,
+      DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * idx
+    )
   );
-  ctx.fillText(
-    `Entities: ${state.entities.length}`,
-    DEBUG_HUD_MARGIN,
-    DEBUG_STATISTICS_TOP_MARGIN + DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP
-  );
-  ctx.fillText(
-    `Stars: ${state.stars.length}`,
-    DEBUG_HUD_MARGIN,
-    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 2
-  );
-  ctx.fillText(
-    `Game status: ${state.status}`,
-    DEBUG_HUD_MARGIN,
-    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 3
-  );
-  ctx.fillText(
-    `Game speed: ${state.speed * 100}%`,
-    DEBUG_HUD_MARGIN,
-    DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * 4
-  );
+
   ctx.restore();
 }
 

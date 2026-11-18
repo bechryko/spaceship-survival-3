@@ -5,8 +5,21 @@ import { AsteroidBlueprint, regularAsteroidBlueprint, startingAsteroidDataProvid
 import { createCraters } from './craters';
 import { createAsteroidShape } from './hitbox';
 
-const LEVEL_2_ASTEROID_SPAWN_THRESHOLD = 25;
-const LEVEL_2_ASTEROID_SPAWN_CHANCE = 0.2;
+interface SpawnChance {
+  threshold: number;
+  level2Chance: number;
+}
+
+export const SPAWN_CHANCES: SpawnChance[] = [
+  {
+    threshold: 25,
+    level2Chance: 0.15
+  },
+  {
+    threshold: 75,
+    level2Chance: 0.25
+  }
+];
 
 const MIN_X_DISTANCE_FROM_LAST = GAME_WIDTH / 4;
 
@@ -75,11 +88,14 @@ export function createAsteroid(
 }
 
 function getBlueprint(state: GameState, asteroidsSpawned: number): AsteroidBlueprint {
-  if (asteroidsSpawned < LEVEL_2_ASTEROID_SPAWN_THRESHOLD) {
+  const spawnChanceObject = SPAWN_CHANCES.findLast(sco => sco.threshold <= asteroidsSpawned);
+
+  if (!spawnChanceObject) {
     return regularAsteroidBlueprint;
   }
 
-  if (Math.random() < LEVEL_2_ASTEROID_SPAWN_CHANCE) {
+  const spawnNumber = Math.random();
+  if (spawnNumber < spawnChanceObject.level2Chance) {
     return state.asteroidBlueprints.level2;
   }
 

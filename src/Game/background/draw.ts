@@ -1,6 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { withAlpha } from '../utils';
-import { Star } from './stars';
+import { SMALL_STAR_MAX_SIZE, Star } from './stars';
 
 const BACKGROUND_COLOR = '#161a38';
 
@@ -29,7 +29,7 @@ export function drawBackground(
     ctx.globalAlpha = star.brightness * pulse;
     ctx.fillStyle = star.tint;
 
-    if (star.size > 1.8) {
+    if (star.size > SMALL_STAR_MAX_SIZE) {
       drawLargeStar(ctx, star, pulse);
     } else {
       ctx.fillRect(star.x, star.y, star.size, star.size);

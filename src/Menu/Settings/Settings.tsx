@@ -37,14 +37,14 @@ export default function Settings() {
           onChange={checked => updateSetting('showFps', checked)}
         />
         <ToggleSwitch
-          label="Debug controls"
-          checked={settings.debugControls}
-          onChange={checked => updateSetting('debugControls', checked)}
-        />
-        <ToggleSwitch
           label="Debug statistics"
           checked={settings.debugStatistics}
           onChange={checked => updateSetting('debugStatistics', checked)}
+        />
+        <ToggleSwitch
+          label="Debug controls"
+          checked={settings.debugControls}
+          onChange={checked => updateSetting('debugControls', checked)}
         />
 
         <NavLink className="button back-button" to="/menu">

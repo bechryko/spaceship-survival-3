@@ -5,7 +5,7 @@ const STAR_COUNT = 160;
 const STAR_TINTS = ['#ffffff', '#cfe3ff', '#fff1c9', '#ffecf6'];
 const SMALL_STAR_CHANCE = 0.875;
 const SMALL_STAR_MIN_SIZE = 1;
-const SMALL_STAR_MAX_SIZE = 1.8;
+export const SMALL_STAR_MAX_SIZE = 1.8;
 const LARGE_STAR_MIN_SIZE = 2;
 const LARGE_STAR_MAX_SIZE = 4.5;
 
