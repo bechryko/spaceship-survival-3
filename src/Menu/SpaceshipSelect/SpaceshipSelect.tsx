@@ -68,7 +68,7 @@ export default function SpaceshipSelect() {
           {preview ? (
             <>
               <div className="preview-icon" style={{ '--ship-color': color } as CSSProperties}>
-                <SpaceshipIcon color={color} flame="animated" />
+                <SpaceshipIcon color={color} shape={preview.shape} flame="animated" />
               </div>
 
               <div className="preview-details">
@@ -120,7 +120,7 @@ export default function SpaceshipSelect() {
                 onFocus={() => setHoveredId(spaceship.id)}
                 onBlur={() => setHoveredId(null)}
               >
-                <SpaceshipIcon color={color} flame="static" />
+                <SpaceshipIcon color={color} shape={spaceship.shape} flame="static" />
               </button>
             ) : (
               <span key={`empty-${index}`} className="slot slot-empty" aria-hidden="true" />

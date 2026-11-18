@@ -1,7 +1,11 @@
-import { Bomb, Entity, EntityType, Explosion, Laser, Rocket } from './entities';
+import { getAsteroidPolygon } from '../asteroids';
+import { Point } from '../models';
+import { AbilityAlmanac, AbilityClass, Spaceship } from '../spaceships';
+import { clamp01, easeOutCubic, hash } from '../utils';
+import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import { EXPLOSION_DURATION } from './tick';
 
-export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[]): void {
+export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], time: number): void {
   for (const entity of entities) {
     switch (entity.type) {
       case EntityType.ROCKET:
@@ -13,12 +17,23 @@ export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[]):
       case EntityType.BOMB:
         drawBomb(ctx, entity);
         break;
+      case EntityType.SCIENCE_PROBE:
+        drawScienceProbe(ctx, entity, time);
+        break;
+      case EntityType.PLASMA_JET:
+        drawPlasmaJet(ctx, entity, time);
+        break;
     }
   }
 
   drawExplosions(
     ctx,
     entities.filter(entity => entity.type === EntityType.EXPLOSION)
+  );
+
+  drawShockwaves(
+    ctx,
+    entities.filter(entity => entity.type === EntityType.SHOCKWAVE)
   );
 }
 
@@ -269,4 +284,286 @@ function drawBomb(ctx: CanvasRenderingContext2D, bomb: Bomb): void {
   ctx.fill();
 
   ctx.restore();
+}
+
+function drawScienceProbe(ctx: CanvasRenderingContext2D, probe: ScienceProbe, time: number): void {
+  const probeStats = AbilityAlmanac[AbilityClass.SCIENTIST].q;
+
+  if (probe.phase === 'analyzing' && probe.target) {
+    drawScienceProbeScan(ctx, probe, time);
+  }
+
+  const alpha = probe.phase === 'lost' ? 1 - clamp01(probe.lostTime / probeStats.lostFadeTime) : 1;
+  const r = probeStats.radius;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  // Trail while it travels
+  if (probe.phase === 'flying' || probe.phase === 'transfer') {
+    const tailX = probe.x - probe.direction[0] * 26;
+    const tailY = probe.y - probe.direction[1] * 26;
+    const trail = ctx.createLinearGradient(probe.x, probe.y, tailX, tailY);
+    trail.addColorStop(0, 'rgba(127, 232, 255, 0.7)');
+    trail.addColorStop(1, 'rgba(127, 232, 255, 0)');
+    ctx.strokeStyle = trail;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(probe.x, probe.y);
+    ctx.lineTo(tailX, tailY);
+    ctx.stroke();
+  }
+
+  ctx.translate(probe.x, probe.y);
+
+  // Sitting on an asteroid it faces away from it; otherwise it faces where it is going
+  if (probe.phase === 'analyzing' && probe.target) {
+    ctx.rotate(Math.atan2(probe.x - probe.target.x, -(probe.y - probe.target.y)));
+  } else {
+    ctx.rotate(Math.atan2(probe.direction[0], -probe.direction[1]));
+  }
+
+  // Antenna
+  ctx.strokeStyle = 'rgba(207, 227, 255, 0.9)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(0, -r);
+  ctx.lineTo(0, -r - 6);
+  ctx.stroke();
+  ctx.fillStyle = `rgba(255, 120, 120, ${0.4 + 0.6 * (0.5 + 0.5 * Math.sin(time * 12))})`;
+  ctx.beginPath();
+  ctx.arc(0, -r - 6, 1.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Body
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+    if (i === 0) ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+    else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  ctx.closePath();
+  const body = ctx.createRadialGradient(-r * 0.3, -r * 0.3, 0.5, 0, 0, r);
+  body.addColorStop(0, '#e8f1f2');
+  body.addColorStop(1, '#5a6e96');
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.stroke();
+
+  // Lens
+  ctx.fillStyle = '#7fe8ff';
+  ctx.beginPath();
+  ctx.arc(0, 0, r * 0.35, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawScienceProbeScan(ctx: CanvasRenderingContext2D, probe: ScienceProbe, time: number): void {
+  const target = probe.target!;
+  const polygon = getAsteroidPolygon(target);
+  const fraction = clamp01(probe.analysisProgress / probe.analysisTime);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Outline
+  ctx.beginPath();
+  polygon.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+  ctx.closePath();
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = `rgba(127, 232, 255, ${0.5 + 0.3 * Math.sin(time * 14)})`;
+  ctx.stroke();
+
+  // A horizontal line passing over the asteroid twice during the analysis, clipped to its outline
+  ctx.save();
+  ctx.clip();
+  const top = target.y - target.r;
+  const sweep = (probe.analysisProgress / (probe.analysisTime / 2)) % 1;
+  const lineY = top + sweep * target.r * 2;
+  const glow = ctx.createLinearGradient(0, lineY - 14, 0, lineY + 2);
+  glow.addColorStop(0, 'rgba(127, 232, 255, 0)');
+  glow.addColorStop(1, 'rgba(127, 232, 255, 0.45)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(target.x - target.r, lineY - 14, target.r * 2, 16);
+  ctx.fillStyle = 'rgba(220, 250, 255, 0.95)';
+  ctx.fillRect(target.x - target.r, lineY, target.r * 2, 2);
+  ctx.restore();
+
+  // Progress ring
+  const ringRadius = target.r * 1.15;
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, ringRadius, 0, Math.PI * 2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(127, 232, 255, 0.2)';
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(target.x, target.y, ringRadius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * fraction);
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(160, 245, 255, 0.95)';
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawShockwaves(ctx: CanvasRenderingContext2D, waves: Shockwave[]): void {
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  for (const wave of waves) {
+    const t = clamp01(wave.radius / wave.maxRadius);
+    const fade = 1 - t * t;
+    if (wave.radius < 1) continue;
+
+    // A soft band just inside the leading edge
+    const inner = Math.max(0, wave.radius * 0.8);
+    const band = ctx.createRadialGradient(wave.x, wave.y, inner, wave.x, wave.y, wave.radius);
+    band.addColorStop(0, 'rgba(120, 200, 255, 0)');
+    band.addColorStop(1, `rgba(120, 200, 255, ${0.16 * fade})`);
+    ctx.fillStyle = band;
+    ctx.beginPath();
+    ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Leading ring and a thinner one trailing it
+    for (const [scale, width, strength] of [
+      [1, 6 * (1 - t) + 2, 0.85],
+      [0.93, 2, 0.4]
+    ] as const) {
+      ctx.beginPath();
+      ctx.arc(wave.x, wave.y, wave.radius * scale, 0, Math.PI * 2);
+      ctx.lineWidth = width;
+      ctx.strokeStyle = `rgba(170, 230, 255, ${strength * fade})`;
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+const PLASMA_JET_EDGE_SEGMENTS = 18;
+const PLASMA_JET_STREAK_COUNT = 22;
+
+/** Draw after the asteroids and before the ship, so the jet comes out from in front of the nose. */
+function drawPlasmaJet(ctx: CanvasRenderingContext2D, plasmaJet: PlasmaJet, time: number): void {
+  const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
+
+  const spaceship = plasmaJet.owner;
+  const k = plasmaJet.intensity;
+  const range = plasmaJetStats.range * easeOutCubic(plasmaJet.intensity);
+  if (k <= 0 || range < 2) {
+    return;
+  }
+
+  const nozzleY = spaceship.y - plasmaJetStats.noseOffset;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Three layers, from a wide violet haze to a thin white-hot core. Each fades out toward the far end.
+  const layers = [
+    { width: 1, color: '150, 90, 255', alpha: 0.5, seed: 0 },
+    { width: 0.6, color: '100, 170, 255', alpha: 0.55, seed: 3 },
+    { width: 0.22, color: '225, 250, 255', alpha: 0.85, seed: 6 }
+  ];
+
+  for (const layer of layers) {
+    const gradient = ctx.createLinearGradient(0, nozzleY, 0, nozzleY - range);
+    gradient.addColorStop(0, `rgba(${layer.color}, ${layer.alpha * k})`);
+    gradient.addColorStop(0.55, `rgba(${layer.color}, ${layer.alpha * 0.4 * k})`);
+    gradient.addColorStop(1, `rgba(${layer.color}, 0)`);
+    ctx.fillStyle = gradient;
+    tracePlasma(ctx, spaceship, range, layer.width, time, layer.seed);
+    ctx.fill();
+  }
+
+  // Streaks of plasma running outward along the jet
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < PLASMA_JET_STREAK_COUNT; i++) {
+    const u = (((time * 0.9 + hash(i) + i / PLASMA_JET_STREAK_COUNT) % 1) + 1) % 1;
+    const distance = u * range;
+    const lateral =
+      (hash(i + 50) - 0.5) *
+      2 *
+      (plasmaJetStats.nozzleHalfWidth + distance * Math.tan(plasmaJetStats.halfAngle)) *
+      0.85;
+    const x = spaceship.x + lateral;
+    const y = nozzleY - distance;
+
+    ctx.strokeStyle = `rgba(200, 235, 255, ${(1 - u) * 0.8 * k})`;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - lateral * 0.04, y + 10 + 14 * u);
+    ctx.stroke();
+  }
+
+  // Bright flare at the nozzle
+  const flareRadius = (16 + 5 * Math.sin(time * 30)) * k;
+  if (flareRadius > 0.5) {
+    const flare = ctx.createRadialGradient(spaceship.x, nozzleY, 0, spaceship.x, nozzleY, flareRadius);
+    flare.addColorStop(0, `rgba(255, 255, 255, ${0.9 * k})`);
+    flare.addColorStop(0.4, `rgba(140, 190, 255, ${0.6 * k})`);
+    flare.addColorStop(1, 'rgba(120, 90, 255, 0)');
+    ctx.fillStyle = flare;
+    ctx.beginPath();
+    ctx.arc(spaceship.x, nozzleY, flareRadius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // A flickering glow on every asteroid the plasma is hitting
+  for (const asteroid of plasmaJet.affected) {
+    const radius = asteroid.r * 1.25;
+    const glow = ctx.createRadialGradient(asteroid.x, asteroid.y, 0, asteroid.x, asteroid.y, radius);
+    glow.addColorStop(0, `rgba(170, 130, 255, ${(0.18 + 0.1 * Math.sin(time * 20 + asteroid.x * 0.1)) * k})`);
+    glow.addColorStop(1, 'rgba(120, 90, 255, 0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(asteroid.x, asteroid.y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/**
+ * The jet's outline with edges that ripple like a flame. `width` scales its width, so the same
+ * outline can be used for the narrower inner layers.
+ */
+function tracePlasma(
+  ctx: CanvasRenderingContext2D,
+  spaceship: Spaceship,
+  range: number,
+  width: number,
+  time: number,
+  seed: number
+) {
+  const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
+
+  const nozzleY = spaceship.y - plasmaJetStats.noseOffset;
+  const edge = (side: -1 | 1) =>
+    Array.from({ length: PLASMA_JET_EDGE_SEGMENTS + 1 }, (_, k) => {
+      const t = k / PLASMA_JET_EDGE_SEGMENTS;
+      const ripple =
+        Math.sin(time * 14 + k * 0.8 + seed + (side === 1 ? 2 : 0)) * 3 + Math.sin(time * 23 + k * 1.7 + seed) * 2;
+      return [
+        spaceship.x +
+          side *
+            ((plasmaJetStats.nozzleHalfWidth + range * t * Math.tan(plasmaJetStats.halfAngle)) * width +
+              ripple * t * width),
+        nozzleY - range * t
+      ] as Point;
+    });
+
+  const left = edge(-1);
+  const right = edge(1).reverse();
+
+  ctx.beginPath();
+  [...left, ...right].forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+  ctx.closePath();
 }

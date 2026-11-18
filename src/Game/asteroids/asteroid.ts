@@ -1,4 +1,4 @@
-import { Circle } from '../models';
+import { Circle, HSLColor } from '../models';
 import { AsteroidShape } from './hitbox';
 
 export enum AsteroidType {
@@ -18,15 +18,12 @@ export interface Asteroid {
   angle: number;
   shape: AsteroidShape;
   craters: readonly Circle[];
-  color: {
-    hue: number;
-    saturation: number;
-    lightness: number;
-  };
+  color: HSLColor<number>;
   active: boolean;
   data: AsteroidData;
 }
 
 export interface AsteroidData {
   iceShardBreakOffTimer?: number;
+  isAnalyzed?: boolean;
 }

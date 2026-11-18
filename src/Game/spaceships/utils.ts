@@ -1,15 +1,33 @@
+import { Asteroid, AsteroidType } from '../asteroids';
 import { GameState } from '../hud';
 import { SpecialAbilityName } from './ability-almanac';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbility, SpaceshipAbilityProfile } from './spaceship-abilities';
 
-export function isSpaceshipImmune(spaceship: Spaceship): boolean {
-  return spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0;
+export const SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE = 0.01;
+export const SPACESHIP_MAX_SURVIVE_CHANCE = 0.5;
+
+export function isSpaceshipImmune(spaceship: Spaceship, asteroid: Asteroid): boolean {
+  if (asteroid.type === AsteroidType.IRON) {
+    return false;
+  }
+
+  const hasShieldFromShieldGenerator =
+    spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0;
+
+  const knowledgeChance = Math.min(
+    SPACESHIP_MAX_SURVIVE_CHANCE,
+    spaceship.asteroidKnowledge * SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE
+  );
+  const hasKnowledgeAndSurvive =
+    Math.random() < (asteroid.type === AsteroidType.ICE_SHARD ? knowledgeChance * 2 : knowledgeChance);
+
+  return hasShieldFromShieldGenerator || hasKnowledgeAndSurvive;
 }
 
 interface AlmanacEntry {
   cooldown?: number;
-  activeTime: number;
+  activeTime?: number;
 }
 
 export function activateAbility(
@@ -29,7 +47,7 @@ export function activateAbility(
   if (ability.cooldownTimer === 0 && ability.activeTimer === 0) {
     abilityProfile.callback(player, state);
 
-    ability.activeTimer = abilityAlmanacEntry.activeTime;
+    ability.activeTimer = abilityAlmanacEntry.activeTime ?? 0;
     ability.cooldownTimer = abilityAlmanacEntry.cooldown ?? 0;
     ability.reactivatable = false;
 

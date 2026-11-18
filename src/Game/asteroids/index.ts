@@ -5,3 +5,4 @@ export * from './destroy';
 export * from './draw';
 export * from './hitbox';
 export * from './tick';
+export * from './utils';

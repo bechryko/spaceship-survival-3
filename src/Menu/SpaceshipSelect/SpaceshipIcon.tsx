@@ -1,24 +1,58 @@
-const HULL_POINTS = '0,-26 6,-12 8,2 22,14 22,22 9,16 6,24 -6,24 -9,16 -22,22 -22,14 -8,2 -6,-12';
+import { Point } from '../../Game/models';
+import { SpaceshipShape } from '../../Game/spaceships';
+
+const toPoints = (points: readonly Point[]): string => points.map(([x, y]) => `${x},${y}`).join(' ');
 
 type Props = {
   color: string;
+  shape: SpaceshipShape;
   flame?: 'none' | 'static' | 'animated';
 };
 
-export default function SpaceshipIcon({ color, flame = 'none' }: Props) {
+export default function SpaceshipIcon({ color, shape, flame = 'none' }: Props) {
+  const flameHalfWidth = shape.engines.length > 1 ? 3 : 4; // ships with twin engines get slimmer flames
+
   return (
     <svg viewBox="-28 -32 56 80" aria-hidden="true" focusable="false">
-      {flame !== 'none' && (
-        <polygon
-          className={flame === 'animated' ? 'spaceship-flame' : undefined}
-          points="-4,24 0,40 4,24"
-          fill="#ffb703"
-          opacity="0.9"
+      {flame !== 'none' &&
+        shape.engines.map(([x, y], index) => (
+          <polygon
+            key={index}
+            className={flame === 'animated' ? 'spaceship-flame' : undefined}
+            points={`${x - flameHalfWidth},${y} ${x},${y + 16} ${x + flameHalfWidth},${y}`}
+            fill="#ffb703"
+            opacity="0.9"
+          />
+        ))}
+
+      <polygon
+        points={toPoints(shape.hull)}
+        fill={color}
+        stroke="rgba(0, 0, 0, 0.4)"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+
+      {shape.panels?.map((panel, index) => (
+        <polygon key={index} points={toPoints(panel)} fill="rgba(0, 0, 0, 0.2)" />
+      ))}
+
+      {shape.spine && (
+        <line
+          x1={shape.spine[0][0]}
+          y1={shape.spine[0][1]}
+          x2={shape.spine[1][0]}
+          y2={shape.spine[1][1]}
+          stroke="rgba(255, 255, 255, 0.25)"
+          strokeWidth="1"
         />
       )}
-      <polygon points={HULL_POINTS} fill={color} stroke="rgba(0, 0, 0, 0.4)" strokeWidth="1.2" strokeLinejoin="round" />
-      <line x1="0" y1="-22" x2="0" y2="20" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1" />
-      <ellipse cx="0" cy="-6" rx="3.5" ry="7" fill="#bde0fe" />
+
+      {shape.lights?.map(([x, y], index) => (
+        <circle key={index} cx={x} cy={y} r="1.6" fill="#7fe8ff" />
+      ))}
+
+      <ellipse cx={shape.cockpit.cx} cy={shape.cockpit.cy} rx={shape.cockpit.rx} ry={shape.cockpit.ry} fill="#bde0fe" />
     </svg>
   );
 }

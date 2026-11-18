@@ -18,7 +18,7 @@ export interface SpaceshipShape {
   engines: readonly Point[];
   cockpit: { cx: number; cy: number; rx: number; ry: number };
   /** A centre line down the hull. */
-  spine: readonly Point[];
+  spine?: readonly Point[];
   /** Darker panels drawn on top of the hull. */
   panels?: readonly (readonly Point[])[];
   /** Small glowing lights. */
@@ -47,6 +47,8 @@ const GUNSHIP_HULL: readonly Point[] = scaleUp(
   GUNSHIP_SCALE
 );
 
+const SCIENTIST_SCALE = 1.2;
+
 export const spaceshipAbilityClassShipShapeMap: Record<AbilityClass, SpaceshipShape> = {
   [AbilityClass.GUNSHIP]: {
     hull: GUNSHIP_HULL,
@@ -61,5 +63,88 @@ export const spaceshipAbilityClassShipShapeMap: Record<AbilityClass, SpaceshipSh
       GUNSHIP_SCALE
     ),
     width: 22 * GUNSHIP_SCALE
+  },
+  [AbilityClass.SCIENTIST]: {
+    hull: scaleUp(
+      [
+        [0, -24], // nose
+        [7, -14],
+        [10, -6],
+        [20, -8], // right pod
+        [24, -2],
+        [24, 12],
+        [18, 16],
+        [10, 12],
+        [8, 22], // right engine
+        [-8, 22], // left engine
+        [-10, 12],
+        [-18, 16],
+        [-24, 12], // left pod
+        [-24, -2],
+        [-20, -8],
+        [-10, -6],
+        [-7, -14]
+      ],
+      SCIENTIST_SCALE
+    ),
+    hitbox: scaleUp(
+      [
+        [0, -22.5],
+        [6, -13.5],
+        [9.5, -5],
+        [19.5, -7],
+        [23, -1.5],
+        [23, 11.5],
+        [18, 15],
+        [9.5, 10.5],
+        [7.5, 21],
+        [-7.5, 21],
+        [-9.5, 10.5],
+        [-18, 15],
+        [-23, 11.5],
+        [-23, -1.5],
+        [-19.5, -7],
+        [-9.5, -5],
+        [-6, -13.5]
+      ],
+      SCIENTIST_SCALE
+    ),
+    engines: scaleUp([[0, 22]], SCIENTIST_SCALE),
+    cockpit: { cx: 0, cy: -8 * SCIENTIST_SCALE, rx: 4.5 * SCIENTIST_SCALE, ry: 6 * SCIENTIST_SCALE },
+    spine: scaleUp(
+      [
+        [0, -19],
+        [0, 17]
+      ],
+      SCIENTIST_SCALE
+    ),
+    panels: [
+      scaleUp(
+        [
+          [12, -5],
+          [22, -3],
+          [22, 11],
+          [12, 10]
+        ],
+        SCIENTIST_SCALE
+      ),
+      scaleUp(
+        [
+          [-12, -5],
+          [-22, -3],
+          [-22, 11],
+          [-12, 10]
+        ],
+        SCIENTIST_SCALE
+      )
+    ],
+    lights: scaleUp(
+      [
+        [21, 2],
+        [-21, 2]
+      ],
+      SCIENTIST_SCALE
+    ),
+    width: 24 * SCIENTIST_SCALE
   }
 };

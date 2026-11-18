@@ -1,3 +1,4 @@
 export enum AbilityClass {
-  GUNSHIP = 'gunship'
+  GUNSHIP = 'gunship',
+  SCIENTIST = 'scientist'
 }

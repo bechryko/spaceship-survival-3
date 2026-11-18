@@ -3,14 +3,14 @@
 
   .preview-empty {
     text-align: start;
-    padding-left: 4.5rem;
+    padding-left: 6rem;
   }
 }
 
 .loadout {
   box-sizing: border-box;
   width: min(52rem, 100%);
-  min-height: 15rem;
+  height: 25rem;
   display: grid;
   grid-template-columns: 11rem 1fr;
   gap: 2.5rem;
@@ -24,6 +24,7 @@
   text-align: center;
 
   & h2 {
+    line-height: 1;
     margin: 0;
   }
 }
@@ -94,6 +95,10 @@
   .loadout-ability {
     grid-template-columns: 1fr;
     justify-items: center;
+    height: 100%;
+    padding-right: 2rem;
+    overflow-y: auto;
+    scroll-behavior: smooth;
 
     & h2 {
       justify-content: center;

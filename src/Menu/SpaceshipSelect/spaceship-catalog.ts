@@ -1,4 +1,13 @@
-import { AbilityAlmanac, AbilityClass } from '../../Game/spaceships';
+import { AbilityAlmanac, AbilityClass, spaceshipAbilityClassShipShapeMap, SpaceshipShape } from '../../Game/spaceships';
+
+export interface SpaceshipDefinition {
+  id: AbilityClass;
+  name: string;
+  description: string;
+  speedLevel: number;
+  abilities: readonly SpaceshipAbilityInfo[];
+  shape: SpaceshipShape;
+}
 
 export interface SpaceshipAbilityInfo {
   key: 'Q' | 'W' | 'E';
@@ -7,21 +16,13 @@ export interface SpaceshipAbilityInfo {
   cooldown: number;
 }
 
-export interface SpaceshipDefinition {
-  id: AbilityClass;
-  name: string;
-  color: string;
-  description: string;
-  abilities: readonly SpaceshipAbilityInfo[];
-}
-
 export const SPACESHIPS: readonly SpaceshipDefinition[] = [
   {
     id: AbilityClass.GUNSHIP,
     name: 'Destroyer',
-    color: 'forestgreen',
     description:
       'A spaceship equipped with the best weapons available: a rocket launcher on one wing, a long-ranger laser on the other.',
+    speedLevel: AbilityAlmanac[AbilityClass.GUNSHIP].speedLevel,
     abilities: [
       {
         key: 'Q',
@@ -41,7 +42,36 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
         description: AbilityAlmanac[AbilityClass.GUNSHIP].e.shortDescription,
         cooldown: AbilityAlmanac[AbilityClass.GUNSHIP].e.cooldown
       }
-    ]
+    ],
+    shape: spaceshipAbilityClassShipShapeMap[AbilityClass.GUNSHIP]
+  },
+  {
+    id: AbilityClass.SCIENTIST,
+    name: 'Scientist Ship',
+    description:
+      'A spaceship to bring scientists closer to understanding our universe. Its storage is loaded with probes ready to uncover the mysteries of asteroids.',
+    speedLevel: AbilityAlmanac[AbilityClass.SCIENTIST].speedLevel,
+    abilities: [
+      {
+        key: 'Q',
+        name: AbilityAlmanac[AbilityClass.SCIENTIST].q.name,
+        description: AbilityAlmanac[AbilityClass.SCIENTIST].q.shortDescription,
+        cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].q.cooldown
+      },
+      {
+        key: 'W',
+        name: AbilityAlmanac[AbilityClass.SCIENTIST].w.name,
+        description: AbilityAlmanac[AbilityClass.SCIENTIST].w.shortDescription,
+        cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].w.cooldown
+      },
+      {
+        key: 'E',
+        name: AbilityAlmanac[AbilityClass.SCIENTIST].e.name,
+        description: AbilityAlmanac[AbilityClass.SCIENTIST].e.shortDescription,
+        cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].e.cooldown
+      }
+    ],
+    shape: spaceshipAbilityClassShipShapeMap[AbilityClass.SCIENTIST]
   }
 ];
 

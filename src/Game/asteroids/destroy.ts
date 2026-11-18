@@ -7,6 +7,7 @@ import { pushAsteroid, spawnAsteroid } from './tick';
 
 const ICE_ASTEROID_MIN_SHARD_RELEASE = 4;
 const ICE_ASTEROID_MAX_SHARD_RELEASE = 6;
+const ICE_ASTEROID_MAX_SHARD_DISTANCE_MULTIPLIER = 0.6;
 const ICE_ASTEROID_MIN_SHARD_SPEED = 20;
 const ICE_ASTEROID_MAX_SHARD_SPEED = 150;
 
@@ -26,7 +27,10 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
   if (asteroid.type === AsteroidType.ICE) {
     for (let i = 0; i < between(ICE_ASTEROID_MIN_SHARD_RELEASE, ICE_ASTEROID_MAX_SHARD_RELEASE); i++) {
       const angle = Math.random() * Math.PI * 2;
-      const distanceMultiplier = between(0, 1, { squaredDistribution: true, floor: false });
+      const distanceMultiplier = Math.min(
+        between(0, 1, { squaredDistribution: true, floor: false }),
+        ICE_ASTEROID_MAX_SHARD_DISTANCE_MULTIPLIER
+      );
       const distance = asteroid.r * distanceMultiplier;
 
       const iceShard = spawnAsteroid(state, {

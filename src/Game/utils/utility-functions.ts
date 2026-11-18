@@ -1,4 +1,4 @@
-import { Range } from '../models';
+import { HSLColor, Range } from '../models';
 import { AbilityAlmanac, Spaceship, SpaceshipAbilityIndex } from '../spaceships';
 import { between } from './random';
 
@@ -31,8 +31,12 @@ export function displayKeyCode(keyCode: string): string {
   return keyCode.replaceAll('Key', '');
 }
 
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 export function clamp01(value: number): number {
-  return Math.min(1, Math.max(0, value));
+  return clamp(value, 0, 1);
 }
 
 /** '#rrggbb' to 'rgba(r, g, b, alpha)' */
@@ -58,4 +62,18 @@ export function easeInOutCubic(t: number): number {
 
 export function getNumberOrRangeValue(value: number | Range, isInteger = true): number {
   return typeof value === 'number' ? value : between(value.min, value.max, { floor: isInteger });
+}
+
+export function isAboveScreen(object: { y: number; r: number }): boolean {
+  return object.y + object.r <= 0;
+}
+
+export function hslString(color: HSLColor<number>): string {
+  return `hsl(${color.hue} ${color.saturation}% ${color.lightness}%)`;
+}
+
+/** Cheap repeatable pseudo-random number in [0, 1), so the streaks need no stored state. */
+export function hash(n: number): number {
+  const s = Math.sin(n * 127.1) * 43758.5453;
+  return s - Math.floor(s);
 }

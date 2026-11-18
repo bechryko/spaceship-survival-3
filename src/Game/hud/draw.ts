@@ -60,6 +60,15 @@ const ABILITY_HUD_SLOT_DISABLED_BORDER_COLOR = 'rgba(255, 255, 255, 0.18)';
 const ABILITY_HUD_SLOT_DISABLED_TEXT_COLOR = 'rgba(232, 241, 242, 0.3)';
 const ABILITY_HUD_SLOT_DISABLED_NAME_TEXT_COLOR = 'rgba(232, 241, 242, 0.3)';
 
+const ABILITY_HUD_KNOWLEDGE_TOP_MARGIN = 8;
+const ABILITY_HUD_KNOWLEDGE_ICON_WIDTH = 24;
+const ABILITY_HUD_KNOWLEDGE_ICON_HEIGHT = 17;
+const ABILITY_HUD_KNOWLEDGE_ICON_TEXT_GAP = 6;
+const ABILITY_HUD_KNOWLEDGE_TEXT_WEIGHT = 700;
+const ABILITY_HUD_KNOWLEDGE_TEXT_SIZE = 15;
+const ABILITY_HUD_KNOWLEDGE_OUTLINE_COLOR = 'rgba(0, 0, 0, 0.4)';
+const ABILITY_HUD_KNOWLEDGE_DETAIL_COLOR = 'rgba(255, 255, 255, 0.4)';
+
 function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
   const { abilities } = player;
   const almanac = getAlmanacForAbilities(player);
@@ -182,6 +191,36 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
       { lineHeight: ABILITY_HUD_SLOT_NAME_LINE_HEIGHT }
     );
   });
+
+  // Knowledge: a book in the player colour and how many points there are, centred under the slots.
+  // Only drawn once there is some.
+  if (player.asteroidKnowledge > 0) {
+    // Below the ability names, which take as many lines as the longest name has words
+    const nameLines = Math.max(...slots.map(slot => slot.label.split(' ').length));
+    const namesBottom =
+      totalTopMargin +
+      ABILITY_HUD_SLOT_SIZE +
+      ABILITY_HUD_SLOT_NAME_TEXT_Y_MARGIN +
+      (nameLines - 1) * ABILITY_HUD_SLOT_NAME_LINE_HEIGHT +
+      ABILITY_HUD_SLOT_NAME_TEXT_SIZE / 2;
+    const bookCy = namesBottom + ABILITY_HUD_KNOWLEDGE_TOP_MARGIN + ABILITY_HUD_KNOWLEDGE_ICON_HEIGHT / 2;
+
+    const countText = String(player.asteroidKnowledge);
+    setFont(ctx, ABILITY_HUD_KNOWLEDGE_TEXT_WEIGHT, ABILITY_HUD_KNOWLEDGE_TEXT_SIZE);
+    const groupWidth =
+      ABILITY_HUD_KNOWLEDGE_ICON_WIDTH + ABILITY_HUD_KNOWLEDGE_ICON_TEXT_GAP + ctx.measureText(countText).width;
+    const groupLeft = ABILITY_HUD_X_MARGIN + totalWidth / 2 - groupWidth / 2;
+
+    drawKnowledgeBook(ctx, groupLeft + ABILITY_HUD_KNOWLEDGE_ICON_WIDTH / 2, bookCy, player.color);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = ABILITY_HUD_SLOT_READY_TEXT_COLOR;
+    ctx.fillText(
+      countText,
+      groupLeft + ABILITY_HUD_KNOWLEDGE_ICON_WIDTH + ABILITY_HUD_KNOWLEDGE_ICON_TEXT_GAP,
+      bookCy + 1
+    );
+  }
 
   ctx.restore();
 }
@@ -361,7 +400,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
         ['Total asteroids', `${statistics.asteroidsSpawned}`],
         ['Asteroids destroyed', `${statistics.asteroidsDestroyed}`]
       ]),
-      buildScoreSection(ctx, 'Total score', calculateScore(statistics), state.highscore),
+      buildScoreSection(ctx, 'Total score', calculateScore(state), state.highscore),
       controlTextSection
     ];
   } else {
@@ -569,4 +608,46 @@ function setFont(ctx: CanvasRenderingContext2D, weight: number, size: number): v
   if (ctx.font !== font) {
     ctx.font = `${weight} ${size}px ${HUD_FONT_FAMILY}`;
   }
+}
+
+function drawKnowledgeBook(ctx: CanvasRenderingContext2D, cx: number, cy: number, color: string): void {
+  const width = ABILITY_HUD_KNOWLEDGE_ICON_WIDTH;
+  const top = cy - ABILITY_HUD_KNOWLEDGE_ICON_HEIGHT / 2;
+  const bottom = cy + ABILITY_HUD_KNOWLEDGE_ICON_HEIGHT / 2;
+
+  ctx.save();
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 1;
+
+  // The two pages, mirrored around the spine. The outer edges curve a little, like a book lying open.
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.moveTo(cx, top + 2);
+    ctx.quadraticCurveTo(cx + side * width * 0.28, top - 1, cx + side * (width / 2), top + 1.5);
+    ctx.lineTo(cx + side * (width / 2), bottom - 2);
+    ctx.quadraticCurveTo(cx + side * width * 0.28, bottom - 5, cx, bottom - 1);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = ABILITY_HUD_KNOWLEDGE_OUTLINE_COLOR;
+    ctx.stroke();
+
+    // Two short lines of text on the page
+    ctx.beginPath();
+    for (const y of [top + 4.5, top + 8]) {
+      ctx.moveTo(cx + side * 3, y);
+      ctx.lineTo(cx + side * (width / 2 - 2.5), y);
+    }
+    ctx.strokeStyle = ABILITY_HUD_KNOWLEDGE_DETAIL_COLOR;
+    ctx.stroke();
+  }
+
+  // Spine
+  ctx.beginPath();
+  ctx.moveTo(cx, top + 2);
+  ctx.lineTo(cx, bottom - 1);
+  ctx.strokeStyle = ABILITY_HUD_KNOWLEDGE_OUTLINE_COLOR;
+  ctx.stroke();
+
+  ctx.restore();
 }

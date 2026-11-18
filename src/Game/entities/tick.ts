@@ -1,7 +1,10 @@
-import { Asteroid, AsteroidType, destroyAsteroid, pushAsteroid } from '../asteroids';
-import { GameState } from '../hud';
+import { Asteroid, AsteroidType, destroyAsteroid, getAsteroidPolygon, pushAsteroid } from '../asteroids';
+import { GAME_HEIGHT, GameState } from '../hud';
+import { Point } from '../models';
+import { AbilityAlmanac, AbilityClass } from '../spaceships';
+import { clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide } from '../utils';
 import { explode } from './create';
-import { Bomb, EntityType, Explosion, Laser, Rocket } from './entities';
+import { Bomb, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import {
   getAsteroidSpanInBeam,
   getDistanceToAsteroid,
@@ -26,6 +29,15 @@ export function tickEntities(state: GameState, deltaTime: number): void {
         break;
       case EntityType.BOMB:
         tickBomb(entity, state, deltaTime);
+        break;
+      case EntityType.SCIENCE_PROBE:
+        tickScienceProbe(entity, state, deltaTime);
+        break;
+      case EntityType.SHOCKWAVE:
+        tickShockwave(entity, state, deltaTime);
+        break;
+      case EntityType.PLASMA_JET:
+        tickPlasmaJet(entity, state, deltaTime);
         break;
     }
   }
@@ -96,7 +108,7 @@ function tickExplosion(explosion: Explosion, deltaTime: number, state: GameState
 
 const BOMB_SPEED = 75;
 
-export function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void {
+function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void {
   const fromY = bomb.y;
   bomb.y -= BOMB_SPEED * deltaTime;
   bomb.age += deltaTime;
@@ -111,6 +123,207 @@ export function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void 
     detonateBomb(state, bomb);
   }
 }
+
+const PROBE_ATTACH_RADIUS = 15;
+const PROBE_ACCELERATION = 200;
+
+function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: number): void {
+  const probeStats = AbilityAlmanac[AbilityClass.SCIENTIST].q;
+
+  if (probe.currentSpeed !== probe.targetSpeed) {
+    const dSpeedSign = Math.sign(probe.targetSpeed - probe.currentSpeed);
+    probe.currentSpeed += Math.sign(probe.targetSpeed - probe.currentSpeed) * PROBE_ACCELERATION * deltaTime;
+
+    if (Math.sign(probe.targetSpeed - probe.currentSpeed) !== dSpeedSign) {
+      probe.currentSpeed = probe.targetSpeed;
+    }
+  }
+
+  if (probe.y > GAME_HEIGHT + probeStats.radius * 2) {
+    state.entities.splice(
+      state.entities.findIndex(e => e === probe),
+      1
+    );
+  }
+
+  switch (probe.phase) {
+    case 'flying': {
+      probe.targetSpeed = probe.flySpeed;
+
+      const fromY = probe.y;
+      probe.y -= probe.flySpeed * deltaTime;
+      probe.currentSpeed += deltaTime;
+      probe.flightTime += deltaTime;
+
+      const contact = findFirstContact(probe.x, fromY, probe.y, probeStats.radius, state.asteroids);
+      if (contact) {
+        probe.phase = 'transfer';
+        probe.target = state.asteroids[contact.index];
+      } else if (probe.flightTime >= probeStats.maxFlightTime || probe.y < -40) {
+        probe.phase = 'lost';
+        probe.lostTime = 0;
+      }
+      break;
+    }
+
+    case 'transfer': {
+      probe.targetSpeed = probe.transferSpeed;
+
+      const target = probe.target;
+      if (!target || !target.active) {
+        chainProbe(probe, state.asteroids);
+        break;
+      }
+
+      if ((probe.x - target.x) ** 2 + (probe.y - target.y) ** 2 <= (probeStats.radius + PROBE_ATTACH_RADIUS) ** 2) {
+        attachProbe(probe, target, state);
+        break;
+      }
+
+      const dx = target.x - probe.x;
+      const dy = target.y - probe.y;
+      const length = Math.hypot(dx, dy) || 1;
+      probe.direction = [dx / length, dy / length];
+      const step = Math.min(probe.currentSpeed * deltaTime, length);
+      probe.x += probe.direction[0] * step;
+      probe.y += probe.direction[1] * step;
+      break;
+    }
+
+    case 'analyzing': {
+      const target = probe.target;
+      if (!target || !target.active) {
+        chainProbe(probe, state.asteroids);
+        break;
+      }
+
+      [probe.x, probe.y] = fromAsteroidSpace(target, probe.attach); // ride along with the asteroid
+      probe.analysisProgress += deltaTime;
+
+      if (probe.analysisProgress >= probe.analysisTime) {
+        target.data.isAnalyzed = true;
+        destroyAsteroid(target, state);
+        probe.owner.asteroidKnowledge++;
+        chainProbe(probe, state.asteroids, target.r);
+      }
+      break;
+    }
+
+    case 'lost': {
+      probe.lostTime += deltaTime;
+      if (probe.lostTime >= probeStats.lostFadeTime) {
+        state.entities.splice(
+          state.entities.findIndex(e => e === probe),
+          1
+        );
+      }
+      break;
+    }
+  }
+}
+
+function tickShockwave(wave: Shockwave, state: GameState, deltaTime: number): void {
+  wave.radius += wave.speed * deltaTime;
+
+  for (const asteroid of state.asteroids) {
+    if (!asteroid.active || isAboveScreen(asteroid)) {
+      continue;
+    }
+
+    if (Math.hypot(asteroid.x - wave.x, asteroid.y - wave.y) - asteroid.r <= wave.radius) {
+      wave.contactCallback(wave, asteroid);
+
+      // flashes.push({ x: asteroid.x, y: asteroid.y, r: asteroid.r, age: 0 });
+    }
+  }
+
+  if (wave.radius >= wave.maxRadius) {
+    state.entities.splice(
+      state.entities.findIndex(e => e === wave),
+      1
+    );
+  }
+}
+
+const PLASMA_JET_IRON_ASTEROID_STRENGTH_RESISTANCE = 0.25;
+
+function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number): void {
+  const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
+
+  if (plasmaJet.active) {
+    plasmaJet.usedTime = Math.min(plasmaJetStats.activeTime, plasmaJet.usedTime + deltaTime);
+    if (plasmaJet.usedTime >= plasmaJetStats.activeTime) {
+      plasmaJet.active = false;
+    }
+  }
+
+  const ramp = plasmaJet.active ? deltaTime / plasmaJetStats.rampIn : -deltaTime / plasmaJetStats.rampOut;
+  plasmaJet.intensity = clamp01(plasmaJet.intensity + ramp);
+
+  if (plasmaJet.intensity > 0) {
+    const spaceship = plasmaJet.owner;
+
+    plasmaJet.affected.length = 0;
+
+    const range = plasmaJetStats.range * easeOutCubic(plasmaJet.intensity);
+    if (range < 1) {
+      return;
+    }
+
+    const nozzleY = spaceship.y - plasmaJetStats.noseOffset;
+    const jet = getJetShape(plasmaJet, range);
+
+    for (const asteroid of state.asteroids) {
+      if (!asteroid.active) {
+        continue;
+      }
+
+      // Quick rejection before the exact test: the outline stays within about 1.05 radii of the centre
+      const bound = asteroid.r * 1.05;
+      const farEdgeDistance = clamp(nozzleY - (asteroid.y - bound), 0, range);
+      if (
+        asteroid.y - bound > nozzleY ||
+        asteroid.y + bound < nozzleY - range ||
+        Math.abs(asteroid.x - spaceship.x) >
+          plasmaJetStats.nozzleHalfWidth + farEdgeDistance * Math.tan(plasmaJetStats.halfAngle) + bound
+      ) {
+        continue;
+      }
+
+      if (!polygonsCollide(getAsteroidPolygon(asteroid), jet)) {
+        continue;
+      }
+
+      // Backward push
+      const along = clamp01((nozzleY - asteroid.y) / range);
+      const strength = plasmaJet.intensity * (1 - plasmaJetStats.falloff * along);
+      const strengthMultiplier = asteroid.type === AsteroidType.IRON ? PLASMA_JET_IRON_ASTEROID_STRENGTH_RESISTANCE : 1;
+      const inertia = clamp(
+        asteroid.r / plasmaJetStats.referenceRadius,
+        plasmaJetStats.minInertia,
+        plasmaJetStats.maxInertia
+      );
+      asteroid.velocity -= ((plasmaJetStats.backAcceleration * strength * strengthMultiplier) / inertia) * deltaTime;
+
+      // Sideways push
+      const dx = asteroid.x - spaceship.x;
+      const side = dx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(dx);
+      const push = ((plasmaJetStats.sideAcceleration * strength * strengthMultiplier) / inertia) * deltaTime;
+      asteroid.velocityHorizontal += side * push;
+
+      plasmaJet.affected.push(asteroid);
+    }
+  } else if (!plasmaJet.active) {
+    state.entities.splice(
+      state.entities.findIndex(e => e === plasmaJet),
+      1
+    );
+  }
+}
+
+// =====================================================================================
+// Helper functions
+// =====================================================================================
 
 /**
  * Swept test along a rocket's or bomb's path this frame, against each asteroid's real outline, so a fast
@@ -191,4 +404,89 @@ function getLaserTopY(beam: LaserBeam, asteroids: Asteroid[]): number {
   }
 
   return topY;
+}
+
+function attachProbe(probe: ScienceProbe, asteroid: Asteroid, state: GameState): void {
+  if (
+    asteroid.data.isAnalyzed ||
+    state.entities.find(e => e !== probe && e.type === EntityType.SCIENCE_PROBE && e.target === asteroid)
+  ) {
+    chainProbe(probe, state.asteroids, asteroid.r);
+    return;
+  }
+
+  const probeStats = AbilityAlmanac[AbilityClass.SCIENTIST].q;
+
+  probe.phase = 'analyzing';
+  probe.target = asteroid;
+  probe.analysisProgress = 0;
+  probe.analysisTime =
+    probeStats.minAnalysisTime +
+    clamp01(
+      (asteroid.r - probeStats.minAnalysisTimeAsteroidSize) /
+        (probeStats.maxAnalysisTimeAsteroidSize - probeStats.minAnalysisTimeAsteroidSize)
+    ) *
+      (probeStats.maxAnalysisTime - probeStats.minAnalysisTime);
+  probe.attach = toAsteroidSpace(asteroid, [probe.x, probe.y]);
+}
+
+function chainProbe(probe: ScienceProbe, asteroids: Asteroid[], previousTargetR = 0): void {
+  let best: Asteroid | null = null;
+  let bestDistance = Infinity;
+
+  for (const asteroid of asteroids) {
+    if (!asteroid.active || asteroid.data.isAnalyzed) {
+      continue;
+    }
+
+    const distance = getDistanceToAsteroid(asteroid, probe.x, probe.y);
+    if (
+      asteroid.y < probe.y &&
+      distance <= AbilityAlmanac[AbilityClass.SCIENTIST].q.chainRange + previousTargetR &&
+      distance < bestDistance
+    ) {
+      best = asteroid;
+      bestDistance = distance;
+    }
+  }
+
+  if (best) {
+    probe.phase = 'transfer';
+    probe.target = best;
+  } else {
+    probe.phase = 'lost';
+    delete probe.target;
+    probe.lostTime = 0;
+  }
+}
+
+function fromAsteroidSpace(asteroid: Asteroid, [ux, uy]: Point): Point {
+  const cos = Math.cos(asteroid.angle);
+  const sin = Math.sin(asteroid.angle);
+  return [asteroid.x + (ux * cos - uy * sin) * asteroid.r, asteroid.y + (ux * sin + uy * cos) * asteroid.r];
+}
+
+/** A point on an asteroid, as unit-space coordinates that stay valid as it moves and turns. */
+function toAsteroidSpace(asteroid: Asteroid, [x, y]: Point): Point {
+  const dx = x - asteroid.x;
+  const dy = y - asteroid.y;
+  const cos = Math.cos(asteroid.angle);
+  const sin = Math.sin(asteroid.angle);
+
+  return [(dx * cos + dy * sin) / asteroid.r, (-dx * sin + dy * cos) / asteroid.r];
+}
+
+/** The jet as a four-sided shape in game coordinates, narrow at the nozzle and widening forward. */
+function getJetShape(plasmaJet: PlasmaJet, range: number): Point[] {
+  const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
+  const spaceship = plasmaJet.owner;
+  const nozzleY = spaceship.y - plasmaJetStats.noseOffset;
+  const endHalfWidth = plasmaJetStats.nozzleHalfWidth + range * Math.tan(plasmaJetStats.halfAngle);
+
+  return [
+    [spaceship.x - plasmaJetStats.nozzleHalfWidth, nozzleY],
+    [spaceship.x + plasmaJetStats.nozzleHalfWidth, nozzleY],
+    [spaceship.x + endHalfWidth, nozzleY - range],
+    [spaceship.x - endHalfWidth, nozzleY - range]
+  ];
 }

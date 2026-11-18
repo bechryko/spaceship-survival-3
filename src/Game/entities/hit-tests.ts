@@ -1,4 +1,4 @@
-import { Asteroid } from '../asteroids';
+import { Asteroid, getAsteroidPolygon } from '../asteroids';
 import { Point } from '../models';
 
 /**
@@ -6,16 +6,6 @@ import { Point } from '../models';
  * asteroid's centre, so anything clearly farther away than that can't touch it.
  */
 const BOUNDING_MARGIN = 1.05;
-
-/** The asteroid's outline in game coordinates: scaled, rotated (same convention as ctx.rotate) and moved. */
-function getAsteroidPolygon(asteroid: Asteroid): Point[] {
-  const cos = Math.cos(asteroid.angle);
-  const sin = Math.sin(asteroid.angle);
-
-  return asteroid.shape.map(
-    ([x, y]) => [(x * cos - y * sin) * asteroid.r + asteroid.x, (x * sin + y * cos) * asteroid.r + asteroid.y] as Point
-  );
-}
 
 // ---------- Geometry ----------
 /** Ray-cast test: is (px, py) inside the polygon? Works for concave shapes. */

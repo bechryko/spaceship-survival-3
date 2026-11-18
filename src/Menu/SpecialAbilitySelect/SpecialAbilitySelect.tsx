@@ -63,7 +63,7 @@ export default function AbilitySelect() {
         <div className="loadout">
           <div className="loadout-ship">
             <div className="loadout-ship-icon" style={{ '--ship-color': color } as CSSProperties}>
-              <SpaceshipIcon color={color} flame="animated" />
+              <SpaceshipIcon color={color} shape={spaceship.shape} flame="animated" />
             </div>
             <h2>{spaceship.name}</h2>
           </div>

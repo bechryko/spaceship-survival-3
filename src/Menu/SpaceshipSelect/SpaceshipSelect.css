@@ -40,7 +40,7 @@
 .preview {
   box-sizing: border-box;
   width: min(44rem, 100%);
-  min-height: 15rem;
+  height: 25rem;
   display: grid;
   grid-template-columns: 7rem 1fr;
   gap: 2rem;
@@ -95,12 +95,19 @@
   }
 }
 
-.preview-details h2 {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 1rem 0;
-  line-height: 1;
+.preview-details {
+  height: 100%;
+  padding-right: 2rem;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    line-height: 1;
+  }
 }
 
 .preview-tag {

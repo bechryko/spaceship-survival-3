@@ -1,4 +1,5 @@
-import { Bomb, detonateBomb, EntityType } from '../entities';
+import { Asteroid } from '../asteroids';
+import { Bomb, detonateBomb, EntityType, PlasmaJet, Shockwave } from '../entities';
 import { GameState } from '../hud';
 import { forEachAbility } from '../utils';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
@@ -38,6 +39,79 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
           totalTime: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserDuration,
           timeLeft: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserDuration
         });
+      }
+    }
+  },
+  [AbilityClass.SCIENTIST]: {
+    abilityClass: AbilityClass.SCIENTIST,
+    q: {
+      callback: (spaceship: Spaceship, state: GameState) => {
+        const flySpeed = AbilityAlmanac[AbilityClass.SCIENTIST].q.flySpeed;
+
+        state.entities.push({
+          type: EntityType.SCIENCE_PROBE,
+          owner: spaceship,
+          phase: 'flying',
+          x: spaceship.x,
+          y: spaceship.y - AbilityAlmanac[AbilityClass.SCIENTIST].q.noseOffset,
+          currentSpeed: flySpeed,
+          targetSpeed: flySpeed,
+          flySpeed,
+          transferSpeed: AbilityAlmanac[AbilityClass.SCIENTIST].q.transferSpeed,
+          direction: [0, -1],
+          flightTime: 0,
+          attach: [0, 0],
+          analysisTime: 0,
+          analysisProgress: 0,
+          lostTime: 0
+        });
+      }
+    },
+    w: {
+      callback: (spaceship: Spaceship, state: GameState) => {
+        state.entities.push({
+          type: EntityType.SHOCKWAVE,
+          x: spaceship.x,
+          y: spaceship.y,
+          speed: AbilityAlmanac[AbilityClass.SCIENTIST].w.speed,
+          radius: 0,
+          maxRadius: AbilityAlmanac[AbilityClass.SCIENTIST].w.maxRadius,
+          slowed: new WeakSet(),
+          contactCallback: (wave: Shockwave, asteroid: Asteroid) => {
+            if (wave.slowed.has(asteroid)) {
+              return;
+            }
+
+            const { speedMultiplier } = AbilityAlmanac[AbilityClass.SCIENTIST].w;
+
+            wave.slowed.add(asteroid);
+            asteroid.velocity *= speedMultiplier;
+            if (asteroid.velocityHorizontal !== undefined) {
+              asteroid.velocityHorizontal *= speedMultiplier;
+            }
+          }
+        });
+      }
+    },
+    e: {
+      callback: (spaceship: Spaceship, state: GameState) => {
+        state.entities.push({
+          type: EntityType.PLASMA_JET,
+          owner: spaceship,
+          active: true,
+          usedTime: 0,
+          intensity: 0,
+          affected: []
+        });
+      },
+      reactivateCallback: (spaceship: Spaceship, state: GameState) => {
+        const plasmaJet = state.entities.find(
+          e => e.type === EntityType.PLASMA_JET && e.owner === spaceship
+        ) as PlasmaJet;
+
+        plasmaJet.active = false;
+        spaceship.abilities.e.cooldownTimer =
+          plasmaJet.usedTime * AbilityAlmanac[AbilityClass.SCIENTIST].e.cooldownMultiplier;
       }
     }
   }

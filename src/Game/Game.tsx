@@ -7,6 +7,7 @@ import { loadColor, loadHighscore, saveHighscore } from '../localstorage';
 import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
+import { createGlobalEffectsState, drawGlobalEffects, tickGlobalEffects } from './global-effects';
 import {
   BACK_TO_SELECTION_KEY_CODE,
   createFpsCounter,
@@ -72,6 +73,7 @@ export default function Game() {
       player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
       asteroids: [],
       entities: [],
+      globalEffects: createGlobalEffectsState(),
       stars: createStars(),
       spawnTimer: 0
     };
@@ -175,8 +177,18 @@ export default function Game() {
         case playerControls.rightKeyCode:
           playerControls.right = false;
           break;
+        case playerAbilities.q.key:
+          playerAbilities.q.reactivatable = true;
+          break;
+        case playerAbilities.w.key:
+          playerAbilities.w.reactivatable = true;
+          break;
+        case playerAbilities.e.key:
+          playerAbilities.e.reactivatable = true;
+          break;
         case playerAbilities.r.key:
           playerAbilities.r.reactivatable = true;
+          break;
       }
     };
 
@@ -197,29 +209,31 @@ export default function Game() {
       const { hit } = tickAsteroids(state, deltaTime);
       if (hit) {
         state.status = GameStatus.OVER;
-        const score = calculateScore(state.statistics);
+        const score = calculateScore(state);
 
         if (score > state.highscore) {
           saveHighscore(score);
         }
       }
+      tickGlobalEffects(state.globalEffects, state, deltaTime);
     };
 
     const draw = () => {
       const state = stateRef.current;
+      const { time } = state.statistics;
 
       drawBackground(ctx, state.stars);
       for (const asteroid of state.asteroids.filter(a => a.active)) {
         drawAsteroid(ctx, asteroid);
       }
-      drawEntities(ctx, state.entities);
-      drawSpaceship(ctx, state.player);
+      drawEntities(ctx, state.entities, time);
+      drawSpaceship(ctx, state.player, time);
+      drawGlobalEffects(ctx, state.globalEffects);
       drawHUD(ctx, state, settings, isQuickPlay, settings.showFps ? fpsCounter : null);
     };
 
     let rafId = 0;
     let last = performance.now();
-    let pausedState = false;
 
     const frame = (now: number) => {
       const deltaTime = Math.min((now - last) / 1000, 0.05);
@@ -227,18 +241,10 @@ export default function Game() {
 
       const isPaused = stateRef.current.status !== GameStatus.PLAYING;
 
-      if (pausedState && !isPaused) {
-        pausedState = false;
+      if (!isPaused) {
+        update(deltaTime);
       }
-
-      if (!pausedState) {
-        update(isPaused ? 0 : deltaTime);
-        draw();
-      }
-
-      if (!pausedState && isPaused) {
-        pausedState = true;
-      }
+      draw();
 
       rafId = requestAnimationFrame(frame);
     };

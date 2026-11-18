@@ -1,4 +1,4 @@
-import { Range } from '../models';
+import { HSLColor, Range } from '../models';
 import { between } from '../utils';
 import { Asteroid, AsteroidData, AsteroidType } from './asteroid';
 
@@ -12,11 +12,7 @@ export interface AsteroidBlueprint {
   sizeIncreaseMax: number;
   vertexCount: number | Range;
   maxReachIn: number;
-  color: {
-    hue: number | Range;
-    lightness: number | Range;
-    saturation: number | Range;
-  };
+  color: HSLColor<number | Range>;
   craters: {
     count: number | Range;
     size: number | Range;

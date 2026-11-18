@@ -33,7 +33,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
       Math.hypot(lx, ly) <= boundingRadius(hitbox) + asteroid.r &&
       polygonsCollide(hitbox, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
-      if (isSpaceshipImmune(player) && asteroid.type !== AsteroidType.IRON) {
+      if (isSpaceshipImmune(player, asteroid)) {
         destroyAsteroid(asteroid, state);
       } else {
         return { hit: true };
@@ -71,9 +71,9 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     .filter(asteroid => asteroid.active)
     .filter(
       asteroid =>
-        asteroid.x < -asteroid.r ||
-        asteroid.x > GAME_WIDTH + asteroid.r ||
-        asteroid.y < -asteroid.r ||
+        (asteroid.x < -asteroid.r && asteroid.velocityHorizontal <= 0) ||
+        (asteroid.x > GAME_WIDTH + asteroid.r && asteroid.velocityHorizontal >= 0) ||
+        (asteroid.y < -asteroid.r && asteroid.velocity <= 0) ||
         asteroid.y > GAME_HEIGHT + asteroid.r
     )
     .forEach(a => {

@@ -1,14 +1,14 @@
-import { between, boundingRadius, clamp01, easeOutBack, withAlpha } from '../utils';
+import { between, boundingRadius, clamp01, easeOutBack, hash, withAlpha } from '../utils';
 import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { Spaceship } from './spaceship';
 
-export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
+export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceship, time: number): void {
   ctx.save();
   ctx.translate(spaceship.x, spaceship.y);
 
-  drawFlame(ctx, spaceship);
+  drawFlame(ctx, spaceship, time);
 
-  const { hull, spine, cockpit } = spaceship.shape;
+  const { hull, spine, cockpit, panels, lights } = spaceship.shape;
 
   // Hull
   ctx.beginPath();
@@ -21,16 +21,47 @@ export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceshi
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.stroke();
 
-  // Centre spine
-  ctx.beginPath();
-  spine.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
-  ctx.stroke();
+  // Panels
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  for (const panel of panels ?? []) {
+    ctx.beginPath();
+    panel.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Spine
+  if (spine) {
+    ctx.beginPath();
+    spine.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.stroke();
+  }
+
+  // Sensor lights
+  ctx.fillStyle = '#7fe8ff';
+  for (const [x, y] of lights ?? []) {
+    ctx.beginPath();
+    ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   // Cockpit
   ctx.fillStyle = '#bde0fe';
   ctx.beginPath();
   ctx.ellipse(cockpit.cx, cockpit.cy, cockpit.rx, cockpit.ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(
+    cockpit.cx - cockpit.rx * 0.3,
+    cockpit.cy - cockpit.ry * 0.35,
+    cockpit.rx * 0.35,
+    cockpit.ry * 0.3,
+    0,
+    0,
+    Math.PI * 2
+  );
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
   ctx.fill();
 
   ctx.restore();
@@ -43,60 +74,60 @@ export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceshi
 const NORMAL_FLAME_COLOR = '#ffb703';
 const NORMAL_FLAME_WIDTH = 10;
 
-function drawFlame(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
+function drawFlame(ctx: CanvasRenderingContext2D, spaceship: Spaceship, time: number): void {
   const isStrongerFlame = spaceship.abilities.special === SpecialAbilityName.STRONGER_ENGINES;
   const { engines } = spaceship.shape;
 
   engines.forEach(engine => {
-    const y = engine[1];
+    const [x, y] = engine;
 
     if (!isStrongerFlame) {
-      const flameSize = between(12, 20, { floor: false });
+      const flameSize = between(12, 20, { floor: false, seed: time });
 
       // Glow behind the flame
-      const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, flameSize);
+      const glow = ctx.createRadialGradient(x, y + 4, 0, x, y + 4, flameSize);
       glow.addColorStop(0, withAlpha(NORMAL_FLAME_COLOR, 0.35));
       glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(0, y + 4, flameSize, 0, Math.PI * 2);
+      ctx.arc(x, y + 4, flameSize, 0, Math.PI * 2);
       ctx.fill();
 
       // Flickering flame
       ctx.fillStyle = NORMAL_FLAME_COLOR;
       ctx.beginPath();
-      ctx.moveTo(-NORMAL_FLAME_WIDTH / 2, y);
-      ctx.lineTo(0, y + flameSize);
-      ctx.lineTo(NORMAL_FLAME_WIDTH / 2, y);
+      ctx.moveTo(x - NORMAL_FLAME_WIDTH / 2, y);
+      ctx.lineTo(x, y + flameSize);
+      ctx.lineTo(x + NORMAL_FLAME_WIDTH / 2, y);
       ctx.closePath();
       ctx.fill();
     } else {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
-      const phase = Math.random();
-      const thrust = between(0.55, 1, { floor: false });
+      const phase = hash(time);
+      const thrust = between(0.55, 1, { floor: false, seed: time });
 
       // Glow behind the flame
       const glowRadius = 14 + 12 * thrust;
-      const glow = ctx.createRadialGradient(0, y + 4, 0, 0, y + 4, glowRadius);
+      const glow = ctx.createRadialGradient(x, y + 4, 0, x, y + 4, glowRadius);
       glow.addColorStop(0, `rgba(140, 215, 255, ${0.35 + 0.25 * thrust})`);
       glow.addColorStop(1, 'rgba(60, 140, 255, 0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(0, y + 4, glowRadius, 0, Math.PI * 2);
+      ctx.arc(x, y + 4, glowRadius, 0, Math.PI * 2);
       ctx.fill();
 
       // Flame
       const flicker = 0.85 + 0.15 * Math.sin(phase * 45) + 0.08 * Math.sin(phase * 93);
       const length = (16 + 16 * thrust) * flicker;
-      const halfWidth = 5 + 1.5 * thrust;
-      const body = ctx.createLinearGradient(0, y, 0, y + length);
+      const halfWidth = NORMAL_FLAME_WIDTH / 2 + 1.5 * thrust;
+      const body = ctx.createLinearGradient(x, y, x, y + length);
       body.addColorStop(0, 'rgba(235, 250, 255, 0.95)');
       body.addColorStop(0.5, 'rgba(120, 200, 255, 0.7)');
       body.addColorStop(1, 'rgba(60, 120, 255, 0)');
       ctx.fillStyle = body;
-      teardropPath(ctx, 0, y, halfWidth, length);
+      teardropPath(ctx, x, y, halfWidth, length);
       ctx.fill();
 
       // Sparks drifting backwards and fading out
@@ -104,7 +135,7 @@ function drawFlame(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
       const trail = 40 + 30 * thrust;
       for (let k = 0; k < sparkCount; k++) {
         const t = (((phase * 1.8 + k / sparkCount) % 1) + 1) % 1;
-        const sx = (Math.random() - 0.5) * 10 * t;
+        const sx = x + (Math.random() - 0.5) * 10 * t;
         const sy = y + length * 0.5 + t * trail;
 
         ctx.fillStyle = `rgba(190, 235, 255, ${(1 - t) * 0.75 * thrust})`;

@@ -1,6 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { abilities, specialAbilities } from './abilities';
-import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
+import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName, SpeedAlmanac } from './ability-almanac';
 import { AbilityClass } from './ability-class';
 import { spaceshipAbilityClassShipShapeMap } from './hitbox';
 import { Spaceship } from './spaceship';
@@ -17,10 +17,12 @@ export function createSpaceship(
   color: string,
   specialAbilityId: SpecialAbilityName
 ): Spaceship {
+  const almanacEntry = AbilityAlmanac[abilityClass];
+
   return {
     x: GAME_WIDTH / 2,
     y: GAME_HEIGHT - 70,
-    speed: 200,
+    speed: SpeedAlmanac[almanacEntry.speedLevel],
     abilities: {
       profile: abilities[abilityClass],
       special: specialAbilityId,
@@ -36,7 +38,7 @@ export function createSpaceship(
       e: {
         ...initialAbilityStats,
         key: 'KeyE',
-        cooldownTimer: AbilityAlmanac[abilityClass].e.cooldown
+        cooldownTimer: almanacEntry.e.cooldown
       },
       r: {
         ...initialAbilityStats,
@@ -51,6 +53,7 @@ export function createSpaceship(
       rightKeyCode: 'KeyD'
     },
     color,
-    shape: spaceshipAbilityClassShipShapeMap[abilityClass]
+    shape: spaceshipAbilityClassShipShapeMap[abilityClass],
+    asteroidKnowledge: 0
   };
 }

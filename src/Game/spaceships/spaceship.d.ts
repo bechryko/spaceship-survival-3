@@ -9,6 +9,7 @@ export interface Spaceship {
   controls: SpaceshipControls;
   color: string;
   shape: SpaceshipShape;
+  asteroidKnowledge: number;
 }
 
 export interface SpaceshipControls {
