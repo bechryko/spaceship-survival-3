@@ -1,7 +1,6 @@
 import { Asteroid, AsteroidBlueprint } from '../asteroids';
 import { Star } from '../background';
 import { Entity } from '../entities';
-import { GlobalEffectsState } from '../global-effects';
 import { Spaceship } from '../spaceships';
 
 export interface GameState {
@@ -15,7 +14,6 @@ export interface GameState {
   player: Spaceship;
   asteroids: Asteroid[];
   entities: Entity[];
-  globalEffects: GlobalEffectsState;
   stars: Star[];
   spawnTimer: number;
 }

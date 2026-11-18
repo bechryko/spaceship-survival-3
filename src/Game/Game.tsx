@@ -7,7 +7,6 @@ import { loadColor, loadHighscore, saveHighscore } from '../localstorage';
 import { drawAsteroid, level2AsteroidBlueprints, tickAsteroids } from './asteroids';
 import { createStars, drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
-import { createGlobalEffectsState, drawGlobalEffects, tickGlobalEffects } from './global-effects';
 import {
   BACK_TO_SELECTION_KEY_CODE,
   createFpsCounter,
@@ -73,7 +72,6 @@ export default function Game() {
       player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
       asteroids: [],
       entities: [],
-      globalEffects: createGlobalEffectsState(),
       stars: createStars(),
       spawnTimer: 0
     };
@@ -215,7 +213,6 @@ export default function Game() {
           saveHighscore(score);
         }
       }
-      tickGlobalEffects(state.globalEffects, state, deltaTime);
     };
 
     const draw = () => {
@@ -228,7 +225,6 @@ export default function Game() {
       }
       drawEntities(ctx, state.entities, time);
       drawSpaceship(ctx, state.player, time);
-      drawGlobalEffects(ctx, state.globalEffects);
       drawHUD(ctx, state, settings, isQuickPlay, settings.showFps ? fpsCounter : null);
     };
 
