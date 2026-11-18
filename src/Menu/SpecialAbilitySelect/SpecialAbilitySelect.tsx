@@ -101,12 +101,14 @@ export default function AbilitySelect() {
 
       <section className="select-bottom">
         <div className="slot-grid" style={{ '--columns': SPECIAL_ABILITY_GRID_COLUMNS } as CSSProperties}>
-          {SLOTS.map((slotAbility, index) =>
-            slotAbility ? (
+          {SLOTS.map((slotAbility, index) => {
+            const isHighlighted = spaceship.suggestedSpecialAbilities.includes(slotAbility?.id);
+
+            return slotAbility ? (
               <button
                 key={slotAbility.id}
                 type="button"
-                className="slot"
+                className={'slot' + (isHighlighted ? ' highlighted' : '')}
                 aria-label={slotAbility.id}
                 aria-pressed={slotAbility.id === selectedId}
                 onClick={() => setSelectedId(slotAbility.id)}
@@ -119,8 +121,8 @@ export default function AbilitySelect() {
               </button>
             ) : (
               <span key={`empty-${index}`} className="slot slot-empty" aria-hidden="true" />
-            )
-          )}
+            );
+          })}
         </div>
       </section>
     </div>

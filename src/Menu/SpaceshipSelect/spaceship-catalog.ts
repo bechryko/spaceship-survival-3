@@ -1,4 +1,10 @@
-import { AbilityAlmanac, AbilityClass, spaceshipAbilityClassShipShapeMap, SpaceshipShape } from '../../Game/spaceships';
+import {
+  AbilityAlmanac,
+  AbilityClass,
+  spaceshipAbilityClassShipShapeMap,
+  SpaceshipShape,
+  SpecialAbilityName
+} from '../../Game/spaceships';
 
 export interface SpaceshipDefinition {
   id: AbilityClass;
@@ -6,6 +12,7 @@ export interface SpaceshipDefinition {
   description: string;
   speedLevel: number;
   abilities: readonly SpaceshipAbilityInfo[];
+  suggestedSpecialAbilities: string[];
   shape: SpaceshipShape;
 }
 
@@ -43,6 +50,7 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
         cooldown: AbilityAlmanac[AbilityClass.GUNSHIP].e.cooldown
       }
     ],
+    suggestedSpecialAbilities: [SpecialAbilityName.BOMB],
     shape: spaceshipAbilityClassShipShapeMap[AbilityClass.GUNSHIP]
   },
   {
@@ -71,6 +79,7 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
         cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].e.cooldown
       }
     ],
+    suggestedSpecialAbilities: [SpecialAbilityName.URGENT_ORDERS],
     shape: spaceshipAbilityClassShipShapeMap[AbilityClass.SCIENTIST]
   }
 ];
