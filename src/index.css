@@ -117,3 +117,13 @@ h2 {
   font-size: 2.5rem;
   font-weight: 400;
 }
+
+.glass-scrollbar {
+  --background-color: transparent;
+  --thumb-color: rgba(255, 255, 255, 0.15);
+
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-color: var(--thumb-color) var(--background-color);
+  scrollbar-width: thin;
+}

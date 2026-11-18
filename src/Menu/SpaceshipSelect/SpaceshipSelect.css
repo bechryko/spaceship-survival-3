@@ -98,8 +98,6 @@
 .preview-details {
   height: 100%;
   padding-right: 2rem;
-  overflow-y: auto;
-  scroll-behavior: smooth;
 
   h2 {
     display: flex;

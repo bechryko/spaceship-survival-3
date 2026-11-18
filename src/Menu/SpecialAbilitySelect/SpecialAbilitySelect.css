@@ -97,8 +97,6 @@
     justify-items: center;
     height: 100%;
     padding-right: 2rem;
-    overflow-y: auto;
-    scroll-behavior: smooth;
 
     & h2 {
       justify-content: center;

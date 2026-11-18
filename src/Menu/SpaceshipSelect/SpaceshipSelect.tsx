@@ -71,7 +71,7 @@ export default function SpaceshipSelect() {
                 <SpaceshipIcon color={color} shape={preview.shape} flame="animated" />
               </div>
 
-              <div className="preview-details">
+              <div className="preview-details glass-scrollbar">
                 <h2>
                   {preview.name}
                   {preview.id === selectedId && <span className="preview-tag">Selected</span>}

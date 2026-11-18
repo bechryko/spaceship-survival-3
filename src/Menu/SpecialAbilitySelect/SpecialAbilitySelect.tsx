@@ -68,7 +68,7 @@ export default function AbilitySelect() {
             <h2>{spaceship.name}</h2>
           </div>
 
-          <div className="loadout-ability" aria-live="polite">
+          <div className="loadout-ability glass-scrollbar" aria-live="polite">
             {ability ? (
               <>
                 <div className="loadout-ability-icon">
