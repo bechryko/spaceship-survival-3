@@ -23,7 +23,8 @@ export function drawBackground(
   for (const star of stars) {
     /* Two sine waves at different speeds give an irregular twinkle instead of a
     steady pulse. The result stays between roughly 0.1 and 1. */
-    const pulse = 0.55 + 0.3 * Math.sin(star.phase) + 0.15 * Math.sin(star.phase * 3.7);
+    const phase = star.startingPhase + star.phaseChange;
+    const pulse = 0.55 + 0.3 * Math.sin(phase) + 0.15 * Math.sin(phase * 3.7);
 
     ctx.globalAlpha = star.brightness * pulse;
     ctx.fillStyle = star.tint;

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Star, createStars, drawBackground, tickStars } from '../Game/background';
+import { Star, createStars, drawBackground } from '../Game/background';
 
 const STAR_DENSITY = 1 / 3000;
 
@@ -26,7 +26,8 @@ export default function StarBackground() {
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      stars = createStars(width, height, Math.round(width * height * STAR_DENSITY));
+      const day = Math.floor(Date.now() / 1000 / 60 / 60 / 24);
+      stars = createStars(width, height, Math.round(width * height * STAR_DENSITY), day);
 
       if (reducedMotion.matches) {
         drawBackground(ctx, stars, BACKGROUND_COLOR, width, height);
@@ -38,13 +39,11 @@ export default function StarBackground() {
     observer.observe(canvas);
 
     let rafId = 0;
-    let last = performance.now();
 
-    const frame = (now: number) => {
-      const dt = Math.min((now - last) / 1000, 0.05);
-      last = now;
-
-      tickStars(stars, dt);
+    const frame = () => {
+      for (const star of stars) {
+        star.phaseChange = Date.now() / 1000;
+      }
       drawBackground(ctx, stars, BACKGROUND_COLOR, width, height);
       rafId = requestAnimationFrame(frame);
     };

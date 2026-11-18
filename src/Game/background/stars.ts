@@ -20,21 +20,29 @@ export interface Star {
   size: number;
   brightness: number;
   speed: number; // flicker rate in radians per second
-  phase: number;
+  phaseChange: number;
+  startingPhase: number;
   tint: string;
 }
 
-export function createStars(width = GAME_WIDTH, height = GAME_HEIGHT, starCount = STAR_COUNT): Star[] {
-  return Array.from({ length: starCount }, () => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    size:
-      Math.random() < SMALL_STAR_CHANCE
-        ? between(SMALL_STAR_MIN_SIZE, SMALL_STAR_MAX_SIZE, { floor: false })
-        : between(LARGE_STAR_MIN_SIZE, LARGE_STAR_MAX_SIZE, { floor: false }),
-    brightness: between(MIN_BRIGHTNESS, 1, { floor: false }),
-    speed: between(MIN_TWINKLE_SPEED, MAX_TWINKLE_SPEED, { floor: false }),
-    phase: Math.random() * Math.PI * 2,
-    tint: choose(STAR_TINTS)
-  }));
+export function createStars(width = GAME_WIDTH, height = GAME_HEIGHT, starCount = STAR_COUNT, seed?: number): Star[] {
+  return Array.from({ length: starCount }, () => {
+    if (seed) {
+      seed += 5;
+    }
+
+    return {
+      x: between(0, width, { floor: false, seed: seed ? seed + 1 : undefined }),
+      y: between(0, height, { floor: false, seed: seed ? seed + 2 : undefined }),
+      size:
+        between(0, 1, { floor: false, seed }) < SMALL_STAR_CHANCE
+          ? between(SMALL_STAR_MIN_SIZE, SMALL_STAR_MAX_SIZE, { floor: false, seed })
+          : between(LARGE_STAR_MIN_SIZE, LARGE_STAR_MAX_SIZE, { floor: false, seed }),
+      brightness: between(MIN_BRIGHTNESS, 1, { floor: false, seed }),
+      speed: between(MIN_TWINKLE_SPEED, MAX_TWINKLE_SPEED, { floor: false, seed: seed ? seed + 3 : undefined }),
+      phaseChange: 0,
+      startingPhase: between(0, Math.PI * 2, { floor: false, seed: seed ? seed + 4 : undefined }),
+      tint: choose(STAR_TINTS, seed)
+    };
+  });
 }
