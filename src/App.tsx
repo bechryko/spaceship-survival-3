@@ -3,6 +3,7 @@ import './App.css';
 import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Game from './Game/Game';
+import { loadLastPlayedVersion, saveHighscore, saveLastPlayedVersion } from './localstorage';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
 import SpecialAbilitySelect from './Menu/SpecialAbilitySelect/SpecialAbilitySelect';
@@ -12,6 +13,12 @@ export default function App() {
   useEffect(() => {
     if (version.toLowerCase().startsWith('beta')) {
       document.title = 'Spaceship Survival 3 (Beta)';
+    }
+
+    if (loadLastPlayedVersion() !== version) {
+      saveHighscore(0);
+      console.warn('Highscore reset due to new version!');
+      saveLastPlayedVersion(version);
     }
   }, []);
 
