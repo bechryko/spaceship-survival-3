@@ -46,7 +46,7 @@ export default function Game() {
 
   const { settings } = useSettings();
   const navigate = useNavigate();
-  if (!navigationState?.spaceshipId || !navigationState?.specialAbilityId) {
+  if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
     navigate('/select/1');
   }
 

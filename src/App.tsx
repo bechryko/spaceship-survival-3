@@ -1,7 +1,7 @@
 import './App.css';
 
 import { useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import Game from './Game/Game';
 import { loadLastPlayedVersion, saveHighscore, saveLastPlayedVersion } from './localstorage';
 import Menu from './Menu/Menu';
@@ -25,11 +25,11 @@ export default function App() {
   return (
     <BrowserRouter basename="/spaceship-survival-3">
       <Routes>
-        <Route path="/" element={<Menu></Menu>}></Route>
         <Route path="/menu/*" element={<Menu></Menu>}></Route>
         <Route path="/select/1" element={<SpaceshipSelect></SpaceshipSelect>}></Route>
         <Route path="/select/2" element={<SpecialAbilitySelect></SpecialAbilitySelect>}></Route>
         <Route path="/play" element={<Game></Game>}></Route>
+        <Route path="*" element={<Navigate to={'/menu'}></Navigate>} />
       </Routes>
     </BrowserRouter>
   );
