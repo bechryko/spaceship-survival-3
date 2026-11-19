@@ -1,6 +1,7 @@
 import { loadColor, loadHighscore } from '../../localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars } from '../background';
+import { createGlobalEffectsState } from '../global-effects';
 import { AbilityClass, SpecialAbilityName, createSpaceship } from '../spaceships';
 import { choose } from '../utils';
 import { GameState, GameStatus } from './game-state';
@@ -39,6 +40,7 @@ export function createGameState(config: GameStateConfig, status = GameStatus.PLA
     player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
     asteroids: [],
     entities: [],
+    globalEffects: createGlobalEffectsState(),
     stars: createStars(),
     spawnTimer: {
       spawnTime: 0,

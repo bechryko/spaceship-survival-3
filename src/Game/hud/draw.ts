@@ -8,10 +8,10 @@ import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';
 
 const HUD_TEXT_COLOR = '#e8f1f2';
-const HUD_MARGIN_X = 16;
-const HUD_MARGIN_Y = 28;
 const HUD_FONT_SIZE = 18;
-const HUD_FONT_FAMILY = 'system-ui, sans-serif';
+export const HUD_FONT_FAMILY = 'system-ui, sans-serif';
+
+const ASTEROID_COUNTER_MARGIN_Y = 22;
 
 export function drawHUD(
   ctx: CanvasRenderingContext2D,
@@ -20,9 +20,15 @@ export function drawHUD(
   isQuickPlay: boolean,
   fpsCounter: FpsCounter | null
 ): void {
-  ctx.textAlign = 'left';
-  drawText(ctx, `Asteroids: ${state.statistics.asteroidsSpawned}`, HUD_MARGIN_X, HUD_MARGIN_Y, 600, HUD_FONT_SIZE);
-  ctx.textAlign = 'right';
+  ctx.textAlign = 'center';
+  drawText(
+    ctx,
+    `Asteroids: ${state.statistics.asteroidsSpawned}`,
+    GAME_WIDTH / 2,
+    ASTEROID_COUNTER_MARGIN_Y,
+    600,
+    HUD_FONT_SIZE
+  );
 
   drawAbilityHud(ctx, state.player, state);
   if (fpsCounter) {
@@ -36,7 +42,7 @@ export function drawHUD(
 }
 
 const ABILITY_HUD_TOP_MARGIN = 5;
-const ABILITY_HUD_X_MARGIN = 145;
+const ABILITY_HUD_X_MARGIN = 10;
 const ABILITY_HUD_PLAYER_INDICATOR_OFFSET = 7;
 const ABILITY_HUD_SLOT_SIZE = 44;
 const ABILITY_HUD_SLOT_GAP = 15;
