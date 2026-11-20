@@ -3,6 +3,7 @@ import './Settings.css';
 import { NavLink } from 'react-router';
 import { OptionStepper, ToggleSwitch } from '../../components';
 import { Settings, useSettings } from '../../context';
+import { saveSettings } from '../../localstorage';
 
 const RESOLUTION_OPTIONS = [
   { value: 1, label: 'Low (960×540)' },
@@ -21,11 +22,15 @@ const DIFFICULTY_MILESTONE_NOTICE_DURATION_OPTIONS = [
 export default function Settings() {
   const { settings, setSettings } = useSettings();
 
-  const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) =>
-    setSettings({
+  const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) => {
+    const newSettings: Settings = {
       ...settings,
       [key]: value
-    });
+    };
+
+    setSettings(newSettings);
+    saveSettings(newSettings);
+  };
 
   return (
     <main className="settings">
