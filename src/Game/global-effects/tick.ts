@@ -15,28 +15,27 @@ const DIFFICULTY_MESSAGES = [
   'Space is quiet... for now.',
   'Double asteroid waves incoming!'
 ];
-export const DIFFICULTY_NOTICE_DURATION = 3;
 
 function tickDifficultyNotices(
-  globalEffects: DifficultyNoticeState,
+  difficultyNotice: DifficultyNoticeState,
   asteroidsSpawned: number,
   deltaTime: number
 ): void {
   const reached = Math.floor(asteroidsSpawned / DIFFICULTY_INTERVAL);
 
-  while (globalEffects.milestone < reached && globalEffects.milestone < DIFFICULTY_MESSAGES.length) {
-    globalEffects.milestone++;
-    globalEffects.queue.push(DIFFICULTY_MESSAGES[globalEffects.milestone - 1]);
+  while (difficultyNotice.milestone < reached && difficultyNotice.milestone < DIFFICULTY_MESSAGES.length) {
+    difficultyNotice.milestone++;
+    difficultyNotice.queue.push(DIFFICULTY_MESSAGES[difficultyNotice.milestone - 1]);
   }
 
-  if (globalEffects.current) {
-    globalEffects.current.age += deltaTime;
-    if (globalEffects.current.age >= DIFFICULTY_NOTICE_DURATION) {
-      globalEffects.current = null;
+  if (difficultyNotice.current) {
+    difficultyNotice.current.age += deltaTime;
+    if (difficultyNotice.current.age >= difficultyNotice.duration) {
+      difficultyNotice.current = null;
     }
   }
 
-  if (!globalEffects.current && globalEffects.queue.length > 0) {
-    globalEffects.current = { text: globalEffects.queue.shift()!, age: 0 };
+  if (!difficultyNotice.current && difficultyNotice.queue.length > 0) {
+    difficultyNotice.current = { text: difficultyNotice.queue.shift()!, age: 0 };
   }
 }

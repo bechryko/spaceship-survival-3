@@ -41,10 +41,11 @@ export default function Game() {
         specialAbilityName: navigationState?.specialAbilityId
       };
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef<GameState>(createGameState(gameStateConfig));
-
   const { settings } = useSettings();
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stateRef = useRef<GameState>(createGameState(gameStateConfig, settings));
+
   const navigate = useNavigate();
   if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
     navigate('/select/1');
@@ -93,7 +94,7 @@ export default function Game() {
               state.status = GameStatus.PLAYING;
               break;
             case GameStatus.OVER:
-              stateRef.current = createGameState(gameStateConfig, GameStatus.PLAYING);
+              stateRef.current = createGameState(gameStateConfig, settings, GameStatus.PLAYING);
               break;
           }
           break;

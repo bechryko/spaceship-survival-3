@@ -10,6 +10,14 @@ const RESOLUTION_OPTIONS = [
   { value: 4, label: 'High (3840×2160)' }
 ];
 
+const DIFFICULTY_MILESTONE_NOTICE_DURATION_OPTIONS = [
+  { value: 0, label: 'Off' },
+  { value: 2, label: '2 seconds' },
+  { value: 3, label: '3 seconds' },
+  { value: 4, label: '4 seconds' },
+  { value: 5, label: '5 seconds' }
+];
+
 export default function Settings() {
   const { settings, setSettings } = useSettings();
 
@@ -28,6 +36,12 @@ export default function Settings() {
           options={RESOLUTION_OPTIONS}
           value={settings.resolutionMultiplier}
           onChange={value => updateSetting('resolutionMultiplier', value)}
+        />
+        <OptionStepper
+          label="Difficulty Milestone notice duration"
+          options={DIFFICULTY_MILESTONE_NOTICE_DURATION_OPTIONS}
+          value={settings.difficultyMilestoneNoticeDuration}
+          onChange={value => updateSetting('difficultyMilestoneNoticeDuration', value)}
         />
 
         <h3 className="settings-divider">Debug Settings</h3>

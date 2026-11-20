@@ -1,3 +1,4 @@
+import { Settings } from '../../context';
 import { loadColor, loadHighscore } from '../../localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars } from '../background';
@@ -16,7 +17,7 @@ export type GameStateConfig =
       specialAbilityName: SpecialAbilityName;
     };
 
-export function createGameState(config: GameStateConfig, status = GameStatus.PLAYING): GameState {
+export function createGameState(config: GameStateConfig, settings: Settings, status = GameStatus.PLAYING): GameState {
   const spaceshipAbilityClass: AbilityClass = config.isQuickPlay
     ? choose(Object.values(AbilityClass))
     : config.abilityClass;
@@ -40,7 +41,7 @@ export function createGameState(config: GameStateConfig, status = GameStatus.PLA
     player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId),
     asteroids: [],
     entities: [],
-    globalEffects: createGlobalEffectsState(),
+    globalEffects: createGlobalEffectsState(settings),
     stars: createStars(),
     spawnTimer: {
       spawnTime: 0,

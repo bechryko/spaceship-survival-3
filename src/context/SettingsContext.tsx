@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from 'react';
 
 export interface Settings {
   resolutionMultiplier: number;
+  difficultyMilestoneNoticeDuration: number;
   showFps: boolean;
   debugControls: boolean;
   debugStatistics: boolean;
@@ -17,6 +18,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>({
     resolutionMultiplier: 2,
+    difficultyMilestoneNoticeDuration: 3,
     showFps: false,
     debugControls: false,
     debugStatistics: false

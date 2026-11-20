@@ -1,7 +1,6 @@
 import { GAME_WIDTH, GameState, HUD_FONT_FAMILY } from '../hud';
 import { clamp01, easeOutCubic } from '../utils';
 import { DifficultyNoticeState } from './create';
-import { DIFFICULTY_NOTICE_DURATION } from './tick';
 
 export function drawGlobalEffects(ctx: CanvasRenderingContext2D, state: GameState): void {
   const { globalEffects } = state;
@@ -30,7 +29,7 @@ function drawDifficultyNotice(ctx: CanvasRenderingContext2D, state: DifficultyNo
 
   const { text, age } = notice;
   const appear = clamp01(age / DIFFICULTY_NOTICE_POP_IN_TIME);
-  const fade = Math.min(appear, clamp01((DIFFICULTY_NOTICE_DURATION - age) / DIFFICULTY_NOTICE_FADE_OUT_TIME));
+  const fade = Math.min(appear, clamp01((state.duration - age) / DIFFICULTY_NOTICE_FADE_OUT_TIME));
   const scale = 1 + 0.35 * (1 - easeOutCubic(appear));
 
   const flash =
