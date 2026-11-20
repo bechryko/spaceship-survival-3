@@ -1,0 +1,291 @@
+.handbook-screen {
+  --handbook-padding: clamp(1rem, 4vw, 2.5rem);
+
+  position: relative;
+  z-index: 1; /* above the star canvas */
+  box-sizing: border-box;
+  height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(14rem, 20rem) 1fr;
+  gap: 2rem;
+  padding: calc(var(--handbook-padding) + 3.5rem) var(--handbook-padding) var(--handbook-padding);
+  color: #e8f1f2;
+  background: rgba(18, 27, 45, 0.7);
+
+  .handbook-back {
+    position: absolute;
+    top: var(--handbook-padding);
+    left: var(--handbook-padding);
+    width: auto;
+    padding-inline: 1.25rem;
+  }
+}
+
+/* ---------- Left: the entries, in groups ---------- */
+.handbook-list {
+  display: grid;
+  align-content: start;
+  gap: 1.75rem;
+  min-height: 0;
+  padding-right: 0.75rem;
+  user-select: none;
+}
+
+.handbook-group-title {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(232, 241, 242, 0.75);
+}
+
+.handbook-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 3.5rem);
+  gap: 0.75rem;
+}
+
+.handbook-names {
+  display: grid;
+  gap: 0.5rem;
+}
+
+/* The glass circle used for icons: same look as the selection screens */
+.handbook-slot {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: 3.5rem;
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.25);
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+
+  /* Hover highlight. Gradients can't be transitioned, so it fades in through opacity. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+
+  &:hover::before,
+  &:focus-visible::before {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #cfe3ff;
+    outline-offset: 3px;
+  }
+
+  & svg {
+    position: relative; /* above the hover highlight */
+    width: 55%;
+    height: 55%;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: rgba(207, 227, 255, 0.9);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 0 0 2px rgba(207, 227, 255, 0.35),
+      0 0 24px rgba(207, 227, 255, 0.35);
+  }
+}
+
+/* Entries without a picture: a glass pill with the name */
+.handbook-chip {
+  box-sizing: border-box;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
+
+  &:hover {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.1));
+  }
+
+  &:focus-visible {
+    outline: 2px solid #cfe3ff;
+    outline-offset: 3px;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: rgba(207, 227, 255, 0.9);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      0 0 0 2px rgba(207, 227, 255, 0.3);
+  }
+}
+
+/* ---------- Right: the description ---------- */
+.handbook-detail {
+  min-height: 0;
+  padding: 0 1rem 2rem 2rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.12); /* the divider between the two sides */
+
+  /* A comfortable line length for long text */
+  > *:not(.handbook-detail-header) {
+    max-width: 44rem;
+  }
+}
+
+.handbook-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .borderless-icon {
+    width: 12rem;
+  }
+}
+
+.handbook-detail-group {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  user-select: none;
+}
+
+.handbook-detail-ship {
+  width: 5rem;
+  flex: none;
+
+  & svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 14px var(--ship-color));
+  }
+}
+
+.handbook-detail-ability {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 4.5rem;
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 6px 20px rgba(0, 0, 0, 0.25);
+
+  & svg {
+    width: 55%;
+    height: 55%;
+  }
+}
+
+.handbook-summary {
+  margin: 0 0 1.25rem;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.handbook-stats {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0 0 1.75rem;
+  padding: 0.9rem 0;
+  border-block: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.handbook-stat {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1rem;
+
+  dt {
+    opacity: 0.65;
+    user-select: none;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.handbook-section {
+  &:not(:last-child) {
+    margin-bottom: 1.75rem;
+  }
+
+  h3 {
+    margin: 0 0 0.6rem;
+    font-size: 1.1rem;
+  }
+
+  p,
+  ul {
+    margin: 0 0 0.9rem;
+    line-height: 1.65;
+    opacity: 0.88;
+  }
+
+  ul {
+    padding-left: 1rem;
+  }
+
+  li:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+}
+
+/* ---------- Narrow screens: the list above, the text below ---------- */
+@media (max-width: 52rem) {
+  .handbook-screen {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 40%) minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .handbook-detail {
+    padding: 1rem 0.5rem 2rem 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .handbook-stat {
+    grid-template-columns: 8rem 1fr;
+  }
+}

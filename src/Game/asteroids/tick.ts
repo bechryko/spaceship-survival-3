@@ -11,8 +11,8 @@ import { AsteroidCreationModifiers, createAsteroid } from './create';
 import { destroyAsteroid } from './destroy';
 
 const DOUBLE_ASTEROIDS_THRESHOLD = 125;
-const DOUBLE_ASTEROID_MIN_SPAWN_TIMER = 3;
-const DOUBLE_ASTEROID_MAX_SPAWN_TIMER = 8;
+export const DOUBLE_ASTEROID_MIN_SPAWN_TIMER = 3;
+export const DOUBLE_ASTEROID_MAX_SPAWN_TIMER = 8;
 
 const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
 const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
@@ -128,12 +128,16 @@ export function pushAsteroid(asteroid: Asteroid, force: number, angle: number): 
   asteroid.velocityHorizontal += Math.cos(angle) * force;
 }
 
-const SPAWN_SLOW_THRESHOLD = 50;
-const SPAWN_FAST_THRESHOLD = 75;
-const SPAWN_SLOW_INTERVAL = 1;
-const SPAWN_FAST_INTERVAL = 0.75;
+const ASTEROID_SPAWN_SLOW_THRESHOLD = 50;
+const ASTEROID_SPAWN_FAST_THRESHOLD = 75;
+export const ASTEROID_SPAWN_SLOW_INTERVAL = 1;
+export const ASTEROID_SPAWN_FAST_INTERVAL = 0.75;
 
 function getAsteroidSpawnTimer(asteroidsSpawned: number): number {
-  const progress = (asteroidsSpawned - SPAWN_SLOW_THRESHOLD) / (SPAWN_FAST_THRESHOLD - SPAWN_SLOW_THRESHOLD);
-  return SPAWN_SLOW_INTERVAL + (SPAWN_FAST_INTERVAL - SPAWN_SLOW_INTERVAL) * clamp01(progress);
+  const progress =
+    (asteroidsSpawned - ASTEROID_SPAWN_SLOW_THRESHOLD) /
+    (ASTEROID_SPAWN_FAST_THRESHOLD - ASTEROID_SPAWN_SLOW_THRESHOLD);
+  return (
+    ASTEROID_SPAWN_SLOW_INTERVAL + (ASTEROID_SPAWN_FAST_INTERVAL - ASTEROID_SPAWN_SLOW_INTERVAL) * clamp01(progress)
+  );
 }

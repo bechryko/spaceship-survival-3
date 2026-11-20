@@ -28,7 +28,10 @@ export default function Menu() {
           <NavLink className="button" to="/select/1">
             Play
           </NavLink>
-          <NavLink className="button" to="menu/settings">
+          <NavLink className="button" to="/handbook">
+            Captain's Handbook
+          </NavLink>
+          <NavLink className="button" to="/menu/settings">
             Settings
           </NavLink>
         </section>

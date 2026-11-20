@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import Game from './Game/Game';
 import { loadLastPlayedVersion, saveHighscore, saveLastPlayedVersion } from './localstorage';
+import CaptainsHandbook from './Menu/CaptainsHandbook/CaptainsHandbook';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
 import SpecialAbilitySelect from './Menu/SpecialAbilitySelect/SpecialAbilitySelect';
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/select/1" element={<SpaceshipSelect></SpaceshipSelect>}></Route>
         <Route path="/select/2" element={<SpecialAbilitySelect></SpecialAbilitySelect>}></Route>
         <Route path="/play" element={<Game></Game>}></Route>
+        <Route path="/handbook" element={<CaptainsHandbook></CaptainsHandbook>}></Route>
         <Route path="*" element={<Navigate to={'/menu'}></Navigate>} />
       </Routes>
     </BrowserRouter>

@@ -28,7 +28,7 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
     id: AbilityClass.GUNSHIP,
     name: 'Destroyer',
     description:
-      'A spaceship equipped with the best weapons available: a rocket launcher on one wing, a long-ranger laser on the other.',
+      'A spaceship equipped with the best weapons available: a rocket launcher on one wing, a long-range laser on the other.',
     speedLevel: AbilityAlmanac[AbilityClass.GUNSHIP].speedLevel,
     abilities: [
       {

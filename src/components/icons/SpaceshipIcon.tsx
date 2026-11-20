@@ -9,7 +9,7 @@ type Props = {
   flame?: 'none' | 'static' | 'animated';
 };
 
-export default function SpaceshipIcon({ color, shape, flame = 'none' }: Props) {
+export function SpaceshipIcon({ color, shape, flame = 'none' }: Props) {
   const flameHalfWidth = shape.engines.length > 1 ? 3 : 4; // ships with twin engines get slimmer flames
 
   return (

@@ -1,5 +1,5 @@
 import { Settings } from '../../context';
-import { SPAWN_CHANCES } from '../asteroids';
+import { ASTEROID_SPAWN_CHANCES } from '../asteroids';
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
@@ -262,7 +262,7 @@ const DEBUG_STATISTICS_TOP_MARGIN = GAME_HEIGHT / 3;
 const DEBUG_STATISTICS_GAP = 5;
 
 function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): void {
-  const spawnChanceObject = SPAWN_CHANCES.findLast(sco => sco.threshold <= state.statistics.asteroidsSpawned);
+  const spawnChanceObject = ASTEROID_SPAWN_CHANCES.findLast(sco => sco.threshold <= state.statistics.asteroidsSpawned);
   const level2AsteroidChance = spawnChanceObject?.level2Chance ?? 0;
   const { doubleAsteroidSpawn } = state.spawnTimer;
 

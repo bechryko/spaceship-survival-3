@@ -2,11 +2,10 @@ import './SpecialAbilitySelect.css';
 
 import { useState, type CSSProperties } from 'react';
 import { NavLink, Navigate, useLocation, useNavigate } from 'react-router';
+import { SpaceshipIcon, SpecialAbilityIcon } from '../../components';
 import { loadColor } from '../../localstorage';
-import SpaceshipIcon from '../SpaceshipSelect/SpaceshipIcon';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
-import SpecialAbilityIcon from './SpecialAbilityIcon';
 import {
   SPECIAL_ABILITIES,
   SPECIAL_ABILITY_GRID_COLUMNS,
@@ -83,7 +82,7 @@ export default function AbilitySelect() {
                   <p className="loadout-ability-meta">
                     {ability.kind === 'passive' ? 'Passive' : `Press R · ${ability.cooldown}s cooldown`}
                   </p>
-                  <p className="loadout-ability-description">{ability.description}</p>
+                  <p className="loadout-ability-description">{ability.shortDescription}</p>
                 </div>
               </>
             ) : (

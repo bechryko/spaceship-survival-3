@@ -120,7 +120,7 @@ h2 {
 
 .glass-scrollbar {
   --background-color: transparent;
-  --thumb-color: rgba(255, 255, 255, 0.15);
+  --thumb-color: rgba(200, 200, 200, 0.15);
 
   overflow-y: auto;
   scroll-behavior: smooth;

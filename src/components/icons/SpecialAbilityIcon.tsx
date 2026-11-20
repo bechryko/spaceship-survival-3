@@ -4,7 +4,7 @@ interface Props {
   id: string;
 }
 
-export default function SpecialAbilityIcon({ id }: Props) {
+export function SpecialAbilityIcon({ id }: Props) {
   return (
     <svg
       viewBox="0 0 24 24"

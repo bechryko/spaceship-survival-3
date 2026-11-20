@@ -10,7 +10,7 @@ interface SpawnChance {
   level2Chance: number;
 }
 
-export const SPAWN_CHANCES: SpawnChance[] = [
+export const ASTEROID_SPAWN_CHANCES: SpawnChance[] = [
   {
     threshold: 25,
     level2Chance: 0.15
@@ -88,7 +88,7 @@ export function createAsteroid(
 }
 
 function getBlueprint(state: GameState, asteroidsSpawned: number): AsteroidBlueprint {
-  const spawnChanceObject = SPAWN_CHANCES.findLast(sco => sco.threshold <= asteroidsSpawned);
+  const spawnChanceObject = ASTEROID_SPAWN_CHANCES.findLast(sco => sco.threshold <= asteroidsSpawned);
 
   if (!spawnChanceObject) {
     return regularAsteroidBlueprint;

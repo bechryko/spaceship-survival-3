@@ -3,16 +3,20 @@ import { SpecialAbilityAlmanac } from '../../Game/spaceships/ability-almanac';
 
 export interface SpecialAbilityDefinition {
   id: string;
-  kind: 'passive' | 'active';
-  description: string;
+  kind: 'passive' | 'active' | 'active-reactivate';
+  summary: string;
+  shortDescription: string;
+  longDescription: string;
   cooldown?: number;
 }
 
 export const SPECIAL_ABILITIES: readonly SpecialAbilityDefinition[] = Object.entries(SpecialAbilityAlmanac).map(
   ([key, value]) => ({
     id: key,
-    kind: (value as any).cooldown ? 'active' : 'passive',
-    description: value.shortDescription,
+    kind: (value as any).cooldown ? ((value as any).reactivatable ? 'active-reactivate' : 'active') : 'passive',
+    summary: value.summary,
+    shortDescription: value.shortDescription,
+    longDescription: value.longDescription,
     cooldown: (value as any).cooldown
   })
 );
