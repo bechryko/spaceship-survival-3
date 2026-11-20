@@ -400,10 +400,15 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
           OVERLAY_MUTED_TEXT_COLOR
         );
 
+    const time = Number(statistics.time.toFixed(1));
+    const minutes = Math.floor(time / 60);
+    const seconds = time - minutes * 60;
+    const timeText = time >= 120 ? `${minutes}m ${Math.floor(seconds)}s` : `${seconds}s`;
+
     sections = [
       title,
       buildStatsSection(ctx, [
-        ['Time survived', `${statistics.time.toFixed(1)}s`],
+        ['Time survived', timeText],
         ['Total asteroids', `${statistics.asteroidsSpawned}`],
         ['Asteroids destroyed', `${statistics.asteroidsDestroyed}`]
       ]),
