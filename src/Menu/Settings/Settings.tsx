@@ -67,7 +67,7 @@ export default function Settings() {
         />
 
         <NavLink className="button back-button" to="/menu">
-          Back to Menu
+          Save & Back to Menu
         </NavLink>
       </section>
     </main>

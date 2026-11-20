@@ -43,7 +43,7 @@ export default function Menu() {
             <NavLink className="button highlighted" to="/handbook">
               Captain's Handbook
             </NavLink>
-            <NavLink className="button" to="/menu/settings">
+            <NavLink className="button separator" to="/menu/settings">
               Settings
             </NavLink>
           </section>

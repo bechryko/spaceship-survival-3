@@ -7,6 +7,11 @@
   main {
     grid-column-start: 2;
     align-self: stretch;
+
+    &.menu {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
   }
 
   section {
@@ -17,8 +22,12 @@
     padding: 2rem;
     padding-bottom: 0;
 
-    > * {
+    > a.button {
       width: max(70%, 26rem);
+
+      &.separator {
+        margin-top: auto;
+      }
     }
   }
 }
