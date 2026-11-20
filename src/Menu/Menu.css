@@ -1,7 +1,13 @@
 .menu-screen {
   display: grid;
+  grid-template-columns: 1fr 50rem 1fr;
   place-items: center;
   min-height: 100dvh;
+
+  main {
+    grid-column-start: 2;
+    align-self: stretch;
+  }
 
   section {
     display: flex;
@@ -14,5 +20,35 @@
     > * {
       width: max(70%, 26rem);
     }
+  }
+}
+
+aside.news-panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-column-start: 3;
+  place-self: center;
+  width: 70%;
+  height: 50%;
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem;
+  user-select: none;
+
+  h2 {
+    font-size: 2rem;
+    line-height: 1;
+    margin: 0;
+  }
+
+  svg {
+    place-self: center;
+    height: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+
+  p {
+    margin: 0;
   }
 }
