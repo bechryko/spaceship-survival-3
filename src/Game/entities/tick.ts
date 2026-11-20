@@ -1,7 +1,7 @@
 import { Asteroid, AsteroidType, destroyAsteroid, getAsteroidPolygon, pushAsteroid } from '../asteroids';
 import { GAME_HEIGHT, GameState } from '../hud';
 import { Point } from '../models';
-import { AbilityAlmanac, AbilityClass } from '../spaceships';
+import { AbilityAlmanac, AbilityClass, SpecialAbilityAlmanac, SpecialAbilityName } from '../spaceships';
 import { clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide } from '../utils';
 import { explode } from './create';
 import { Bomb, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
@@ -106,16 +106,16 @@ function tickExplosion(explosion: Explosion, deltaTime: number, state: GameState
   }
 }
 
-const BOMB_SPEED = 75;
-
 function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void {
+  const bombStats = SpecialAbilityAlmanac[SpecialAbilityName.BOMB];
+
   const fromY = bomb.y;
-  bomb.y -= BOMB_SPEED * deltaTime;
+  bomb.y -= Number(bombStats.speed) * deltaTime;
   bomb.age += deltaTime;
 
   const contact = findFirstContact(bomb.x, fromY, bomb.y, bomb.r, state.asteroids);
   if (contact) {
-    bomb.y = contact.y; // explode where it actually touched, not where the frame happened to end
+    bomb.y = contact.y;
     destroyAsteroid(state.asteroids[contact.index], state);
 
     detonateBomb(state, bomb);
@@ -126,6 +126,7 @@ function tickBomb(bomb: Bomb, state: GameState, deltaTime: number): void {
 
 const PROBE_ATTACH_RADIUS = 15;
 const PROBE_ACCELERATION = 200;
+const PROBE_KNOWLEDGE_GIVER_ASTEROIDS = new Set([AsteroidType.REGULAR, AsteroidType.ICE, AsteroidType.IRON]);
 
 function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: number): void {
   const probeStats = AbilityAlmanac[AbilityClass.SCIENTIST].q;
@@ -203,7 +204,11 @@ function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: numb
       if (probe.analysisProgress >= probe.analysisTime) {
         target.data.isAnalyzed = true;
         destroyAsteroid(target, state);
-        probe.owner.asteroidKnowledge++;
+
+        if (PROBE_KNOWLEDGE_GIVER_ASTEROIDS.has(target.type)) {
+          probe.owner.asteroidKnowledge++;
+        }
+
         chainProbe(probe, state.asteroids, target.r);
       }
       break;
@@ -351,8 +356,8 @@ function findFirstContact(
 }
 
 const BOMB_BLAST_RADIUS = 150;
-const BOMB_BLAST_SPEED = 180;
-const BOMB_BLAST_MIN_SPEED_MULTIPLIER = 0.25;
+const BOMB_BLAST_SPEED = 200;
+const BOMB_BLAST_MIN_SPEED_MULTIPLIER = 0.2;
 
 export function detonateBomb(state: GameState, bomb: Bomb): void {
   const { x, y } = bomb;

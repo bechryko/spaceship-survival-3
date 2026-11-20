@@ -117,6 +117,8 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
   }
 };
 
+const BOMB_SPAWN_Y_OFFSET = 16;
+
 export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfile> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
     callback: () => {}
@@ -126,7 +128,7 @@ export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfil
       state.entities.push({
         type: EntityType.BOMB,
         x: spaceship.x,
-        y: spaceship.y,
+        y: spaceship.y - BOMB_SPAWN_Y_OFFSET,
         r: Number(SpecialAbilityAlmanac[SpecialAbilityName.BOMB].radius),
         age: 0,
         explosionTime: Number(SpecialAbilityAlmanac[SpecialAbilityName.BOMB].explosionDelay),

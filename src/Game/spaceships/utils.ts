@@ -4,8 +4,8 @@ import { SpecialAbilityName } from './ability-almanac';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbility, SpaceshipAbilityProfile } from './spaceship-abilities';
 
-export const SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE = 0.01;
-export const SPACESHIP_MAX_SURVIVE_CHANCE = 0.5;
+export const SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE = 0.005;
+export const SPACESHIP_MAX_SURVIVE_CHANCE = 0.4;
 
 export function isSpaceshipImmune(spaceship: Spaceship, asteroid: Asteroid): boolean {
   if (asteroid.type === AsteroidType.IRON) {

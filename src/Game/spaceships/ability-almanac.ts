@@ -14,8 +14,8 @@ const GUNSHIP_CANNON_X_OFFSET = 26;
 const GUNSHIP_LASER_DURATION = 2;
 
 const SCIENTIST_PROBE_MAX_FLIGHT_TIME = 1.25;
-const SCIENTIST_PROBE_MIN_ANALYSIS_TIME = 0.333;
-const SCIENTIST_PROBE_MAX_ANALYSIS_TIME = 1.75;
+const SCIENTIST_PROBE_MIN_ANALYSIS_TIME = 0.5;
+const SCIENTIST_PROBE_MAX_ANALYSIS_TIME = 1.5;
 const SCIENTIST_SHOCKWAVE_SLOW = 0.4;
 const SCIENTIST_PLASMA_JET_ACTIVE_TIME = 6;
 const SCIENTIST_PLASMA_JET_COOLDOWN_MULTIPLIER = 3.5;
@@ -57,7 +57,7 @@ export const AbilityAlmanac = {
     q: {
       name: 'Science Probe',
       shortDescription: `Launches a probe forward that can attach to an asteroid within ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds, then analyze it, destroying the asteroid and looking for a new one. For each analysis the spaceship gets a knowledge point, that gives ${SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE * 100}% chance to survive an asteroid hit (max: ${SPACESHIP_MAX_SURVIVE_CHANCE * 100}%).`,
-      longDescription: `Launches a probe forward that gets destroyed in ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds. But if it reaches an asteroid, it attaches to its surface and analyzes it. After ${SCIENTIST_PROBE_MIN_ANALYSIS_TIME}-${SCIENTIST_PROBE_MAX_ANALYSIS_TIME} seconds (depending on the asteroid's size) the analysis is complete and the asteroid explodes, but if there is another asteroid nearby, the probe attaches to that, and this goes on in a chain. For each analysis the spaceship gets an asteroid knowledge point.`,
+      longDescription: `Launches a probe forward that gets destroyed in ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds. But if it reaches an asteroid, it attaches to its surface and analyzes it. After ${SCIENTIST_PROBE_MIN_ANALYSIS_TIME}-${SCIENTIST_PROBE_MAX_ANALYSIS_TIME} seconds (depending on the asteroid's size) the analysis is complete and the asteroid explodes, but if there is another asteroid nearby, the probe attaches to that, and this goes on in a chain. For each analysis of normal asteroids the spaceship gets an asteroid knowledge point.`,
       cooldown: 7,
       flySpeed: 150,
       transferSpeed: 450,
@@ -65,8 +65,8 @@ export const AbilityAlmanac = {
       maxFlightTime: SCIENTIST_PROBE_MAX_FLIGHT_TIME,
       minAnalysisTime: SCIENTIST_PROBE_MIN_ANALYSIS_TIME,
       maxAnalysisTime: SCIENTIST_PROBE_MAX_ANALYSIS_TIME,
-      minAnalysisTimeAsteroidSize: 25,
-      maxAnalysisTimeAsteroidSize: 250,
+      minAnalysisTimeAsteroidSize: 50,
+      maxAnalysisTimeAsteroidSize: 200,
       chainRange: 100,
       noseOffset: 32,
       lostFadeTime: 0.35
@@ -121,7 +121,7 @@ interface SpecialAbilityAlmanacEntry {
 
 const STRONGER_ENGINES_SPEED_BONUS_PERCENT = 25;
 const BOMB_EXPLOSION_DELAY = 3;
-const SHIELD_GENERATOR_DURATION = 2;
+const SHIELD_GENERATOR_DURATION = 2.5;
 
 export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlmanacEntry> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
@@ -139,6 +139,7 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
     reactivatable: true,
     cooldown: 30,
     explosionDelay: BOMB_EXPLOSION_DELAY,
+    speed: 65,
     radius: 10
   },
   [SpecialAbilityName.SHIELD_GENERATOR]: {
@@ -146,7 +147,7 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
     shortDescription: `Creates an asteroid shield for ${SHIELD_GENERATOR_DURATION} seconds, so colliding with them destroys them.`,
     longDescription: `Creates a shield for ${SHIELD_GENERATOR_DURATION} seconds. Colliding with an asteroid with it destroys them instead of getting destroyed, but Iron asteroids cannot be destroyed with this, and colliding with them results in the spaceship's destruction. The hitbox of the spaceship doesn't change despite the visuals, so when an asteroid collides with only the shield nothing happens.`,
     activeTime: SHIELD_GENERATOR_DURATION,
-    cooldown: 15,
+    cooldown: 26,
     duration: SHIELD_GENERATOR_DURATION
   },
   [SpecialAbilityName.URGENT_ORDERS]: {
@@ -155,7 +156,7 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
     longDescription:
       "Halves all active cooldowns of your other abilities. Doesn't touch ready abilities or abilities casted later.",
     activeTime: 0,
-    cooldown: 20,
+    cooldown: 30,
     cooldownMultiplier: 0.5
   }
 } as const;

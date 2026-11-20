@@ -106,14 +106,15 @@ function getGeneralEntries(): HandbookEntry[] {
         {
           heading: 'How to get it',
           paragraphs: [
-            `Knowledge is hard to acquire, only the Scientist Ship is able to get it. Analyzing an asteroid with its ${AbilityAlmanac[AbilityClass.SCIENTIST].q.name} gives a knowledge point.`
+            `Knowledge is hard to acquire, only the Scientist Ship is able to get it. Analyzing an asteroid with its ${AbilityAlmanac[AbilityClass.SCIENTIST].q.name} gives a knowledge point.`,
+            "Since ice shards are only fragments of asteroids, they are too small to carry any useful information, and they don't give knowledge when analyzed."
           ]
         },
         {
           heading: 'Benefits',
           paragraphs: [
             `Each knowledge point acquired gives ${SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE * 100}% chance of surviving an asteroid impact. However, this can't save you certainly, because the maximum survive chance is ${SPACESHIP_MAX_SURVIVE_CHANCE * 100}%.`,
-            'Ice shard collisions are easier to survive, so this chance is doubled against them.'
+            `Ice shard collisions are easier to survive, so this chance is doubled against them. (${SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE * 200}% chance per knowledge, ${SPACESHIP_MAX_SURVIVE_CHANCE * 200}% maximum chance.)`
           ]
         }
       ]
