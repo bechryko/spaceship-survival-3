@@ -2,6 +2,7 @@ import {
   ASTEROID_SPAWN_CHANCES,
   ASTEROID_SPAWN_FAST_INTERVAL,
   ASTEROID_SPAWN_SLOW_INTERVAL,
+  AsteroidType,
   DOUBLE_ASTEROID_MAX_SPAWN_TIMER,
   DOUBLE_ASTEROID_MIN_SPAWN_TIMER,
   ICE_ASTEROID_MAX_SHARD_RELEASE,
@@ -187,7 +188,7 @@ function getAsteroidEntries(): HandbookEntry[] {
 
   return [
     {
-      id: group + '_regular-asteroid',
+      id: group + '_' + AsteroidType.REGULAR,
       group,
       name: 'Regular asteroid',
       iconId: 'regular',
@@ -207,7 +208,7 @@ function getAsteroidEntries(): HandbookEntry[] {
       ]
     },
     {
-      id: group + '_ice-asteroid',
+      id: group + '_' + AsteroidType.ICE,
       group,
       name: 'Ice asteroid',
       iconId: 'ice',
@@ -235,7 +236,7 @@ function getAsteroidEntries(): HandbookEntry[] {
       ]
     },
     {
-      id: group + '_iron-asteroid',
+      id: group + '_' + AsteroidType.IRON,
       group,
       name: 'Iron asteroid',
       iconId: 'iron',

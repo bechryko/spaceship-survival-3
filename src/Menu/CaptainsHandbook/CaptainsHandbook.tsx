@@ -1,7 +1,7 @@
 import './CaptainsHandbook.css';
 
-import { useState, type CSSProperties } from 'react';
-import { NavLink } from 'react-router';
+import { CSSProperties } from 'react';
+import { NavLink, useSearchParams } from 'react-router';
 import { EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
@@ -21,17 +21,23 @@ function EntryIcon({ entry, color }: { entry: HandbookEntry; color: string }) {
   return null;
 }
 
+const SELECTED_ENTRY_URL_PARAM_KEY = 'entryId';
 const SPACESHIP_COLOR = '#525252';
 
 export default function CaptainsHandbook() {
-  const [selectedId, setSelectedId] = useState(HANDBOOK_ENTRIES[0].id);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const selected = HANDBOOK_ENTRIES.find(entry => entry.id === selectedId) ?? HANDBOOK_ENTRIES[0];
+  const selected =
+    HANDBOOK_ENTRIES.find(entry => entry.id === searchParams.get(SELECTED_ENTRY_URL_PARAM_KEY)) ?? HANDBOOK_ENTRIES[0];
   const selectedGroup = HANDBOOK_GROUPS.find(group => group.id === selected.group);
   const stats = getEntryStats(selected);
   const hasIcon = selectedGroup?.icons;
   const borderlessIcons = selectedGroup?.borderlessIcons;
   const color = SPACESHIP_COLOR;
+
+  const selectEntry = (id: string) => {
+    setSearchParams({ [SELECTED_ENTRY_URL_PARAM_KEY]: id });
+  };
 
   return (
     <div className="handbook-screen">
@@ -61,7 +67,7 @@ export default function CaptainsHandbook() {
                     aria-label={entry.name}
                     title={entry.name}
                     aria-pressed={entry.id === selected.id}
-                    onClick={() => setSelectedId(entry.id)}
+                    onClick={() => selectEntry(entry.id)}
                   >
                     {group.icons ? <EntryIcon entry={entry} color={color} /> : entry.name}
                   </button>
