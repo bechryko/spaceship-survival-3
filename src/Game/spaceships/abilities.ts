@@ -5,12 +5,13 @@ import { forEachAbility } from '../utils';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { AbilityClass } from './ability-class';
 import { Spaceship } from './spaceship';
-import { SpaceshipAbilitiesProfile, SpaceshipAbilityProfile } from './spaceship-abilities';
+import { SpaceshipAbilitiesProfile, SpaceshipAbilityProfile, SpaceshipAbilityType } from './spaceship-abilities';
 
 export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
   [AbilityClass.GUNSHIP]: {
     abilityClass: AbilityClass.GUNSHIP,
     q: {
+      type: SpaceshipAbilityType.EQUIPMENT,
       callback: (spaceship: Spaceship, state: GameState) => {
         state.entities.push({
           type: EntityType.ROCKET,
@@ -21,6 +22,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       }
     },
     w: {
+      type: SpaceshipAbilityType.EQUIPMENT,
       callback: (spaceship: Spaceship) => {
         spaceship.abilities.q.cooldownTimer = 0;
       },
@@ -29,6 +31,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       }
     },
     e: {
+      type: SpaceshipAbilityType.EQUIPMENT,
       callback: (spaceship: Spaceship, state: GameState) => {
         state.entities.push({
           type: EntityType.LASER,
@@ -45,6 +48,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
   [AbilityClass.SCIENTIST]: {
     abilityClass: AbilityClass.SCIENTIST,
     q: {
+      type: SpaceshipAbilityType.DEVICE,
       callback: (spaceship: Spaceship, state: GameState) => {
         const flySpeed = AbilityAlmanac[AbilityClass.SCIENTIST].q.flySpeed;
 
@@ -68,6 +72,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       }
     },
     w: {
+      type: SpaceshipAbilityType.EQUIPMENT,
       callback: (spaceship: Spaceship, state: GameState) => {
         state.entities.push({
           type: EntityType.SHOCKWAVE,
@@ -94,6 +99,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       }
     },
     e: {
+      type: SpaceshipAbilityType.EQUIPMENT,
       callback: (spaceship: Spaceship, state: GameState) => {
         state.entities.push({
           type: EntityType.PLASMA_JET,
@@ -121,9 +127,11 @@ const BOMB_SPAWN_Y_OFFSET = 16;
 
 export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfile> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
+    type: SpaceshipAbilityType.EQUIPMENT,
     callback: () => {}
   },
   [SpecialAbilityName.BOMB]: {
+    type: SpaceshipAbilityType.DEVICE,
     callback: (spaceship: Spaceship, state: GameState) => {
       state.entities.push({
         type: EntityType.BOMB,
@@ -141,9 +149,11 @@ export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfil
     }
   },
   [SpecialAbilityName.SHIELD_GENERATOR]: {
+    type: SpaceshipAbilityType.DEVICE,
     callback: () => {}
   },
   [SpecialAbilityName.URGENT_ORDERS]: {
+    type: SpaceshipAbilityType.DEVICE,
     callback: (spaceship: Spaceship) => {
       forEachAbility(a => {
         spaceship.abilities[a].cooldownTimer *= Number(

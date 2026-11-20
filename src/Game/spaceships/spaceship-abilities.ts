@@ -22,7 +22,13 @@ export interface SpaceshipAbilitiesProfile extends Record<SpaceshipAbilityIndex,
   abilityClass: AbilityClass;
 }
 
+export enum SpaceshipAbilityType {
+  EQUIPMENT = 'equipment',
+  DEVICE = 'device'
+}
+
 export interface SpaceshipAbilityProfile {
+  type: SpaceshipAbilityType;
   callback: (spaceship: Spaceship, state: GameState) => void;
   reactivateCallback?: (spaceship: Spaceship, state: GameState) => void;
   isDisabled?: (spaceship: Spaceship, state: GameState) => boolean;
