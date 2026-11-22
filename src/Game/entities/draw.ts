@@ -6,7 +6,9 @@ import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceP
 import { EXPLOSION_DURATION } from './tick';
 
 export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], time: number): void {
-  for (const entity of entities) {
+  const activeEntities = entities.filter(e => e.active);
+
+  for (const entity of activeEntities) {
     switch (entity.type) {
       case EntityType.ROCKET:
         drawRocket(ctx, entity);
@@ -28,12 +30,12 @@ export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], 
 
   drawExplosions(
     ctx,
-    entities.filter(entity => entity.type === EntityType.EXPLOSION)
+    activeEntities.filter(entity => entity.type === EntityType.EXPLOSION)
   );
 
   drawShockwaves(
     ctx,
-    entities.filter(entity => entity.type === EntityType.SHOCKWAVE)
+    activeEntities.filter(entity => entity.type === EntityType.SHOCKWAVE)
   );
 }
 

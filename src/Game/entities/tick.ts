@@ -17,6 +17,10 @@ export const EXPLOSION_DURATION = 0.6;
 
 export function tickEntities(state: GameState, deltaTime: number): void {
   for (const entity of state.entities) {
+    if (!entity.active) {
+      continue;
+    }
+
     switch (entity.type) {
       case EntityType.ROCKET:
         tickRocket(entity, deltaTime, state);
@@ -25,7 +29,7 @@ export function tickEntities(state: GameState, deltaTime: number): void {
         tickLaser(entity, deltaTime, state);
         break;
       case EntityType.EXPLOSION:
-        tickExplosion(entity, deltaTime, state);
+        tickExplosion(entity, deltaTime);
         break;
       case EntityType.BOMB:
         tickBomb(entity, state, deltaTime);
@@ -52,19 +56,18 @@ function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
   const fromY = rocket.y;
   rocket.y -= rocket.speed * deltaTime;
 
-  const rocketIdx = state.entities.findIndex(e => e === rocket);
   const contact = findFirstContact(rocket.x, fromY, rocket.y, ROCKET_RADIUS, asteroids);
   if (contact) {
     rocket.y = contact.y;
     const target = asteroids[contact.index];
 
     const success = destroyAsteroid(target, state, ROCKET_EXPLOSION_RADIUS_MULTIPLIER);
-    state.entities.splice(rocketIdx, 1);
+    rocket.active = false;
     if (!success) {
       explode(state, rocket.x, rocket.y, ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS);
     }
   } else if (rocket.y < -30) {
-    state.entities.splice(rocketIdx, 1);
+    rocket.active = false;
   }
 }
 
@@ -88,21 +91,15 @@ function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
   }
 
   if (laser.timeLeft === 0) {
-    state.entities.splice(
-      state.entities.findIndex(e => e === laser),
-      1
-    );
+    laser.active = false;
   }
 }
 
-function tickExplosion(explosion: Explosion, deltaTime: number, state: GameState): void {
+function tickExplosion(explosion: Explosion, deltaTime: number): void {
   explosion.age += deltaTime;
 
   if (explosion.age >= EXPLOSION_DURATION) {
-    state.entities.splice(
-      state.entities.findIndex(e => e === explosion),
-      1
-    );
+    explosion.active = false;
   }
 }
 
@@ -141,10 +138,7 @@ function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: numb
   }
 
   if (probe.y > GAME_HEIGHT + probeStats.radius + (probe.target?.r ?? 0)) {
-    state.entities.splice(
-      state.entities.findIndex(e => e === probe),
-      1
-    );
+    probe.active = false;
   }
 
   switch (probe.phase) {
@@ -217,10 +211,7 @@ function tickScienceProbe(probe: ScienceProbe, state: GameState, deltaTime: numb
     case 'lost': {
       probe.lostTime += deltaTime;
       if (probe.lostTime >= probeStats.lostFadeTime) {
-        state.entities.splice(
-          state.entities.findIndex(e => e === probe),
-          1
-        );
+        probe.active = false;
       }
       break;
     }
@@ -237,30 +228,25 @@ function tickShockwave(wave: Shockwave, state: GameState, deltaTime: number): vo
 
     if (Math.hypot(asteroid.x - wave.x, asteroid.y - wave.y) - asteroid.r <= wave.radius) {
       wave.contactCallback(wave, asteroid);
-
-      // flashes.push({ x: asteroid.x, y: asteroid.y, r: asteroid.r, age: 0 });
     }
   }
 
   if (wave.radius >= wave.maxRadius) {
-    state.entities.splice(
-      state.entities.findIndex(e => e === wave),
-      1
-    );
+    wave.active = false;
   }
 }
 
 function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number): void {
   const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
 
-  if (plasmaJet.active) {
+  if (plasmaJet.isActivated) {
     plasmaJet.usedTime = Math.min(plasmaJetStats.activeTime, plasmaJet.usedTime + deltaTime);
     if (plasmaJet.usedTime >= plasmaJetStats.activeTime) {
-      plasmaJet.active = false;
+      plasmaJet.isActivated = false;
     }
   }
 
-  const ramp = plasmaJet.active ? deltaTime / plasmaJetStats.rampIn : -deltaTime / plasmaJetStats.rampOut;
+  const ramp = plasmaJet.isActivated ? deltaTime / plasmaJetStats.rampIn : -deltaTime / plasmaJetStats.rampOut;
   plasmaJet.intensity = clamp01(plasmaJet.intensity + ramp);
 
   if (plasmaJet.intensity > 0) {
@@ -315,11 +301,8 @@ function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number
 
       plasmaJet.affected.push(asteroid);
     }
-  } else if (!plasmaJet.active) {
-    state.entities.splice(
-      state.entities.findIndex(e => e === plasmaJet),
-      1
-    );
+  } else if (!plasmaJet.isActivated) {
+    plasmaJet.active = false;
   }
 }
 
@@ -380,10 +363,7 @@ export function detonateBomb(state: GameState, bomb: Bomb): void {
   explode(state, x, y, BOMB_BLAST_RADIUS);
 
   bomb.owner.abilities.r.activeTimer = 0;
-  state.entities.splice(
-    state.entities.findIndex(e => e === bomb),
-    1
-  );
+  bomb.active = false;
 }
 
 function getLaserTopY(beam: LaserBeam, asteroids: Asteroid[]): number {
@@ -411,7 +391,7 @@ function getLaserTopY(beam: LaserBeam, asteroids: Asteroid[]): number {
 function attachProbe(probe: ScienceProbe, asteroid: Asteroid, state: GameState): void {
   if (
     asteroid.data.isAnalyzed ||
-    state.entities.find(e => e !== probe && e.type === EntityType.SCIENCE_PROBE && e.target === asteroid)
+    state.entities.find(e => e.active && e !== probe && e.type === EntityType.SCIENCE_PROBE && e.target === asteroid)
   ) {
     chainProbe(probe, state.asteroids, asteroid.r);
     return;

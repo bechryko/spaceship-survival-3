@@ -16,6 +16,7 @@ export type Entity = Rocket | Laser | Explosion | Bomb | ScienceProbe | Shockwav
 
 interface EntityBase {
   type: EntityType;
+  active: boolean;
 }
 
 export interface Rocket extends EntityBase {
@@ -93,7 +94,7 @@ export interface Shockwave extends EntityBase {
 export interface PlasmaJet extends EntityBase {
   type: EntityType.PLASMA_JET;
   owner: Spaceship;
-  active: boolean;
+  isActivated: boolean;
   usedTime: number;
   intensity: number;
   affected: Asteroid[];

@@ -271,7 +271,7 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
     `Asteroid spawn timer: ${state.spawnTimer.timer.toFixed(1)}s / ${state.spawnTimer.spawnTime.toFixed(3)}s`,
     `Double asteroid countdown: ${doubleAsteroidSpawn < 0 ? 'off' : doubleAsteroidSpawn}`,
     `Level 2 asteroid: ${state.asteroidBlueprints.level2.type} (${level2AsteroidChance * 100}% chance)`,
-    `Entities: ${state.entities.length}`,
+    `Entities: ${state.entities.length} (${state.entities.filter(e => e.active).length} active)`,
     `Stars: ${state.stars.length} (${state.stars.filter(s => s.size <= SMALL_STAR_MAX_SIZE).length} small, ${state.stars.filter(s => s.size > SMALL_STAR_MAX_SIZE).length} big)`,
     `Game status: ${state.status}`,
     `Game speed: ${state.speed * 100}%`
