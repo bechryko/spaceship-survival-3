@@ -24,6 +24,8 @@ import {
 import { activateAbility, drawSpaceship, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
 import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
 
+const DEBUG_EXTRA_FAST_GAME_SPEED = 5;
+const DEBUG_FAST_GAME_SPEED = 2;
 const DEBUG_SLOW_GAME_SPEED = 0.1;
 const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
 
@@ -129,6 +131,12 @@ export default function Game() {
           }
           if (settings.debugControls) {
             switch (event.code) {
+              case 'KeyN':
+                state.speed = DEBUG_EXTRA_FAST_GAME_SPEED;
+                break;
+              case 'KeyM':
+                state.speed = DEBUG_FAST_GAME_SPEED;
+                break;
               case 'Comma':
                 state.speed = 1;
                 break;

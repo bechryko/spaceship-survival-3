@@ -9,11 +9,22 @@ export function tickGlobalEffects(state: GameState, deltaTime: number): void {
 
 const DIFFICULTY_INTERVAL = 25;
 const DIFFICULTY_MESSAGES = [
+  // 25
   'Level 2 asteroids incoming!',
+  // 50
   'Asteroid activity is increasing!',
+  // 75
   'More Level 2 asteroids approaching!',
+  // 100
   'Space is quiet... for now.',
-  'Double asteroid waves incoming!'
+  // 125
+  'Larger asteroid waves incoming!',
+  // 150
+  'Space is quiet... for now.',
+  // 175
+  'Bigger rocks detected!',
+  // 200
+  'Even larger waves approaching!'
 ];
 
 function tickDifficultyNotices(

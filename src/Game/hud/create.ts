@@ -46,7 +46,7 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
     spawnTimer: {
       spawnTime: 0,
       timer: 0,
-      doubleAsteroidSpawn: -1
+      asteroidWaveSpawn: -1
     }
   };
 }

@@ -2,11 +2,12 @@ import {
   ASTEROID_SPAWN_CHANCES,
   ASTEROID_SPAWN_FAST_INTERVAL,
   ASTEROID_SPAWN_SLOW_INTERVAL,
+  ASTEROID_WAVE_MAX_SPAWN_TIMER,
+  ASTEROID_WAVE_MIN_SPAWN_TIMER,
   AsteroidType,
-  DOUBLE_ASTEROID_MAX_SPAWN_TIMER,
-  DOUBLE_ASTEROID_MIN_SPAWN_TIMER,
   ICE_ASTEROID_MAX_SHARD_RELEASE,
-  ICE_ASTEROID_MIN_SHARD_RELEASE
+  ICE_ASTEROID_MIN_SHARD_RELEASE,
+  TRIPLE_ASTEROID_CHANCE
 } from '../../Game/asteroids';
 import {
   AbilityAlmanac,
@@ -66,16 +67,26 @@ function getGeneralEntries(): HandbookEntry[] {
       summary:
         "As the game goes on, space becomes more and more harsh, and asteroids more powerful. The jumps where the game's difficulty rises are called Difficulty Milestones.",
       stats: [
+        { label: 'From the start', value: 'Level 1 asteroid growth' },
         { label: 'After 25 asteroids', value: 'Level 2 asteroids' },
         { label: 'From 50 to 75 asteroids', value: 'More frequent asteroids' },
         { label: 'After 75 asteroids', value: 'More Level 2 asteroids' },
-        { label: 'After 125 asteroids', value: 'Double asteroid waves' }
+        { label: 'After 125 asteroids', value: 'Double asteroid waves' },
+        { label: 'After 175 asteroids', value: 'Bigger asteroids' },
+        { label: 'After 200 asteroids', value: 'Triple asteroid waves' }
       ],
       sections: [
         {
+          heading: 'Level 1 asteroid growth',
+          paragraphs: [
+            "Starting from the beginning of a round, the potential size of the Level 1 asteroids will continuously grow, to make dodging them harder, and forcing you to use the potential of your spaceship's abilities. This growth will stop after reaching a certain size."
+          ]
+        },
+        {
           heading: 'Level 2 asteroids',
           paragraphs: [
-            `Level 2 asteroids shape the way you have to play the game. These asteroids have special properties and behavior you have to play around. There are more Level 2 asteroids in the game, but you will encounter only one of them each game. They will spawn with a ${ASTEROID_SPAWN_CHANCES[0].level2Chance * 100}% chance.`
+            `Level 2 asteroids shape the way you have to play the game. These asteroids have special properties and behavior you have to play around. There are more Level 2 asteroids in the game, but you will encounter only one of them each game. They will spawn with a ${ASTEROID_SPAWN_CHANCES[0].level2Chance * 100}% chance.`,
+            'Similar to Level 1 asteroids, Level 2 asteroids will grow in size as time goes on, but will eventually stop growing.'
           ]
         },
         {
@@ -86,12 +97,24 @@ function getGeneralEntries(): HandbookEntry[] {
         },
         {
           heading: 'More Level 2 asteroids',
-          paragraphs: [`Level 2 asteroids are spawning with a ${ASTEROID_SPAWN_CHANCES[1].level2Chance * 100}% chance.`]
+          paragraphs: [`Level 2 asteroids will spawn with a ${ASTEROID_SPAWN_CHANCES[1].level2Chance * 100}% chance.`]
         },
         {
           heading: 'Double asteroid waves',
           paragraphs: [
-            `Sometimes double asteroids will spawn, which means 2 asteroids appear in a wave at the top instead of 1. There are at least ${DOUBLE_ASTEROID_MIN_SPAWN_TIMER} and at most ${DOUBLE_ASTEROID_MAX_SPAWN_TIMER} asteroids between two double asteroid-waves.`
+            `Sometimes asteroid waves will spawn, which means 2 asteroids appear at once at the top instead of 1. There are at least ${ASTEROID_WAVE_MIN_SPAWN_TIMER} and at most ${ASTEROID_WAVE_MAX_SPAWN_TIMER} asteroids between two waves.`
+          ]
+        },
+        {
+          heading: 'Bigger asteroids',
+          paragraphs: [
+            'Asteroid sizes will continue to slowly grow over time, that will cause much more size increase than the one at the start of the game. This applies to all levels of asteroids.'
+          ]
+        },
+        {
+          heading: 'Triple asteroid waves',
+          paragraphs: [
+            `Asteroid waves will have a ${TRIPLE_ASTEROID_CHANCE * 100}% chance to have 3 asteroids at the same time instead of 2.`
           ]
         }
       ]

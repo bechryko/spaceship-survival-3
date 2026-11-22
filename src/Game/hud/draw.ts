@@ -1,5 +1,5 @@
 import { Settings } from '../../context';
-import { ASTEROID_SPAWN_CHANCES } from '../asteroids';
+import { ASTEROID_SPAWN_CHANCES, calculateSizeIncrease, regularAsteroidBlueprint } from '../asteroids';
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, countIf, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
@@ -31,14 +31,15 @@ export function drawHUD(
   );
 
   drawAbilityHud(ctx, state.player, state);
+
+  drawOverlays(ctx, state, isQuickPlay);
+
   if (fpsCounter) {
     drawFps(ctx, fpsCounter, state.speed !== 1);
   }
   if (settings.debugStatistics) {
     drawDebugStatistics(ctx, state);
   }
-
-  drawOverlays(ctx, state, isQuickPlay);
 }
 
 const ABILITY_HUD_TOP_MARGIN = 5;
@@ -235,11 +236,11 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
 
 const DEBUG_HUD_MARGIN = 10;
 const DEBUG_HUD_FONT_WEIGHT = 500;
-const DEBUG_HUD_FONT_SIZE = 14;
 const DEBUG_HUD_TEXT_COLOR = 'rgba(232, 241, 242, 0.6)';
 
 const FPS_BOTTOM_MARGIN = DEBUG_HUD_MARGIN;
 const FPS_LOW_COLOR = '#ff8f8f';
+const FPS_FONT_SIZE = 14;
 const FPS_LOW_THRESHOLD = 30;
 
 function drawFps(ctx: CanvasRenderingContext2D, counter: FpsCounter, isGameSlowed: boolean): void {
@@ -250,7 +251,7 @@ function drawFps(ctx: CanvasRenderingContext2D, counter: FpsCounter, isGameSlowe
   const additionalText = isGameSlowed ? ' (actual)' : '';
 
   ctx.save();
-  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_HUD_FONT_SIZE);
+  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, FPS_FONT_SIZE);
   ctx.fillStyle = counter.fps < FPS_LOW_THRESHOLD ? FPS_LOW_COLOR : DEBUG_HUD_TEXT_COLOR;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'bottom';
@@ -260,19 +261,26 @@ function drawFps(ctx: CanvasRenderingContext2D, counter: FpsCounter, isGameSlowe
 
 const DEBUG_STATISTICS_TOP_MARGIN = GAME_HEIGHT / 3;
 const DEBUG_STATISTICS_GAP = 5;
+const DEBUG_STATISTICS_FONT_SIZE = 12;
 
 function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): void {
   const spawnChanceObject = ASTEROID_SPAWN_CHANCES.findLast(sco => sco.threshold <= state.statistics.asteroidsSpawned);
   const level2AsteroidChance = spawnChanceObject?.level2Chance ?? 0;
-  const { doubleAsteroidSpawn } = state.spawnTimer;
-
+  const { asteroidWaveSpawn } = state.spawnTimer;
+  const level1AsteroidSizeIncrease = calculateSizeIncrease(regularAsteroidBlueprint, state.statistics.asteroidsSpawned);
+  const level2AsteroidSizeIncrease = calculateSizeIncrease(
+    state.asteroidBlueprints.level2,
+    state.statistics.asteroidsSpawned
+  );
   const smallStarCount = countIf(state.stars, s => s.size <= SMALL_STAR_MAX_SIZE);
 
   const debugStatisticsLines = [
     `Asteroids: ${state.asteroids.length} (${countIf(state.asteroids, a => a.active)} active)`,
     `Asteroid spawn timer: ${state.spawnTimer.timer.toFixed(1)}s / ${state.spawnTimer.spawnTime.toFixed(3)}s`,
-    `Double asteroid countdown: ${doubleAsteroidSpawn < 0 ? 'off' : doubleAsteroidSpawn}`,
+    `Level 1 asteroid size: ${regularAsteroidBlueprint.minSize + level1AsteroidSizeIncrease.minSizeIncrease} - ${regularAsteroidBlueprint.maxSize + level1AsteroidSizeIncrease.maxSizeIncrease}`,
     `Level 2 asteroid: ${state.asteroidBlueprints.level2.type} (${level2AsteroidChance * 100}% chance)`,
+    `Level 2 asteroid size: ${state.asteroidBlueprints.level2.minSize + level2AsteroidSizeIncrease.minSizeIncrease} - ${state.asteroidBlueprints.level2.maxSize + level2AsteroidSizeIncrease.maxSizeIncrease}`,
+    `Asteroid wave countdown: ${asteroidWaveSpawn < 0 ? 'off' : asteroidWaveSpawn}`,
     `Entities: ${state.entities.length} (${countIf(state.entities, e => e.active)} active)`,
     `Stars: ${state.stars.length} (${smallStarCount} small, ${state.stars.length - smallStarCount} big)`,
     `Game status: ${state.status}`,
@@ -280,7 +288,7 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
   ];
 
   ctx.save();
-  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_HUD_FONT_SIZE);
+  setFont(ctx, DEBUG_HUD_FONT_WEIGHT, DEBUG_STATISTICS_FONT_SIZE);
   ctx.fillStyle = DEBUG_HUD_TEXT_COLOR;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
@@ -289,7 +297,7 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
     ctx.fillText(
       line,
       DEBUG_HUD_MARGIN,
-      DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_HUD_FONT_SIZE + DEBUG_STATISTICS_GAP) * idx
+      DEBUG_STATISTICS_TOP_MARGIN + (DEBUG_STATISTICS_FONT_SIZE + DEBUG_STATISTICS_GAP) * idx
     )
   );
 
@@ -405,7 +413,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
     const time = Number(statistics.time.toFixed(1));
     const minutes = Math.floor(time / 60);
     const seconds = time - minutes * 60;
-    const timeText = time >= 120 ? `${minutes}m ${Math.floor(seconds)}s` : `${seconds}s`;
+    const timeText = time >= 120 ? `${minutes}m ${Math.round(seconds)}s` : `${seconds.toFixed(1)}s`;
 
     sections = [
       title,

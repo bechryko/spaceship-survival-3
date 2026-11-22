@@ -36,5 +36,5 @@ export interface GameStatistics {
 export interface AsteroidSpawnTimer {
   spawnTime: number;
   timer: number;
-  doubleAsteroidSpawn: number;
+  asteroidWaveSpawn: number;
 }

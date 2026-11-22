@@ -7,9 +7,7 @@ export interface AsteroidBlueprint {
   velocity: number | Range;
   minSize: number;
   maxSize: number;
-  sizeIncrease: number;
-  sizeIncreaseStart: number;
-  sizeIncreaseMax: number;
+  sizeIncreases: AsteroidSizeIncrease[];
   vertexCount: number | Range;
   maxReachIn: number;
   color: HSLColor<number | Range>;
@@ -19,16 +17,35 @@ export interface AsteroidBlueprint {
   };
 }
 
+export interface AsteroidSizeIncrease {
+  start: number;
+  increase: number;
+  max: number;
+  type: 'min' | 'max' | 'both';
+}
+
 const DEFAULT_ASTEROID_VELOCITY = 140;
+const COMMON_SIZE_INCREASE_THRESHOLD = 175;
 
 export const regularAsteroidBlueprint: AsteroidBlueprint = {
   type: AsteroidType.REGULAR,
   velocity: DEFAULT_ASTEROID_VELOCITY,
-  minSize: 75,
-  maxSize: 125,
-  sizeIncrease: 1.5,
-  sizeIncreaseStart: 0,
-  sizeIncreaseMax: 75,
+  minSize: 80,
+  maxSize: 145,
+  sizeIncreases: [
+    {
+      start: 0,
+      increase: 1.5,
+      max: 75,
+      type: 'max'
+    },
+    {
+      start: COMMON_SIZE_INCREASE_THRESHOLD,
+      increase: 0.25,
+      max: 50,
+      type: 'both'
+    }
+  ],
   vertexCount: {
     min: 9,
     max: 13
@@ -60,11 +77,22 @@ export const regularAsteroidBlueprint: AsteroidBlueprint = {
 export const iceAsteroidBlueprint: AsteroidBlueprint = {
   type: AsteroidType.ICE,
   velocity: DEFAULT_ASTEROID_VELOCITY,
-  minSize: 75,
-  maxSize: 100,
-  sizeIncrease: 1.75,
-  sizeIncreaseStart: 25,
-  sizeIncreaseMax: 125,
+  minSize: 80,
+  maxSize: 115,
+  sizeIncreases: [
+    {
+      start: 25,
+      increase: 1.75,
+      max: 125,
+      type: 'max'
+    },
+    {
+      start: COMMON_SIZE_INCREASE_THRESHOLD,
+      increase: 0.5,
+      max: 100,
+      type: 'both'
+    }
+  ],
   vertexCount: {
     min: 11,
     max: 16
@@ -103,10 +131,21 @@ export const ironAsteroidBlueprint: AsteroidBlueprint = {
     max: DEFAULT_ASTEROID_VELOCITY
   },
   minSize: 60,
-  maxSize: 85,
-  sizeIncrease: 0.5,
-  sizeIncreaseStart: 25,
-  sizeIncreaseMax: 50,
+  maxSize: 95,
+  sizeIncreases: [
+    {
+      start: 25,
+      increase: 0.5,
+      max: 25,
+      type: 'max'
+    },
+    {
+      start: COMMON_SIZE_INCREASE_THRESHOLD,
+      increase: 0.25,
+      max: 50,
+      type: 'max'
+    }
+  ],
   vertexCount: {
     min: 9,
     max: 13
@@ -138,7 +177,7 @@ export function createIceShardBlueprint(parent: Asteroid): AsteroidBlueprint {
     type: AsteroidType.ICE_SHARD,
     minSize: parent.r * 0.25,
     maxSize: parent.r * 0.3,
-    sizeIncrease: 0,
+    sizeIncreases: [],
     vertexCount: {
       min: 5,
       max: 7

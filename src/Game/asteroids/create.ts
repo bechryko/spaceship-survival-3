@@ -22,6 +22,7 @@ export const ASTEROID_SPAWN_CHANCES: SpawnChance[] = [
 ];
 
 const MIN_X_DISTANCE_FROM_LAST = GAME_WIDTH / 4;
+const MIN_X_DISTANCE_FROM_SECOND_TO_LAST = GAME_WIDTH / 6;
 
 export interface AsteroidCreationModifiers {
   blueprint?: AsteroidBlueprint;
@@ -33,6 +34,7 @@ export interface AsteroidCreationModifiers {
 }
 
 let lastX: number | null = null;
+let secondToLastX: number | null = null;
 
 export function createAsteroid(
   state: GameState,
@@ -41,22 +43,18 @@ export function createAsteroid(
 ): Asteroid {
   const { asteroidsSpawned } = state.statistics;
   const blueprint = creationModifiers.blueprint ?? getBlueprint(state, asteroidsSpawned);
-
-  const increase = Math.min(
-    blueprint.sizeIncreaseMax,
-    blueprint.sizeIncrease * (asteroidsSpawned - blueprint.sizeIncreaseStart)
-  );
-  const r = between(blueprint.minSize, blueprint.maxSize + increase);
+  const { minSizeIncrease, maxSizeIncrease } = calculateSizeIncrease(blueprint, asteroidsSpawned);
+  const r = between(blueprint.minSize + minSizeIncrease, blueprint.maxSize + maxSizeIncrease);
 
   let x: number;
   if (creationModifiers.x) {
     x = creationModifiers.x;
   } else {
-    x = pickSpawnX(lastX);
+    x = pickSpawnX(r, lastX, secondToLastX);
   }
 
   if (!creationModifiers.notPrimaryAsteroid) {
-    lastX = x;
+    [lastX, secondToLastX] = [x, lastX];
   }
 
   const y = creationModifiers.y ?? -r;
@@ -102,20 +100,80 @@ function getBlueprint(state: GameState, asteroidsSpawned: number): AsteroidBluep
   return regularAsteroidBlueprint;
 }
 
-function pickSpawnX(previousX: number | null): number {
-  if (previousX === null) {
-    return Math.random() * GAME_WIDTH;
+export function calculateSizeIncrease(
+  blueprint: AsteroidBlueprint,
+  asteroidsSpawned: number
+): { minSizeIncrease: number; maxSizeIncrease: number } {
+  let minSizeIncrease = 0;
+  let maxSizeIncrease = 0;
+
+  blueprint.sizeIncreases.forEach(sizeIncrease => {
+    if (asteroidsSpawned <= sizeIncrease.start) {
+      return;
+    }
+
+    if (sizeIncrease.type === 'min' || sizeIncrease.type === 'both') {
+      minSizeIncrease += Math.min(sizeIncrease.max, sizeIncrease.increase * (asteroidsSpawned - sizeIncrease.start));
+    }
+    if (sizeIncrease.type === 'max' || sizeIncrease.type === 'both') {
+      maxSizeIncrease += Math.min(sizeIncrease.max, sizeIncrease.increase * (asteroidsSpawned - sizeIncrease.start));
+    }
+  });
+
+  return { minSizeIncrease, maxSizeIncrease };
+}
+
+function pickSpawnX(r: number, previousX: number | null, beforePreviousX: number | null): number {
+  const screenSideOffset = r / 2;
+  const lowerBound = -screenSideOffset;
+  const upperBound = GAME_WIDTH + screenSideOffset;
+  const intervals: [number, number][] = [[lowerBound, upperBound]];
+
+  const exclusions = [
+    previousX !== null ? [previousX - MIN_X_DISTANCE_FROM_LAST, previousX + MIN_X_DISTANCE_FROM_LAST] : null,
+    beforePreviousX !== null
+      ? [beforePreviousX - MIN_X_DISTANCE_FROM_SECOND_TO_LAST, beforePreviousX + MIN_X_DISTANCE_FROM_SECOND_TO_LAST]
+      : null
+  ].filter((zone): zone is [number, number] => zone !== null);
+
+  for (const [start, end] of exclusions) {
+    const nextIntervals: [number, number][] = [];
+
+    for (const [left, right] of intervals) {
+      if (end <= left || start >= right) {
+        nextIntervals.push([left, right]);
+        continue;
+      }
+
+      if (start > left) {
+        nextIntervals.push([left, start]);
+      }
+      if (end < right) {
+        nextIntervals.push([end, right]);
+      }
+    }
+
+    intervals.splice(0, intervals.length, ...nextIntervals);
   }
 
-  const rightStart = previousX + MIN_X_DISTANCE_FROM_LAST;
-  const leftLength = Math.max(0, previousX - MIN_X_DISTANCE_FROM_LAST);
-  const rightLength = Math.max(0, GAME_WIDTH - rightStart);
-  const totalLength = leftLength + rightLength;
+  const totalLength = intervals.reduce((sum, [start, end]) => sum + end - start, 0);
 
   if (totalLength === 0) {
-    return previousX < GAME_WIDTH / 2 ? GAME_WIDTH : 0;
+    return Math.random() < 0.5 ? lowerBound : upperBound;
   }
 
-  const pick = Math.random() * totalLength;
-  return pick < leftLength ? pick : rightStart + (pick - leftLength);
+  let pick = Math.random() * totalLength;
+
+  for (const [start, end] of intervals) {
+    const length = end - start;
+
+    if (pick < length) {
+      return start + pick;
+    }
+
+    pick -= length;
+  }
+
+  console.warn('Using random asteroid position as all valid positions are excluded due to previous spawn positions.');
+  return between(lowerBound, upperBound);
 }

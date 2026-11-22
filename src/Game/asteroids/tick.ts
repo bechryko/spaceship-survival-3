@@ -11,8 +11,11 @@ import { AsteroidCreationModifiers, createAsteroid } from './create';
 import { destroyAsteroid } from './destroy';
 
 const DOUBLE_ASTEROIDS_THRESHOLD = 125;
-export const DOUBLE_ASTEROID_MIN_SPAWN_TIMER = 3;
-export const DOUBLE_ASTEROID_MAX_SPAWN_TIMER = 8;
+export const ASTEROID_WAVE_MIN_SPAWN_TIMER = 3;
+export const ASTEROID_WAVE_MAX_SPAWN_TIMER = 7;
+
+const TRIPLE_ASTEROID_THRESHOLD = 200;
+export const TRIPLE_ASTEROID_CHANCE = 0.5;
 
 const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
 const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
@@ -22,17 +25,18 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
 
   if (state.spawnTimer.timer >= state.spawnTimer.spawnTime) {
     spawnAsteroid(state);
-    state.spawnTimer.doubleAsteroidSpawn--;
+    state.spawnTimer.asteroidWaveSpawn--;
 
-    if (state.spawnTimer.doubleAsteroidSpawn === 0) {
+    if (state.spawnTimer.asteroidWaveSpawn === 0) {
       spawnAsteroid(state);
+
+      if (state.statistics.asteroidsSpawned >= TRIPLE_ASTEROID_THRESHOLD && Math.random() < TRIPLE_ASTEROID_CHANCE) {
+        spawnAsteroid(state);
+      }
     }
 
-    if (
-      state.statistics.asteroidsSpawned === DOUBLE_ASTEROIDS_THRESHOLD ||
-      state.spawnTimer.doubleAsteroidSpawn === 0
-    ) {
-      state.spawnTimer.doubleAsteroidSpawn = between(DOUBLE_ASTEROID_MIN_SPAWN_TIMER, DOUBLE_ASTEROID_MAX_SPAWN_TIMER);
+    if (state.statistics.asteroidsSpawned === DOUBLE_ASTEROIDS_THRESHOLD || state.spawnTimer.asteroidWaveSpawn === 0) {
+      state.spawnTimer.asteroidWaveSpawn = between(ASTEROID_WAVE_MIN_SPAWN_TIMER, ASTEROID_WAVE_MAX_SPAWN_TIMER);
     }
   }
 
