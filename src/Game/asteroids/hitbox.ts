@@ -7,14 +7,21 @@ const VERTEX_ROTATION_JITTER = 0.3;
 export type AsteroidShape = readonly Point[];
 
 const SPECIAL_ASTEROID_SHAPE_REGULAR_CHANCE = 1 / 1000;
+const SPECIAL_ASTEROID_SHAPE_STAR_CHANCE = 1 / 1000;
 
 export function createAsteroidShape(blueprint: AsteroidBlueprint): AsteroidShape {
-  const chance = Math.random();
+  const vertexCount = getNumberOrRangeValue(blueprint.vertexCount);
+
+  let chance = Math.random();
   if (chance < SPECIAL_ASTEROID_SHAPE_REGULAR_CHANCE) {
-    return createSpecialAsteroidShapeRegular(blueprint);
+    return createSpecialAsteroidShapeRegular({ ...blueprint, vertexCount });
+  }
+  chance -= SPECIAL_ASTEROID_SHAPE_REGULAR_CHANCE;
+
+  if (chance < SPECIAL_ASTEROID_SHAPE_STAR_CHANCE && vertexCount % 2 === 0) {
+    return createSpecialAsteroidShapeStar({ ...blueprint, vertexCount });
   }
 
-  const vertexCount = getNumberOrRangeValue(blueprint.vertexCount);
   const averageRotation = (Math.PI * 2) / vertexCount;
 
   const points: Point[] = [];
@@ -40,6 +47,23 @@ function createSpecialAsteroidShapeRegular(blueprint: AsteroidBlueprint): Astero
 
   for (let i = 0; i < vertexCount; i++) {
     const angle = averageRotation * i;
+    points.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
+  }
+
+  return points;
+}
+
+function createSpecialAsteroidShapeStar(blueprint: AsteroidBlueprint): AsteroidShape {
+  const vertexCount = getNumberOrRangeValue(blueprint.vertexCount);
+  const averageRotation = (Math.PI * 2) / vertexCount;
+  const smallRadius = 1 - blueprint.maxReachIn;
+
+  const points: Point[] = [];
+
+  for (let i = 0; i < vertexCount; i++) {
+    const angle = averageRotation * i;
+    const radius = i % 2 === 0 ? 1 : smallRadius;
+
     points.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
   }
 
