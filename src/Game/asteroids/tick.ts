@@ -36,7 +36,11 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     }
   }
 
-  for (const asteroid of state.asteroids.filter(a => a.active)) {
+  for (const asteroid of state.asteroids) {
+    if (!asteroid.active) {
+      continue;
+    }
+
     asteroid.y += asteroid.velocity * deltaTime;
     asteroid.x += asteroid.velocityHorizontal * deltaTime;
 
@@ -46,7 +50,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     const ly = asteroid.y - player.y;
 
     const hit =
-      Math.hypot(lx, ly) <= boundingRadius(hitbox) + asteroid.r &&
+      lx ** 2 + ly ** 2 <= (boundingRadius(hitbox) + asteroid.r) ** 2 &&
       polygonsCollide(hitbox, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
     if (hit) {
       if (isSpaceshipImmune(player, asteroid)) {

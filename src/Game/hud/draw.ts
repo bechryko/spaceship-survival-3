@@ -2,7 +2,7 @@ import { Settings } from '../../context';
 import { ASTEROID_SPAWN_CHANCES } from '../asteroids';
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
-import { calculateScore, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
+import { calculateScore, countIf, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
 import { BACK_TO_SELECTION_KEY_CODE, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
 import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';
@@ -266,13 +266,15 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
   const level2AsteroidChance = spawnChanceObject?.level2Chance ?? 0;
   const { doubleAsteroidSpawn } = state.spawnTimer;
 
+  const smallStarCount = countIf(state.stars, s => s.size <= SMALL_STAR_MAX_SIZE);
+
   const debugStatisticsLines = [
-    `Asteroids: ${state.asteroids.length} (${state.asteroids.filter(a => a.active).length} active)`,
+    `Asteroids: ${state.asteroids.length} (${countIf(state.asteroids, a => a.active)} active)`,
     `Asteroid spawn timer: ${state.spawnTimer.timer.toFixed(1)}s / ${state.spawnTimer.spawnTime.toFixed(3)}s`,
     `Double asteroid countdown: ${doubleAsteroidSpawn < 0 ? 'off' : doubleAsteroidSpawn}`,
     `Level 2 asteroid: ${state.asteroidBlueprints.level2.type} (${level2AsteroidChance * 100}% chance)`,
-    `Entities: ${state.entities.length} (${state.entities.filter(e => e.active).length} active)`,
-    `Stars: ${state.stars.length} (${state.stars.filter(s => s.size <= SMALL_STAR_MAX_SIZE).length} small, ${state.stars.filter(s => s.size > SMALL_STAR_MAX_SIZE).length} big)`,
+    `Entities: ${state.entities.length} (${countIf(state.entities, e => e.active)} active)`,
+    `Stars: ${state.stars.length} (${smallStarCount} small, ${state.stars.length - smallStarCount} big)`,
     `Game status: ${state.status}`,
     `Game speed: ${state.speed * 100}%`
   ];

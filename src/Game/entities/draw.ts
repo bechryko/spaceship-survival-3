@@ -6,9 +6,11 @@ import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceP
 import { EXPLOSION_DURATION } from './tick';
 
 export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], time: number): void {
-  const activeEntities = entities.filter(e => e.active);
+  for (const entity of entities) {
+    if (!entity.active) {
+      continue;
+    }
 
-  for (const entity of activeEntities) {
     switch (entity.type) {
       case EntityType.ROCKET:
         drawRocket(ctx, entity);
@@ -16,27 +18,23 @@ export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], 
       case EntityType.LASER:
         drawLaser(ctx, entity);
         break;
+      case EntityType.EXPLOSION:
+        drawExplosion(ctx, entity);
+        break;
       case EntityType.BOMB:
         drawBomb(ctx, entity);
         break;
       case EntityType.SCIENCE_PROBE:
         drawScienceProbe(ctx, entity, time);
         break;
+      case EntityType.SHOCKWAVE:
+        drawShockwave(ctx, entity);
+        break;
       case EntityType.PLASMA_JET:
         drawPlasmaJet(ctx, entity, time);
         break;
     }
   }
-
-  drawExplosions(
-    ctx,
-    activeEntities.filter(entity => entity.type === EntityType.EXPLOSION)
-  );
-
-  drawShockwaves(
-    ctx,
-    activeEntities.filter(entity => entity.type === EntityType.SHOCKWAVE)
-  );
 }
 
 const ROCKET_FLAME_HEIGHT = 30;
@@ -184,47 +182,45 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   ctx.restore();
 }
 
-function drawExplosions(ctx: CanvasRenderingContext2D, explosions: Explosion[]) {
+function drawExplosion(ctx: CanvasRenderingContext2D, explosion: Explosion) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  for (const explosion of explosions) {
-    const t = explosion.age / EXPLOSION_DURATION;
-    const ease = 1 - (1 - t) ** 3;
-    const fade = 1 - t;
+  const t = explosion.age / EXPLOSION_DURATION;
+  const ease = 1 - (1 - t) ** 3;
+  const fade = 1 - t;
 
-    // Fireball flash
-    const flashRadius = explosion.r * (0.6 + 0.9 * ease);
-    const flash = ctx.createRadialGradient(explosion.x, explosion.y, 0, explosion.x, explosion.y, flashRadius);
-    flash.addColorStop(0, `rgba(255, 245, 200, ${fade})`);
-    flash.addColorStop(0.4, `rgba(255, 150, 50, ${fade * 0.7})`);
-    flash.addColorStop(1, 'rgba(255, 80, 20, 0)');
-    ctx.fillStyle = flash;
+  // Fireball flash
+  const flashRadius = explosion.r * (0.6 + 0.9 * ease);
+  const flash = ctx.createRadialGradient(explosion.x, explosion.y, 0, explosion.x, explosion.y, flashRadius);
+  flash.addColorStop(0, `rgba(255, 245, 200, ${fade})`);
+  flash.addColorStop(0.4, `rgba(255, 150, 50, ${fade * 0.7})`);
+  flash.addColorStop(1, 'rgba(255, 80, 20, 0)');
+  ctx.fillStyle = flash;
+  ctx.beginPath();
+  ctx.arc(explosion.x, explosion.y, flashRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Shockwave ring
+  ctx.beginPath();
+  ctx.arc(explosion.x, explosion.y, explosion.r * (0.5 + 1.6 * ease), 0, Math.PI * 2);
+  ctx.lineWidth = 0.5 + 3 * fade;
+  ctx.strokeStyle = `rgba(255, 200, 120, ${fade * 0.8})`;
+  ctx.stroke();
+
+  // Sparks flying outwards
+  ctx.fillStyle = `rgba(255, 210, 140, ${fade})`;
+  for (const spark of explosion.sparks) {
+    const d = spark.distance * ease;
     ctx.beginPath();
-    ctx.arc(explosion.x, explosion.y, flashRadius, 0, Math.PI * 2);
+    ctx.arc(
+      explosion.x + Math.cos(spark.angle) * d,
+      explosion.y + Math.sin(spark.angle) * d,
+      spark.size * fade,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
-
-    // Shockwave ring
-    ctx.beginPath();
-    ctx.arc(explosion.x, explosion.y, explosion.r * (0.5 + 1.6 * ease), 0, Math.PI * 2);
-    ctx.lineWidth = 0.5 + 3 * fade;
-    ctx.strokeStyle = `rgba(255, 200, 120, ${fade * 0.8})`;
-    ctx.stroke();
-
-    // Sparks flying outwards
-    ctx.fillStyle = `rgba(255, 210, 140, ${fade})`;
-    for (const spark of explosion.sparks) {
-      const d = spark.distance * ease;
-      ctx.beginPath();
-      ctx.arc(
-        explosion.x + Math.cos(spark.angle) * d,
-        explosion.y + Math.sin(spark.angle) * d,
-        spark.size * fade,
-        0,
-        Math.PI * 2
-      );
-      ctx.fill();
-    }
   }
 
   ctx.restore();
@@ -413,36 +409,37 @@ function drawScienceProbeScan(ctx: CanvasRenderingContext2D, probe: ScienceProbe
   ctx.restore();
 }
 
-function drawShockwaves(ctx: CanvasRenderingContext2D, waves: Shockwave[]): void {
+function drawShockwave(ctx: CanvasRenderingContext2D, wave: Shockwave): void {
+  if (wave.radius < 1) {
+    return;
+  }
+
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
 
-  for (const wave of waves) {
-    const t = clamp01(wave.radius / wave.maxRadius);
-    const fade = 1 - t * t;
-    if (wave.radius < 1) continue;
+  const t = clamp01(wave.radius / wave.maxRadius);
+  const fade = 1 - t * t;
 
-    // A soft band just inside the leading edge
-    const inner = Math.max(0, wave.radius * 0.8);
-    const band = ctx.createRadialGradient(wave.x, wave.y, inner, wave.x, wave.y, wave.radius);
-    band.addColorStop(0, 'rgba(120, 200, 255, 0)');
-    band.addColorStop(1, `rgba(120, 200, 255, ${0.16 * fade})`);
-    ctx.fillStyle = band;
+  // A soft band just inside the leading edge
+  const inner = Math.max(0, wave.radius * 0.8);
+  const band = ctx.createRadialGradient(wave.x, wave.y, inner, wave.x, wave.y, wave.radius);
+  band.addColorStop(0, 'rgba(120, 200, 255, 0)');
+  band.addColorStop(1, `rgba(120, 200, 255, ${0.16 * fade})`);
+  ctx.fillStyle = band;
+  ctx.beginPath();
+  ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Leading ring and a thinner one trailing it
+  for (const [scale, width, strength] of [
+    [1, 6 * (1 - t) + 2, 0.85],
+    [0.93, 2, 0.4]
+  ] as const) {
     ctx.beginPath();
-    ctx.arc(wave.x, wave.y, wave.radius, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Leading ring and a thinner one trailing it
-    for (const [scale, width, strength] of [
-      [1, 6 * (1 - t) + 2, 0.85],
-      [0.93, 2, 0.4]
-    ] as const) {
-      ctx.beginPath();
-      ctx.arc(wave.x, wave.y, wave.radius * scale, 0, Math.PI * 2);
-      ctx.lineWidth = width;
-      ctx.strokeStyle = `rgba(170, 230, 255, ${strength * fade})`;
-      ctx.stroke();
-    }
+    ctx.arc(wave.x, wave.y, wave.radius * scale, 0, Math.PI * 2);
+    ctx.lineWidth = width;
+    ctx.strokeStyle = `rgba(170, 230, 255, ${strength * fade})`;
+    ctx.stroke();
   }
 
   ctx.restore();

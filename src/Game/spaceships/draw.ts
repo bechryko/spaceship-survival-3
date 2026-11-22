@@ -204,7 +204,9 @@ function drawShield(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
     for (let r = -4; r <= 4; r++) {
       const cx = size * Math.sqrt(3) * (q + r / 2);
       const cy = size * 1.5 * r;
-      if (Math.hypot(cx, cy) > radius + size) continue;
+      if (cx ** 2 + cy ** 2 > (radius + size) ** 2) {
+        continue;
+      }
 
       // Hexagons the sweep is passing over light up
       const glow = Math.max(0, Math.cos(Math.atan2(cy, cx) + spin - sweep)) ** 6;

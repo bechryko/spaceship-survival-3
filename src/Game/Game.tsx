@@ -1,6 +1,6 @@
 import './Game.css';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useSettings } from '../context';
 import { saveHighscore } from '../localstorage';
@@ -16,7 +16,6 @@ import {
   EXIT_KEY_CODE,
   GAME_HEIGHT,
   GAME_WIDTH,
-  GameState,
   GameStateConfig,
   GameStatus,
   START_PAUSE_KEY_CODE,
@@ -31,29 +30,35 @@ const DEBUG_EXTRA_SLOW_GAME_SPEED = 0.04;
 export default function Game() {
   const navigationState = useLocation().state;
   const isQuickPlay = Boolean(navigationState?.quickPlay);
-  const gameStateConfig: GameStateConfig = isQuickPlay
-    ? {
-        isQuickPlay
-      }
-    : {
-        isQuickPlay,
-        abilityClass: navigationState?.spaceshipId,
-        specialAbilityName: navigationState?.specialAbilityId
-      };
+  const gameStateConfig: GameStateConfig = useMemo(
+    () =>
+      isQuickPlay
+        ? {
+            isQuickPlay
+          }
+        : {
+            isQuickPlay,
+            abilityClass: navigationState?.spaceshipId,
+            specialAbilityName: navigationState?.specialAbilityId
+          },
+    [isQuickPlay, navigationState]
+  );
 
   const { settings } = useSettings();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const stateRef = useRef<GameState>(createGameState(gameStateConfig, settings));
+  const [fpsCounter] = useState(() => createFpsCounter());
+  const [gameState, setGameState] = useState(() => createGameState(gameStateConfig, settings));
+  const stateRef = useRef(gameState);
 
   const navigate = useNavigate();
   if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
     navigate('/select/1');
   }
 
-  const fpsCounter = createFpsCounter();
-
   useEffect(() => {
+    stateRef.current = gameState;
+
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
 
@@ -94,7 +99,7 @@ export default function Game() {
               state.status = GameStatus.PLAYING;
               break;
             case GameStatus.OVER:
-              stateRef.current = createGameState(gameStateConfig, settings, GameStatus.PLAYING);
+              setGameState(createGameState(gameStateConfig, settings, GameStatus.PLAYING));
               break;
           }
           break;
@@ -197,7 +202,11 @@ export default function Game() {
       const { time } = state.statistics;
 
       drawBackground(ctx, state.stars);
-      for (const asteroid of state.asteroids.filter(a => a.active)) {
+      for (const asteroid of state.asteroids) {
+        if (!asteroid.active) {
+          continue;
+        }
+
         drawAsteroid(ctx, asteroid);
       }
       drawEntities(ctx, state.entities, time);
@@ -229,7 +238,7 @@ export default function Game() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  });
+  }, [fpsCounter, gameState, gameStateConfig, isQuickPlay, navigate, navigationState, settings]);
 
   return <canvas id="game-canvas" ref={canvasRef} />;
 }

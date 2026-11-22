@@ -77,3 +77,13 @@ export function hash(n: number): number {
   const s = Math.sin(n * 127.1) * 43758.5453;
   return s - Math.floor(s);
 }
+
+export function countIf<T>(array: T[], callback: (element: T) => boolean): number {
+  let count = 0;
+
+  for (const element of array) {
+    count += Number(callback(element));
+  }
+
+  return count;
+}

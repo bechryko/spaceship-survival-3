@@ -345,10 +345,14 @@ const BOMB_BLAST_MIN_SPEED_MULTIPLIER = 0.2;
 export function detonateBomb(state: GameState, bomb: Bomb): void {
   const { x, y } = bomb;
 
-  for (const asteroid of state.asteroids.filter(a => a.active)) {
+  for (const asteroid of state.asteroids) {
+    if (!asteroid.active) {
+      continue;
+    }
+
     const dx = asteroid.x - x;
     const dy = asteroid.y - y;
-    const distance = Math.hypot(dx, dy);
+    const isBombClose = dx ** 2 + dy ** 2 <= bomb.r ** 2;
 
     const edgeDistance = getDistanceToAsteroid(asteroid, x, y);
     if (edgeDistance > BOMB_BLAST_RADIUS) {
@@ -356,7 +360,7 @@ export function detonateBomb(state: GameState, bomb: Bomb): void {
     }
 
     const strength = 1 - (edgeDistance / BOMB_BLAST_RADIUS) * (1 - BOMB_BLAST_MIN_SPEED_MULTIPLIER);
-    const angle = distance > bomb.r ? Math.atan2(dy, dx) : Math.random() * Math.PI * 2;
+    const angle = isBombClose ? Math.random() * Math.PI * 2 : Math.atan2(dy, dx);
     pushAsteroid(asteroid, BOMB_BLAST_SPEED * strength, angle);
   }
 
