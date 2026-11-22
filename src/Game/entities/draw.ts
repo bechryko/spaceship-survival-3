@@ -5,34 +5,54 @@ import { clamp01, easeOutCubic, hash } from '../utils';
 import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import { EXPLOSION_DURATION } from './tick';
 
-export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], time: number): void {
-  for (const entity of entities) {
-    if (!entity.active) {
-      continue;
-    }
+const ENTITY_LAYER_LOOKUP: Record<EntityType, number> = {
+  // Layer 0: Projectiles
+  [EntityType.ROCKET]: 0,
+  [EntityType.LASER]: 0,
+  [EntityType.BOMB]: 0,
+  [EntityType.SCIENCE_PROBE]: 0,
 
-    switch (entity.type) {
-      case EntityType.ROCKET:
-        drawRocket(ctx, entity);
-        break;
-      case EntityType.LASER:
-        drawLaser(ctx, entity);
-        break;
-      case EntityType.EXPLOSION:
-        drawExplosion(ctx, entity);
-        break;
-      case EntityType.BOMB:
-        drawBomb(ctx, entity);
-        break;
-      case EntityType.SCIENCE_PROBE:
-        drawScienceProbe(ctx, entity, time);
-        break;
-      case EntityType.SHOCKWAVE:
-        drawShockwave(ctx, entity);
-        break;
-      case EntityType.PLASMA_JET:
-        drawPlasmaJet(ctx, entity, time);
-        break;
+  // Layer 1: Large player-effects
+  [EntityType.PLASMA_JET]: 1,
+
+  // Layer 2: Large global effects
+  [EntityType.SHOCKWAVE]: 2,
+
+  // Layer 3: Explosions
+  [EntityType.EXPLOSION]: 3
+};
+const LAYER_COUNT = Math.max(...Object.values(ENTITY_LAYER_LOOKUP)) + 1;
+
+export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], time: number): void {
+  for (let layer = 0; layer < LAYER_COUNT; layer++) {
+    for (const entity of entities) {
+      if (!entity.active || ENTITY_LAYER_LOOKUP[entity.type] !== layer) {
+        continue;
+      }
+
+      switch (entity.type) {
+        case EntityType.ROCKET:
+          drawRocket(ctx, entity);
+          break;
+        case EntityType.LASER:
+          drawLaser(ctx, entity);
+          break;
+        case EntityType.EXPLOSION:
+          drawExplosion(ctx, entity);
+          break;
+        case EntityType.BOMB:
+          drawBomb(ctx, entity);
+          break;
+        case EntityType.SCIENCE_PROBE:
+          drawScienceProbe(ctx, entity, time);
+          break;
+        case EntityType.SHOCKWAVE:
+          drawShockwave(ctx, entity);
+          break;
+        case EntityType.PLASMA_JET:
+          drawPlasmaJet(ctx, entity, time);
+          break;
+      }
     }
   }
 }
