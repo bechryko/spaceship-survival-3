@@ -48,7 +48,7 @@ export const HANDBOOK_GROUPS: readonly HandbookGroup[] = [
   { id: 'general', title: 'General', icons: false },
   { id: 'spaceships', title: 'Spaceships', icons: true },
   { id: 'special-abilities', title: 'Special abilities', icons: true },
-  { id: 'asteroids', title: 'Asteroids', icons: false, borderlessIcons: false }
+  { id: 'asteroids', title: 'Asteroids', icons: true, borderlessIcons: true }
 ];
 
 export const HANDBOOK_ENTRIES: readonly HandbookEntry[] = [

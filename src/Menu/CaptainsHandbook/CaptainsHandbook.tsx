@@ -2,7 +2,7 @@ import './CaptainsHandbook.css';
 
 import { CSSProperties } from 'react';
 import { NavLink, useSearchParams } from 'react-router';
-import { EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
+import { AsteroidIcon, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import { HANDBOOK_ENTRIES, HANDBOOK_GROUPS, HandbookEntry } from './handbook-entries';
@@ -16,6 +16,10 @@ function EntryIcon({ entry, color }: { entry: HandbookEntry; color: string }) {
 
   if (entry.group === 'special-abilities' && entry.iconId) {
     return <SpecialAbilityIcon id={entry.iconId} />;
+  }
+
+  if (entry.group === 'asteroids' && entry.iconId) {
+    return <AsteroidIcon id={entry.iconId}></AsteroidIcon>;
   }
 
   return null;
