@@ -223,6 +223,7 @@
 
 .handbook-stats {
   display: grid;
+  grid-template-columns: 12rem auto;
   gap: 0.4rem;
   margin: 0 0 1.75rem;
   padding: 0.9rem 0;
@@ -230,8 +231,9 @@
 }
 
 .handbook-stat {
+  grid-column: span 2;
   display: grid;
-  grid-template-columns: 11rem 1fr;
+  grid-template-columns: subgrid;
   gap: 1rem;
 
   dt {
@@ -239,7 +241,9 @@
     user-select: none;
   }
 
-  dd {
+  .handbook-stat-value {
+    display: grid;
+    align-items: center;
     margin: 0;
     font-weight: 600;
   }

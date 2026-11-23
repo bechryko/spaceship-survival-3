@@ -2,11 +2,11 @@ import './CaptainsHandbook.css';
 
 import { CSSProperties } from 'react';
 import { NavLink, useSearchParams } from 'react-router';
-import { AsteroidIcon, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
+import { AsteroidIcon, DifficultyLevel, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import { HANDBOOK_ENTRIES, HANDBOOK_GROUPS, HandbookEntry } from './handbook-entries';
-import { getEntryStats } from './handbook-stats';
+import { getEntryStats, HandbookStat } from './handbook-stats';
 
 /** The picture for an entry, or nothing if it has none (asteroids, for now). */
 function EntryIcon({ entry, color }: { entry: HandbookEntry; color: string }) {
@@ -41,6 +41,16 @@ export default function CaptainsHandbook() {
 
   const selectEntry = (id: string) => {
     setSearchParams({ [SELECTED_ENTRY_URL_PARAM_KEY]: id });
+  };
+
+  const displayStatValue = (stat: HandbookStat) => {
+    if (stat.isEnginePower) {
+      return <EnginePower level={Number(stat.value)} label={false} />;
+    }
+    if (stat.isDifficultyLevel) {
+      return <DifficultyLevel level={Number(stat.value)} label={false} />;
+    }
+    return stat.value;
   };
 
   return (
@@ -112,7 +122,7 @@ export default function CaptainsHandbook() {
             {stats.map(stat => (
               <div key={stat.label} className="handbook-stat">
                 <dt>{stat.label}</dt>
-                <dd>{stat.isEnginePower ? <EnginePower level={Number(stat.value)} label={false} /> : stat.value}</dd>
+                <dd className="handbook-stat-value">{displayStatValue(stat)}</dd>
               </div>
             ))}
           </dl>

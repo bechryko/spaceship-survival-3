@@ -2,7 +2,7 @@ import './SpaceshipSelect.css';
 
 import { useState, type CSSProperties } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router';
-import { EnginePower, SpaceshipIcon } from '../../components';
+import { DifficultyLevel, EnginePower, SpaceshipIcon } from '../../components';
 import { loadColor, saveColor } from '../../localstorage';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';
@@ -77,6 +77,7 @@ export default function SpaceshipSelect() {
                   {preview.id === selectedId && <span className="preview-tag">Selected</span>}
                 </h2>
                 <EnginePower level={preview.speedLevel} />
+                <DifficultyLevel level={preview.difficultyLevel}></DifficultyLevel>
                 <p className="preview-description">{preview.description}</p>
 
                 <ul className="abilities">

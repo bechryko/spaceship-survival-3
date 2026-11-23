@@ -6,6 +6,7 @@ export interface HandbookStat {
   label: string;
   value: string;
   isEnginePower?: boolean;
+  isDifficultyLevel?: boolean;
 }
 
 /**
@@ -23,6 +24,7 @@ export function getEntryStats(entry: HandbookEntry): HandbookStat[] {
 
     return [
       { label: 'Engine power', value: `${ship.speedLevel}`, isEnginePower: true },
+      { label: 'Difficulty level', value: `${ship.difficultyLevel}`, isDifficultyLevel: true },
       ...ship.abilities.map(ability => ({
         label: `${ability.key} · ${ability.name}`,
         value: `${ability.cooldown}s cooldown`

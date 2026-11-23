@@ -11,6 +11,7 @@ export interface SpaceshipDefinition {
   name: string;
   description: string;
   speedLevel: number;
+  difficultyLevel: number;
   abilities: readonly SpaceshipAbilityInfo[];
   suggestedSpecialAbilities: string[];
   shape: SpaceshipShape;
@@ -30,6 +31,7 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
     description:
       'A spaceship equipped with the best weapons available: a rocket launcher on one wing, a long-range laser on the other.',
     speedLevel: AbilityAlmanac[AbilityClass.GUNSHIP].speedLevel,
+    difficultyLevel: 1,
     abilities: [
       {
         key: 'Q',
@@ -59,6 +61,7 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
     description:
       'A spaceship to bring scientists closer to understanding our universe. Its storage is loaded with probes ready to uncover the mysteries of asteroids.',
     speedLevel: AbilityAlmanac[AbilityClass.SCIENTIST].speedLevel,
+    difficultyLevel: 3,
     abilities: [
       {
         key: 'Q',

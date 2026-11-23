@@ -12,6 +12,7 @@
 .engine-power-label {
   font-size: 0.75rem;
   font-weight: 600;
+  min-width: 7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.75;

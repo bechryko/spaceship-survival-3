@@ -1,0 +1,41 @@
+.difficulty {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+
+  &:not(.no-margin) {
+    margin-bottom: 1rem;
+  }
+}
+
+.difficulty-label {
+  min-width: 6.3333rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.difficulty-pips {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 1.1rem;
+}
+
+.difficulty-pip {
+  box-sizing: border-box;
+  width: 0.7rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+
+  &[data-lit='true'] {
+    border-color: var(--pip-color);
+    background: var(--pip-color);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--pip-color) 45%, transparent);
+  }
+}
