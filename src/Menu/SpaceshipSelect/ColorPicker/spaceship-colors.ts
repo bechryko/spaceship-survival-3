@@ -4,10 +4,13 @@ export interface SpaceshipColor {
 }
 
 export const SPACESHIP_COLORS: readonly SpaceshipColor[] = [
-  { value: '#156B15', name: 'Green' },
+  { value: '#6100bc', name: 'Purple' },
+  { value: '#9932b2', name: 'Pink' },
   { value: '#045cb3', name: 'Blue' },
-  { value: '#ac0a2a', name: 'Red' },
-  { value: '#ad5f00', name: 'Orange' },
-  { value: '#9932b2', name: 'Purple' },
-  { value: '#0a8680', name: 'Teal' }
+  { value: '#007670', name: 'Teal' },
+  { value: '#156B15', name: 'Green' },
+  { value: '#97001e', name: 'Red' },
+  { value: '#754000', name: 'Orange' },
+  { value: '#8e6800', name: 'Yellow' },
+  { value: '#6b6b6b', name: 'Grey' }
 ];

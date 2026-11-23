@@ -2,6 +2,7 @@ import { loadColor } from '../../localstorage';
 
 export function HandbookIcon() {
   const mainColor = loadColor();
+  const screenColor = '#8e8e8e';
 
   return (
     <svg
@@ -20,7 +21,7 @@ export function HandbookIcon() {
       </g>
 
       <polygon
-        style={{ fill: '#666666' }}
+        style={{ fill: screenColor }}
         points="401.402,42.555 401.402,398.745 256.004,398.745 110.593,398.745 110.593,42.555"
       />
 

@@ -21,6 +21,7 @@ export default function ColorPicker({ label = 'Color', colors, value, onChange }
         {colors.map(color => (
           <button
             key={color.value}
+            title={color.name}
             type="button"
             className="swatch"
             style={{ '--swatch-color': color.value } as CSSProperties}
