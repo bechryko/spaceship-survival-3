@@ -4,4 +4,5 @@ canvas#game-canvas {
   max-height: 100dvh;
   aspect-ratio: 16 / 9;
   margin: auto;
+  cursor: none;
 }

@@ -65,7 +65,7 @@ function getGeneralEntries(): HandbookEntry[] {
       group: 'general',
       name: 'Difficulty Milestones',
       summary:
-        "As the game goes on, space becomes more and more harsh, and asteroids more powerful. The jumps where the game's difficulty rises are called Difficulty Milestones.",
+        'As the game goes on, space becomes more and more harsh, and asteroids more powerful. After a certain number of asteroids, new challenges emerge - these are called Difficulty Milestones.',
       stats: [
         { label: 'From the start', value: 'Level 1 asteroid growth' },
         { label: 'After 25 asteroids', value: 'Level 2 asteroids' },
@@ -281,7 +281,7 @@ function getAsteroidEntries(): HandbookEntry[] {
         {
           heading: 'How to deal with them',
           paragraphs: [
-            'The only thing that can move an Iron asteroid is a push. Blasts from a bomb and the stream of the plasma jet can shove them aside, and the shockwave can slow them down. Otherwise, the answer is simply to steer around them.',
+            'The only thing that is good against an Iron asteroid is a push. Blasts from a bomb and the stream of the plasma jet can shove them aside, and the shockwave can slow them down. Otherwise, the answer is simply to steer around them.',
             'Because they cannot be removed, an Iron asteroid that you let fall past the ship is gone for good, so patience and positioning are better than trying to out-fight one.'
           ],
           isList: true

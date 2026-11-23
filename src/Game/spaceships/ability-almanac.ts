@@ -57,8 +57,8 @@ export const AbilityAlmanac = {
     q: {
       name: 'Science Probe',
       shortDescription: `Launches a probe forward that can attach to an asteroid within ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds, then analyze it, destroying the asteroid and looking for a new one. For each analysis the spaceship gets a knowledge point, that gives ${SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE * 100}% chance to survive an asteroid hit (max: ${SPACESHIP_MAX_SURVIVE_CHANCE * 100}%).`,
-      longDescription: `Launches a probe forward that gets destroyed in ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds. But if it reaches an asteroid, it attaches to its surface and analyzes it. After ${SCIENTIST_PROBE_MIN_ANALYSIS_TIME}-${SCIENTIST_PROBE_MAX_ANALYSIS_TIME} seconds (depending on the asteroid's size) the analysis is complete and the asteroid explodes, but if there is another asteroid nearby, the probe attaches to that, and this goes on in a chain. For each analysis of normal asteroids the spaceship gets an asteroid knowledge point.`,
-      cooldown: 7,
+      longDescription: `Launches a probe forward that gets destroyed in ${SCIENTIST_PROBE_MAX_FLIGHT_TIME} seconds. But if it reaches an asteroid, it attaches to its surface and analyzes it. After ${SCIENTIST_PROBE_MIN_ANALYSIS_TIME}-${SCIENTIST_PROBE_MAX_ANALYSIS_TIME} seconds (depending on the asteroid's size) the analysis is complete and the asteroid explodes, but if there is another asteroid nearby, the probe attaches to that (preferring asteroids higher on the screen), and this goes on in a chain. For each analysis of normal asteroids the spaceship gets an asteroid knowledge point.`,
+      cooldown: 6,
       flySpeed: 150,
       transferSpeed: 450,
       radius: 6,
@@ -121,7 +121,7 @@ interface SpecialAbilityAlmanacEntry {
 
 const STRONGER_ENGINES_SPEED_BONUS_PERCENT = 25;
 const BOMB_EXPLOSION_DELAY = 3;
-const SHIELD_GENERATOR_DURATION = 2.5;
+const SHIELD_GENERATOR_DURATION = 3;
 
 export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlmanacEntry> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
@@ -147,7 +147,7 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
     shortDescription: `Creates an asteroid shield for ${SHIELD_GENERATOR_DURATION} seconds, so colliding with them destroys them.`,
     longDescription: `Creates a shield for ${SHIELD_GENERATOR_DURATION} seconds. Colliding with an asteroid with it destroys them instead of getting destroyed, but Iron asteroids cannot be destroyed with this, and colliding with them results in the spaceship's destruction. The hitbox of the spaceship doesn't change despite the visuals, so when an asteroid collides with only the shield nothing happens.`,
     activeTime: SHIELD_GENERATOR_DURATION,
-    cooldown: 26,
+    cooldown: 25,
     duration: SHIELD_GENERATOR_DURATION
   },
   [SpecialAbilityName.URGENT_ORDERS]: {

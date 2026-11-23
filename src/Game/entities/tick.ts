@@ -47,7 +47,7 @@ export function tickEntities(state: GameState, deltaTime: number): void {
   }
 }
 
-const ROCKET_EXPLOSION_RADIUS_MULTIPLIER = 1.6;
+const ROCKET_EXPLOSION_RADIUS_MULTIPLIER = 1.25;
 const ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS = 90;
 const ROCKET_RADIUS = 5;
 
@@ -417,8 +417,8 @@ function attachProbe(probe: ScienceProbe, asteroid: Asteroid, state: GameState):
 }
 
 function chainProbe(probe: ScienceProbe, asteroids: Asteroid[], previousTargetR = 0): void {
-  let best: Asteroid | null = null;
-  let bestDistance = Infinity;
+  const bests: Array<Asteroid | null> = [null, null];
+  const bestDistances = [Infinity, Infinity];
 
   for (const asteroid of asteroids) {
     if (!asteroid.active || asteroid.data.isAnalyzed) {
@@ -426,19 +426,23 @@ function chainProbe(probe: ScienceProbe, asteroids: Asteroid[], previousTargetR 
     }
 
     const distance = getDistanceToAsteroid(asteroid, probe.x, probe.y);
-    if (
-      asteroid.y < probe.y &&
-      distance <= AbilityAlmanac[AbilityClass.SCIENTIST].q.chainRange + previousTargetR &&
-      distance < bestDistance
-    ) {
-      best = asteroid;
-      bestDistance = distance;
+    const isWithinRange = distance <= AbilityAlmanac[AbilityClass.SCIENTIST].q.chainRange + previousTargetR;
+    if (asteroid.y < probe.y && isWithinRange && distance < bestDistances[0]) {
+      bests[0] = asteroid;
+      bestDistances[0] = distance;
+    }
+    if (asteroid.y >= probe.y && isWithinRange && distance < bestDistances[1]) {
+      bests[1] = asteroid;
+      bestDistances[1] = distance;
     }
   }
 
-  if (best) {
+  if (bests[0]) {
     probe.phase = 'transfer';
-    probe.target = best;
+    probe.target = bests[0];
+  } else if (bests[1]) {
+    probe.phase = 'transfer';
+    probe.target = bests[1];
   } else {
     probe.phase = 'lost';
     delete probe.target;
