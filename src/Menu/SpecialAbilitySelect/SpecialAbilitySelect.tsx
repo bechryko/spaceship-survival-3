@@ -64,11 +64,11 @@ export default function AbilitySelect() {
 
       <div className="select-side">
         <NavLink
-          className="button back-button"
+          className="button back-button blur-background"
           to={Page.SPACESHIP_SELECTION}
           state={{ spaceshipId, specialAbilityName: selectedId }}
         >
-          Back
+          Back to Spaceship selection
         </NavLink>
       </div>
 
@@ -84,7 +84,7 @@ export default function AbilitySelect() {
           <div className="loadout-ability glass-scrollbar" aria-live="polite">
             {ability ? (
               <>
-                <div className="loadout-ability-icon">
+                <div className="loadout-ability-icon blur-background">
                   <SpecialAbilityIcon id={ability.id} />
                 </div>
 
@@ -105,7 +105,7 @@ export default function AbilitySelect() {
           </div>
         </div>
 
-        <button type="button" className="button start-button" disabled={!selectedId} onClick={start}>
+        <button type="button" className="button start-button blur-background" disabled={!selectedId} onClick={start}>
           Start
         </button>
       </section>

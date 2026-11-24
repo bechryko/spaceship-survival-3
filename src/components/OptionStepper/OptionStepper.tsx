@@ -35,7 +35,7 @@ export function OptionStepper<T>({ label, options, value, onChange, loop = false
   };
 
   return (
-    <div className="stepper" role="group" aria-labelledby={labelId}>
+    <div className="stepper blur-background" role="group" aria-labelledby={labelId}>
       <span id={labelId} className="stepper-label">
         {label}
       </span>

@@ -12,7 +12,7 @@ interface Props {
 
 export default function ColorPicker({ label = 'Color', colors, value, onChange }: Props) {
   return (
-    <div className="color-picker">
+    <div className="color-picker blur-background">
       <span className="color-picker-label" aria-hidden="true">
         {label}
       </span>

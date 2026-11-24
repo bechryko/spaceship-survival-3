@@ -72,7 +72,7 @@ export default function CaptainsHandbook() {
     <div className="handbook-screen">
       <StarBackground />
 
-      <NavLink className="button handbook-back" to={Page.MENU}>
+      <NavLink className="button handbook-back blur-background" to={Page.MENU}>
         Back to Menu
       </NavLink>
 
@@ -92,7 +92,7 @@ export default function CaptainsHandbook() {
                   <button
                     key={entry.id}
                     type="button"
-                    className={group.icons ? 'handbook-slot' : 'handbook-chip'}
+                    className={'blur-background ' + (group.icons ? 'handbook-slot' : 'handbook-chip')}
                     aria-label={entry.name}
                     title={entry.name}
                     aria-pressed={entry.id === selected.id}

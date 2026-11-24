@@ -5,6 +5,7 @@
   --border-color: #2e303a;
   --button-background-color: #5c5c5c;
   --button-background-color-hover: #6e6e6e;
+  --darker-background-overlay: rgba(18, 27, 45, 0.4);
 
   font:
     18px/145% system-ui,
@@ -45,9 +46,7 @@ main {
   border-inline: 1px solid var(--border-color);
   padding: 2.5rem 3.5rem;
   text-align: center;
-  background-color: rgba(22, 26, 56, 0.35);
-  backdrop-filter: blur(0.5rem);
-  -webkit-backdrop-filter: blur(0.5rem); /* Safari */
+  background-color: var(--darker-background-overlay);
   box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
 }
@@ -57,9 +56,7 @@ main {
   z-index: 1;
   border: 1px solid var(--border-color);
   border-radius: 1rem;
-  background-color: rgba(22, 26, 56, 0.35);
-  backdrop-filter: blur(0.5rem);
-  -webkit-backdrop-filter: blur(0.5rem); /* Safari */
+  background-color: var(--darker-background-overlay);
   box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.35);
   box-sizing: border-box;
 }
@@ -136,6 +133,13 @@ h2 {
   scroll-behavior: smooth;
   scrollbar-color: var(--thumb-color) var(--background-color);
   scrollbar-width: thin;
+}
+
+.blur-background {
+  --blur-size: 0.25rem;
+
+  backdrop-filter: blur(var(--blur-size));
+  -webkit-backdrop-filter: blur(var(--blur-size)); /* Safari */
 }
 
 .highlighted {

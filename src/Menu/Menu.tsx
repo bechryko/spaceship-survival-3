@@ -34,16 +34,16 @@ export default function Menu() {
             <span className="version">Version: {appVersion}</span>
           </hgroup>
           <section>
-            <NavLink className="button" to={Page.GAME} state={{ quickPlay: true }}>
+            <NavLink className="button blur-background" to={Page.GAME} state={{ quickPlay: true }}>
               Quick Play
             </NavLink>
-            <NavLink className="button" to={Page.SPACESHIP_SELECTION}>
+            <NavLink className="button blur-background" to={Page.SPACESHIP_SELECTION}>
               Play
             </NavLink>
-            <NavLink className="button highlighted" to={Page.HANDBOOK}>
+            <NavLink className="button blur-background highlighted" to={Page.HANDBOOK}>
               Captain's Handbook
             </NavLink>
-            <NavLink className="button separator" to={Page.SETTINGS}>
+            <NavLink className="button blur-background separator" to={Page.SETTINGS}>
               Settings
             </NavLink>
           </section>

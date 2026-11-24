@@ -91,7 +91,7 @@ export default function Settings() {
     <main className="settings">
       <h2>Settings</h2>
 
-      <div className="settings-tabs" role="tablist" aria-label="Settings sections">
+      <div className="settings-tabs blur-background" role="tablist" aria-label="Settings sections">
         {TABS.map(tab => (
           <button
             key={tab.id}
@@ -158,7 +158,7 @@ export default function Settings() {
         )}
       </div>
 
-      <NavLink className="button settings-back" to={Page.MENU}>
+      <NavLink className="button settings-back blur-background" to={Page.MENU}>
         Save & Back to Menu
       </NavLink>
     </main>

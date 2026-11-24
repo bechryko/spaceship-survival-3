@@ -66,7 +66,7 @@ export default function SpaceshipSelect() {
       <StarBackground />
 
       <div className="select-side">
-        <NavLink className="button back-button" to={Page.MENU}>
+        <NavLink className="button back-button blur-background" to={Page.MENU}>
           Back to Menu
         </NavLink>
 
@@ -84,7 +84,7 @@ export default function SpaceshipSelect() {
               <div className="preview-details glass-scrollbar">
                 <h2>
                   {preview.name}
-                  {preview.id === selectedId && <span className="preview-tag">Selected</span>}
+                  {preview.id === selectedId && <span className="preview-tag blur-background">Selected</span>}
                 </h2>
                 <EnginePower level={preview.speedLevel} />
                 <DifficultyLevel level={preview.difficultyLevel}></DifficultyLevel>
@@ -93,7 +93,7 @@ export default function SpaceshipSelect() {
                 <ul className="abilities">
                   {preview.abilities.map(ability => (
                     <li key={ability.key} className="ability">
-                      <span className="ability-key">{ability.key}</span>
+                      <span className="ability-key blur-background">{ability.key}</span>
                       <div>
                         <span className="ability-name">{ability.name}</span>
                         <span className="ability-cooldown">{ability.cooldown}s cooldown</span>
@@ -109,7 +109,7 @@ export default function SpaceshipSelect() {
           )}
         </div>
 
-        <button type="button" className="button start-button" disabled={!selectedId} onClick={next}>
+        <button type="button" className="button start-button blur-background" disabled={!selectedId} onClick={next}>
           Next
         </button>
       </section>
@@ -123,7 +123,7 @@ export default function SpaceshipSelect() {
               <button
                 key={spaceship.id}
                 type="button"
-                className="slot"
+                className="slot blur-background"
                 aria-label={spaceship.name}
                 aria-pressed={spaceship.id === selectedId}
                 onClick={() => selectSpaceship(spaceship.id)}
