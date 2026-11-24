@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'spaceship-survival-3': path.resolve(__dirname, 'src')
+      'spaceship-survival-3': path.resolve(import.meta.dirname, 'src')
     }
   }
 });

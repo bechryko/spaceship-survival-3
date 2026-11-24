@@ -1,7 +1,7 @@
 {
   "name": "spaceship-survival-3",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "homepage": "https://bechryko.github.io/spaceship-survival-3",
   "type": "module",
   "engines": {

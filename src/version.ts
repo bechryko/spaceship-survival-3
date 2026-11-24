@@ -1,4 +1,4 @@
-export const appVersion = 'Beta 0.4.1';
+export const appVersion = 'Beta 0.4.2';
 
 const breakingVersions = ['Beta 0.3', 'Beta 0.4'];
 
