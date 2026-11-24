@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { NavLink, useSearchParams } from 'react-router';
 import { OptionStepper, ToggleSwitch } from '../../components';
 import { Settings, useSettings } from '../../context';
-import { saveSettings } from '../../localstorage';
 
 const RESOLUTION_OPTIONS = [
   { value: 1, label: 'Low (960×540)' },
@@ -43,15 +42,11 @@ export default function Settings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(getDefaultActiveTab(searchParams));
 
-  const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) => {
-    const newSettings: Settings = {
+  const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) =>
+    setSettings({
       ...settings,
       [key]: value
-    };
-
-    setSettings(newSettings);
-    saveSettings(newSettings);
-  };
+    });
 
   const changeTab = (tabId: TabId) => {
     setActiveTab(tabId);
