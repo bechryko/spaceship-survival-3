@@ -3,6 +3,8 @@ import './SpecialAbilitySelect.css';
 import { useState, type CSSProperties } from 'react';
 import { NavLink, Navigate, useLocation, useNavigate } from 'react-router';
 import { SpaceshipIcon, SpecialAbilityIcon } from '../../components';
+import { useSettings } from '../../context';
+import { useEventListener } from '../../hooks';
 import { loadColor } from '../../localstorage';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
@@ -27,9 +29,16 @@ export default function AbilitySelect() {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as SelectionState | null;
+  const { settings } = useSettings();
 
   const [selectedId, setSelectedId] = useState<string | null>(state?.specialAbilityName ?? null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  useEventListener('keydown', event => {
+    if (event.code === settings.controls.menuBack) {
+      navigate('/select/1', { state: { spaceshipId: state?.spaceshipId, specialAbilityName: selectedId } });
+    }
+  });
 
   if (!state?.spaceshipId) {
     return <Navigate to="/select/1" replace />;

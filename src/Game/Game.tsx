@@ -72,7 +72,7 @@ export default function Game() {
     const allControlKeys = [
       ...playerControlKeys,
       EXIT_KEY_CODE,
-      settings.controls.backToSelection,
+      settings.controls.menuBack,
       settings.controls.pauseResume,
       settings.controls.restart,
       ...Object.values(settings.controls.debug)
@@ -93,7 +93,7 @@ export default function Game() {
         }
       }
 
-      if (event.code === settings.controls.backToSelection) {
+      if (event.code === settings.controls.menuBack) {
         if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status) && !isQuickPlay) {
           navigate('/select/1', { state: navigationState });
         }

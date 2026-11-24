@@ -407,7 +407,7 @@ function buildOverlaySections(
         )
       : buildTextSection(
           ctx,
-          `Press ${settings.controls.restart} to restart, ${settings.controls.backToSelection} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
+          `Press ${settings.controls.restart} to restart, ${settings.controls.menuBack} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
           400,
           OVERLAY_HINT_FONT_SIZE,
           OVERLAY_HINT_HEIGHT,
@@ -443,7 +443,7 @@ function buildOverlaySections(
         )
       : buildTextSection(
           ctx,
-          `Press ${EXIT_KEY_CODE} to exit to the menu or\n${settings.controls.backToSelection} to go back to spaceship selection!`,
+          `Press ${EXIT_KEY_CODE} to exit to the menu or\n${settings.controls.menuBack} to go back to spaceship selection!`,
           400,
           OVERLAY_HINT_FONT_SIZE,
           OVERLAY_HINT_HEIGHT,

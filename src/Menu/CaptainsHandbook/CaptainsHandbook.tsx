@@ -1,8 +1,10 @@
 import './CaptainsHandbook.css';
 
 import { CSSProperties } from 'react';
-import { NavLink, useSearchParams } from 'react-router';
+import { NavLink, useNavigate, useSearchParams } from 'react-router';
 import { AsteroidIcon, DifficultyLevel, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
+import { useEventListener } from '../../hooks';
+import { menuKeybinds } from '../menu-keybinds';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import { HANDBOOK_ENTRIES, HANDBOOK_GROUPS, HandbookEntry } from './handbook-entries';
@@ -30,6 +32,7 @@ const SPACESHIP_COLOR = '#525252';
 
 export default function CaptainsHandbook() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const selected =
     HANDBOOK_ENTRIES.find(entry => entry.id === searchParams.get(SELECTED_ENTRY_URL_PARAM_KEY)) ?? HANDBOOK_ENTRIES[0];
@@ -52,6 +55,12 @@ export default function CaptainsHandbook() {
     }
     return stat.value;
   };
+
+  useEventListener('keydown', event => {
+    if (event.code === menuKeybinds.backToMainMenu) {
+      navigate('/menu');
+    }
+  });
 
   return (
     <div className="handbook-screen">

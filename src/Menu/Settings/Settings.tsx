@@ -1,9 +1,11 @@
 import './Settings.css';
 
-import { useEffect, useState } from 'react';
-import { NavLink, useSearchParams } from 'react-router';
+import { useState } from 'react';
+import { NavLink, useNavigate, useSearchParams } from 'react-router';
 import { OptionStepper, ToggleSwitch } from '../../components';
 import { Settings, useSettings } from '../../context';
+import { useEventListener } from '../../hooks';
+import { menuKeybinds } from '../menu-keybinds';
 
 const RESOLUTION_OPTIONS = [
   { value: 1, label: 'Low (960×540)' },
@@ -41,6 +43,7 @@ export default function Settings() {
   const { settings, setSettings } = useSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(getDefaultActiveTab(searchParams));
+  const navigate = useNavigate();
 
   const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) =>
     setSettings({
@@ -53,32 +56,29 @@ export default function Settings() {
     setSearchParams({ [SELECTED_TAB_URL_PARAM_KEY]: tabId });
   };
 
-  useEffect(() => {
-    const onTabKeyDown = (event: KeyboardEvent): void => {
-      const activeTabIndex = TABS.findIndex(t => t.id === activeTab);
+  useEventListener('keydown', (event: KeyboardEvent): void => {
+    if (event.code === menuKeybinds.backToMainMenu) {
+      navigate('/menu');
+      return;
+    }
 
-      const target =
-        event.key === 'ArrowRight'
-          ? (activeTabIndex + 1) % TABS.length
-          : event.key === 'ArrowLeft'
-            ? (activeTabIndex - 1 + TABS.length) % TABS.length
-            : event.key === 'Home'
-              ? 0
-              : event.key === 'End'
-                ? TABS.length - 1
-                : null;
+    const activeTabIndex = TABS.findIndex(t => t.id === activeTab);
 
-      if (target !== null) {
-        event.preventDefault();
-        changeTab(TABS[target].id);
-      }
-    };
+    const target =
+      event.key === 'ArrowRight'
+        ? (activeTabIndex + 1) % TABS.length
+        : event.key === 'ArrowLeft'
+          ? (activeTabIndex - 1 + TABS.length) % TABS.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? TABS.length - 1
+              : null;
 
-    window.addEventListener('keydown', onTabKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', onTabKeyDown);
-    };
+    if (target !== null) {
+      event.preventDefault();
+      changeTab(TABS[target].id);
+    }
   });
 
   return (

@@ -3,7 +3,10 @@ import './SpaceshipSelect.css';
 import { useState, type CSSProperties } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router';
 import { DifficultyLevel, EnginePower, SpaceshipIcon } from '../../components';
+import { useSettings } from '../../context';
+import { useEventListener } from '../../hooks';
 import { loadColor, saveColor } from '../../localstorage';
+import { menuKeybinds } from '../menu-keybinds';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';
 import { SPACESHIP_COLORS } from './ColorPicker/spaceship-colors';
@@ -27,6 +30,7 @@ export default function SpaceshipSelect() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [color, setColor] = useState(loadColor());
   const [specialAbilityName, setSpecialAbilityName] = useState(returned?.specialAbilityName);
+  const { settings } = useSettings();
 
   const previewId = hoveredId ?? selectedId;
   const preview = previewId ? getSpaceshipDefinition(previewId) : null;
@@ -50,6 +54,12 @@ export default function SpaceshipSelect() {
       navigate('/select/2', { state: { spaceshipId: selectedId, specialAbilityName } });
     }
   };
+
+  useEventListener('keydown', event => {
+    if (event.code === settings.controls.menuBack || event.code === menuKeybinds.backToMainMenu) {
+      navigate('/menu');
+    }
+  });
 
   return (
     <div className="select-screen spaceship-screen">

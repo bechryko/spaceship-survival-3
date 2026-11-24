@@ -25,6 +25,15 @@
     "editor.suggest.insertMode": "replace",
     "editor.defaultFormatter": "vscode.json-language-features"
   },
-  "cSpell.words": ["borderless", "cooldowns", "highscore", "hitbox", "reactivatable", "shockwaves", "travelling"],
+  "cSpell.words": [
+    "borderless",
+    "cooldowns",
+    "highscore",
+    "hitbox",
+    "keybinds",
+    "reactivatable",
+    "shockwaves",
+    "travelling"
+  ],
   "px-to-rem.px-per-rem": 18
 }

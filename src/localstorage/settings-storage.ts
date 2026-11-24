@@ -29,7 +29,7 @@ const settingsSchema: Schema = {
   controls: {
     pauseResume: 'string',
     restart: 'string',
-    backToSelection: 'string',
+    menuBack: 'string',
 
     player1: {
       moveLeft: 'string',

@@ -14,7 +14,7 @@ export interface Settings {
 export interface ControlsSettings {
   pauseResume: string;
   restart: string;
-  backToSelection: string;
+  menuBack: string;
   player1: PlayerControlsSettings;
   player2: PlayerControlsSettings;
   debug: {
@@ -46,7 +46,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const defaultControls: ControlsSettings = {
   pauseResume: 'Space',
   restart: 'Space',
-  backToSelection: 'Backspace',
+  menuBack: 'Backspace',
   player1: {
     moveLeft: 'KeyA',
     moveRight: 'KeyD',
