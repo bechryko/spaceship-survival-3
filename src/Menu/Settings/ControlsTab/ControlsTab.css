@@ -1,0 +1,113 @@
+.controls-tab {
+  display: grid;
+  gap: 1.75rem;
+  width: min(34rem, 100%);
+}
+
+.controls-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Text for screen readers only */
+.controls-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.controls-tab .controls-group {
+  display: grid;
+  gap: 0.25rem;
+  padding-block: 0;
+}
+
+.controls-group-title {
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(232, 241, 242, 0.75);
+}
+
+/* A row: the name on the left, its key on the right */
+.controls-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+
+  .controls-label {
+    text-align: left;
+    opacity: 0.8;
+    user-select: none;
+  }
+
+  &:has(.controls-key:hover) .controls-label {
+    text-decoration: underline;
+  }
+}
+
+.controls-key {
+  font-size: 1rem;
+  text-align: center;
+  color: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  min-width: 9rem;
+  height: 2rem;
+  background-color: transparent;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  /* The key is used by another control as well */
+  &[data-conflict='true'] {
+    color: #ffd166;
+  }
+
+  /* Waiting for a key press */
+  &[data-listening='true'] {
+    background-color: rgba(207, 227, 255, 0.25);
+    color: #fff;
+    animation: controls-key-wait 1.1s ease-in-out infinite;
+  }
+
+  &:focus-visible {
+    outline: none;
+  }
+}
+
+@keyframes controls-key-wait {
+  0%,
+  100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 0 rgba(207, 227, 255, 0.45);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 0 0 5px rgba(207, 227, 255, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls-key[data-listening='true'] {
+    animation: none;
+  }
+}

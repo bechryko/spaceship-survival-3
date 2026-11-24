@@ -1,8 +1,9 @@
 import { Settings } from 'spaceship-survival-3/context';
+import { displayKeyCode } from 'spaceship-survival-3/utility';
 import { ASTEROID_SPAWN_CHANCES, calculateSizeIncrease, regularAsteroidBlueprint } from '../asteroids';
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
-import { calculateScore, countIf, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
+import { calculateScore, countIf, fillMultilineText, getAlmanacForAbilities } from '../utils';
 import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH } from './constants';
 import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';

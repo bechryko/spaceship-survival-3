@@ -9,6 +9,7 @@ main.settings {
 .settings-tabs {
   display: flex;
   gap: 0.25rem;
+  width: 100%;
   padding: 0.3rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -16,14 +17,15 @@ main.settings {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
     0 6px 20px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
 }
 
 .settings-tab {
+  flex: 1;
   background: transparent;
   color: inherit;
   font: inherit;
   font-weight: 600;
-  min-width: 10rem;
   padding: 0.45rem 1.5rem;
   border: 0;
   border-radius: 999px;

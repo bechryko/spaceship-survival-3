@@ -25,7 +25,6 @@ function parseVersion(version: string): Version {
 function compareVersions(a: string, b: string): number {
   const v1 = parseVersion(a);
   const v2 = parseVersion(b);
-  console.log(v1, v2);
 
   for (const key of ['major', 'minor', 'patch'] as const) {
     if (v1[key] !== v2[key]) {

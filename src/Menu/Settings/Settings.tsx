@@ -6,6 +6,7 @@ import { OptionStepper, ToggleSwitch } from 'spaceship-survival-3/components';
 import { Settings, useSettings } from 'spaceship-survival-3/context';
 import { Page, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
 import { menuKeybinds } from '../menu-keybinds';
+import ControlsTab from './ControlsTab/ControlsTab';
 
 const RESOLUTION_OPTIONS = [
   { value: 1, label: 'Low (960×540)' },
@@ -23,7 +24,8 @@ const DIFFICULTY_MILESTONE_NOTICE_DURATION_OPTIONS = [
 
 const TABS = [
   { id: 'game', label: 'Game' },
-  { id: 'debug', label: 'Debug' }
+  { id: 'debug', label: 'Debug' },
+  { id: 'controls', label: 'Controls' }
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 const tabElementId = (id: TabId): string => `settings-tab-${id}`;
@@ -33,7 +35,11 @@ const SELECTED_TAB_URL_PARAM_KEY = 'tabId';
 function getDefaultActiveTab(searchParams: URLSearchParams): TabId {
   const selectedTabId = searchParams.get(SELECTED_TAB_URL_PARAM_KEY);
 
-  if (Object.keys(TABS).includes(selectedTabId as string)) {
+  if (
+    Object.values(TABS)
+      .map(tab => tab.id)
+      .includes(selectedTabId as TabId)
+  ) {
     return selectedTabId as TabId;
   }
   return 'game';
@@ -145,6 +151,10 @@ export default function Settings() {
               onChange={checked => updateSetting('debugControls', checked)}
             />
           </>
+        )}
+
+        {activeTab === 'controls' && (
+          <ControlsTab controls={settings.controls} onChange={controls => updateSetting('controls', controls)} />
         )}
       </div>
 

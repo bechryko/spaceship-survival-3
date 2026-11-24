@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 
 export function useEventListener<K extends keyof WindowEventMap>(
   type: K,
-  listener: (event: WindowEventMap[K]) => void
+  listener: (event: WindowEventMap[K]) => void,
+  options?: boolean | AddEventListenerOptions
 ): void {
   useEffect(() => {
-    window.addEventListener(type, listener);
+    window.addEventListener(type, listener, options);
 
     return () => {
-      window.removeEventListener(type, listener);
+      window.removeEventListener(type, listener, options);
     };
-  }, [type, listener]);
+  }, [type, listener, options]);
 }

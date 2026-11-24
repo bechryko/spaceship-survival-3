@@ -27,10 +27,6 @@ export function collectPlayerControls(player: Spaceship): string[] {
   return controls;
 }
 
-export function displayKeyCode(keyCode: string): string {
-  return keyCode.replaceAll('Key', '');
-}
-
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
