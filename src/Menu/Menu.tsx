@@ -2,7 +2,7 @@ import './Menu.css';
 
 import { NavLink } from 'react-router';
 import { HandbookIcon } from '../components';
-import { useLastUrlSegment } from '../hooks';
+import { Page, useLastUrlSegment } from '../hooks';
 import { version } from '../version';
 import Settings from './Settings/Settings';
 import StarBackground from './StarBackground';
@@ -34,16 +34,16 @@ export default function Menu() {
             <span className="version">Version: {version}</span>
           </hgroup>
           <section>
-            <NavLink className="button" to="/play" state={{ quickPlay: true }}>
+            <NavLink className="button" to={Page.GAME} state={{ quickPlay: true }}>
               Quick Play
             </NavLink>
-            <NavLink className="button" to="/select/1">
+            <NavLink className="button" to={Page.SPACESHIP_SELECTION}>
               Play
             </NavLink>
-            <NavLink className="button highlighted" to="/handbook">
+            <NavLink className="button highlighted" to={Page.HANDBOOK}>
               Captain's Handbook
             </NavLink>
-            <NavLink className="button separator" to="/menu/settings">
+            <NavLink className="button separator" to={Page.SETTINGS}>
               Settings
             </NavLink>
           </section>

@@ -1,18 +1,18 @@
 import './SpecialAbilitySelect.css';
 
 import { useState, type CSSProperties } from 'react';
-import { NavLink, Navigate, useLocation, useNavigate } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 import { SpaceshipIcon, SpecialAbilityIcon } from '../../components';
 import { useSettings } from '../../context';
-import { useEventListener } from '../../hooks';
+import { forceRedirect, Page, useCustomNavigation, useEventListener } from '../../hooks';
 import { loadColor } from '../../localstorage';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import {
+  getSpecialAbility,
   SPECIAL_ABILITIES,
   SPECIAL_ABILITY_GRID_COLUMNS,
-  SPECIAL_ABILITY_GRID_ROWS,
-  getSpecialAbility
+  SPECIAL_ABILITY_GRID_ROWS
 } from './special-abilities';
 
 interface SelectionState {
@@ -26,7 +26,7 @@ const SLOTS = Array.from(
 );
 
 export default function AbilitySelect() {
-  const navigate = useNavigate();
+  const navigate = useCustomNavigation();
   const location = useLocation();
   const state = location.state as SelectionState | null;
   const { settings } = useSettings();
@@ -36,12 +36,13 @@ export default function AbilitySelect() {
 
   useEventListener('keydown', event => {
     if (event.code === settings.controls.menuBack) {
-      navigate('/select/1', { state: { spaceshipId: state?.spaceshipId, specialAbilityName: selectedId } });
+      navigate(Page.SPACESHIP_SELECTION, { spaceshipId: state?.spaceshipId, specialAbilityName: selectedId });
     }
   });
 
   if (!state?.spaceshipId) {
-    return <Navigate to="/select/1" replace />;
+    forceRedirect(Page.SPACESHIP_SELECTION);
+    return;
   }
 
   const { spaceshipId } = state;
@@ -53,7 +54,7 @@ export default function AbilitySelect() {
 
   const start = () => {
     if (selectedId) {
-      navigate('/play', { state: { spaceshipId, specialAbilityId: selectedId } });
+      navigate(Page.GAME, { spaceshipId, specialAbilityId: selectedId });
     }
   };
 
@@ -62,7 +63,11 @@ export default function AbilitySelect() {
       <StarBackground />
 
       <div className="select-side">
-        <NavLink className="button back-button" to="/select/1" state={{ spaceshipId, specialAbilityName: selectedId }}>
+        <NavLink
+          className="button back-button"
+          to={Page.SPACESHIP_SELECTION}
+          state={{ spaceshipId, specialAbilityName: selectedId }}
+        >
           Back
         </NavLink>
       </div>

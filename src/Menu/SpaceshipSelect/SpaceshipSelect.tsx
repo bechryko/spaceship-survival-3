@@ -1,10 +1,10 @@
 import './SpaceshipSelect.css';
 
 import { useState, type CSSProperties } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 import { DifficultyLevel, EnginePower, SpaceshipIcon } from '../../components';
 import { useSettings } from '../../context';
-import { useEventListener } from '../../hooks';
+import { Page, useCustomNavigation, useEventListener } from '../../hooks';
 import { loadColor, saveColor } from '../../localstorage';
 import { menuKeybinds } from '../menu-keybinds';
 import StarBackground from '../StarBackground';
@@ -23,7 +23,7 @@ interface ReturnState {
 }
 
 export default function SpaceshipSelect() {
-  const navigate = useNavigate();
+  const navigate = useCustomNavigation();
   const returned = useLocation().state as ReturnState | null;
 
   const [selectedId, setSelectedId] = useState<string | null>(returned?.spaceshipId ?? null);
@@ -51,13 +51,13 @@ export default function SpaceshipSelect() {
 
   const next = () => {
     if (selectedId) {
-      navigate('/select/2', { state: { spaceshipId: selectedId, specialAbilityName } });
+      navigate(Page.SPECIAL_ABILITY_SELECTION, { spaceshipId: selectedId, specialAbilityName });
     }
   };
 
   useEventListener('keydown', event => {
     if (event.code === settings.controls.menuBack || event.code === menuKeybinds.backToMainMenu) {
-      navigate('/menu');
+      navigate(Page.MENU);
     }
   });
 
@@ -66,7 +66,7 @@ export default function SpaceshipSelect() {
       <StarBackground />
 
       <div className="select-side">
-        <NavLink className="button back-button" to="/menu">
+        <NavLink className="button back-button" to={Page.MENU}>
           Back to Menu
         </NavLink>
 

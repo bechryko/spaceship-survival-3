@@ -1,9 +1,9 @@
 import './CaptainsHandbook.css';
 
 import { CSSProperties } from 'react';
-import { NavLink, useNavigate, useSearchParams } from 'react-router';
+import { NavLink, useSearchParams } from 'react-router';
 import { AsteroidIcon, DifficultyLevel, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
-import { useEventListener } from '../../hooks';
+import { Page, useCustomNavigation, useEventListener } from '../../hooks';
 import { menuKeybinds } from '../menu-keybinds';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
@@ -32,7 +32,7 @@ const SPACESHIP_COLOR = '#525252';
 
 export default function CaptainsHandbook() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
+  const navigate = useCustomNavigation();
 
   const selected =
     HANDBOOK_ENTRIES.find(entry => entry.id === searchParams.get(SELECTED_ENTRY_URL_PARAM_KEY)) ?? HANDBOOK_ENTRIES[0];
@@ -58,7 +58,7 @@ export default function CaptainsHandbook() {
 
   useEventListener('keydown', event => {
     if (event.code === menuKeybinds.backToMainMenu) {
-      navigate('/menu');
+      navigate(Page.MENU);
     }
   });
 
@@ -66,7 +66,7 @@ export default function CaptainsHandbook() {
     <div className="handbook-screen">
       <StarBackground />
 
-      <NavLink className="button handbook-back" to="/menu">
+      <NavLink className="button handbook-back" to={Page.MENU}>
         Back to Menu
       </NavLink>
 

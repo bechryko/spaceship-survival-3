@@ -92,7 +92,6 @@ export const SPACESHIP_GRID_ROWS = 2;
 
 export const DEFAULT_SPACESHIP_ID = SPACESHIPS[0].id;
 
-/** Falls back to the first spaceship for a missing or unknown id, e.g. when /play is opened directly. */
 export function getSpaceshipDefinition(id?: string | null): SpaceshipDefinition {
   return SPACESHIPS.find(spaceship => spaceship.id === id) ?? SPACESHIPS[0];
 }

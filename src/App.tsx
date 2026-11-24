@@ -2,7 +2,9 @@ import './App.css';
 
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
+import { basename } from './basename';
 import Game from './Game/Game';
+import { Page } from './hooks';
 import { loadLastPlayedVersion, saveHighscore, saveLastPlayedVersion } from './localstorage';
 import CaptainsHandbook from './Menu/CaptainsHandbook/CaptainsHandbook';
 import Menu from './Menu/Menu';
@@ -24,14 +26,14 @@ export default function App() {
   }, []);
 
   return (
-    <BrowserRouter basename="/spaceship-survival-3">
+    <BrowserRouter basename={basename}>
       <Routes>
-        <Route path="/menu/*" element={<Menu></Menu>}></Route>
-        <Route path="/select/1" element={<SpaceshipSelect></SpaceshipSelect>}></Route>
-        <Route path="/select/2" element={<SpecialAbilitySelect></SpecialAbilitySelect>}></Route>
-        <Route path="/play" element={<Game></Game>}></Route>
-        <Route path="/handbook" element={<CaptainsHandbook></CaptainsHandbook>}></Route>
-        <Route path="*" element={<Navigate to={'/menu'}></Navigate>} />
+        <Route path={Page.MENU + '/*'} element={<Menu></Menu>}></Route>
+        <Route path={Page.SPACESHIP_SELECTION} element={<SpaceshipSelect></SpaceshipSelect>}></Route>
+        <Route path={Page.SPECIAL_ABILITY_SELECTION} element={<SpecialAbilitySelect></SpecialAbilitySelect>}></Route>
+        <Route path={Page.GAME} element={<Game></Game>}></Route>
+        <Route path={Page.HANDBOOK} element={<CaptainsHandbook></CaptainsHandbook>}></Route>
+        <Route path="*" element={<Navigate to={Page.MENU}></Navigate>} />
       </Routes>
     </BrowserRouter>
   );

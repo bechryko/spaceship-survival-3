@@ -1,8 +1,9 @@
 import './Game.css';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import { useLocation } from 'react-router';
 import { useSettings } from '../context';
+import { forceRedirect, Page, useCustomNavigation } from '../hooks';
 import { saveHighscore } from '../localstorage';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { drawBackground, tickStars } from './background';
@@ -44,17 +45,17 @@ export default function Game() {
     [isQuickPlay, navigationState]
   );
 
+  if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
+    forceRedirect(Page.SPACESHIP_SELECTION);
+  }
+
   const { settings } = useSettings();
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fpsCounter] = useState(() => createFpsCounter());
   const [gameState, setGameState] = useState(() => createGameState(gameStateConfig, settings));
   const stateRef = useRef(gameState);
-
-  const navigate = useNavigate();
-  if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
-    navigate('/select/1');
-  }
+  const navigate = useCustomNavigation();
 
   useEffect(() => {
     stateRef.current = gameState;
@@ -89,13 +90,13 @@ export default function Game() {
 
       if (event.code === EXIT_KEY_CODE) {
         if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status)) {
-          navigate('/menu');
+          navigate(Page.MENU);
         }
       }
 
       if (event.code === settings.controls.menuBack) {
         if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status) && !isQuickPlay) {
-          navigate('/select/1', { state: navigationState });
+          navigate(Page.SPACESHIP_SELECTION, navigationState);
         }
       }
 

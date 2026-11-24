@@ -1,10 +1,10 @@
 import './Settings.css';
 
 import { useState } from 'react';
-import { NavLink, useNavigate, useSearchParams } from 'react-router';
+import { NavLink, useSearchParams } from 'react-router';
 import { OptionStepper, ToggleSwitch } from '../../components';
 import { Settings, useSettings } from '../../context';
-import { useEventListener } from '../../hooks';
+import { Page, useCustomNavigation, useEventListener } from '../../hooks';
 import { menuKeybinds } from '../menu-keybinds';
 
 const RESOLUTION_OPTIONS = [
@@ -43,7 +43,7 @@ export default function Settings() {
   const { settings, setSettings } = useSettings();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>(getDefaultActiveTab(searchParams));
-  const navigate = useNavigate();
+  const navigate = useCustomNavigation();
 
   const updateSetting = <K extends keyof Settings>(key: K, value: (typeof settings)[K]) =>
     setSettings({
@@ -58,7 +58,7 @@ export default function Settings() {
 
   useEventListener('keydown', (event: KeyboardEvent): void => {
     if (event.code === menuKeybinds.backToMainMenu) {
-      navigate('/menu');
+      navigate(Page.MENU);
       return;
     }
 
@@ -148,7 +148,7 @@ export default function Settings() {
         )}
       </div>
 
-      <NavLink className="button settings-back" to="/menu">
+      <NavLink className="button settings-back" to={Page.MENU}>
         Save & Back to Menu
       </NavLink>
     </main>
