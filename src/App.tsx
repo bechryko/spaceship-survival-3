@@ -10,7 +10,7 @@ import CaptainsHandbook from './Menu/CaptainsHandbook/CaptainsHandbook';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
 import SpecialAbilitySelect from './Menu/SpecialAbilitySelect/SpecialAbilitySelect';
-import { appVersion } from './version';
+import { appVersion, didUpdateThroughBreakingVersion } from './version';
 
 export default function App() {
   useEffect(() => {
@@ -18,7 +18,9 @@ export default function App() {
       document.title = 'Spaceship Survival 3 (Beta)';
     }
 
-    if (loadLastPlayedVersion() !== appVersion) {
+    const lastPlayerVersion = loadLastPlayedVersion();
+
+    if (lastPlayerVersion && didUpdateThroughBreakingVersion(lastPlayerVersion)) {
       saveHighscore(0);
       console.warn('Highscore reset due to new version!');
       saveLastPlayedVersion(appVersion);
