@@ -2,8 +2,14 @@ import './CaptainsHandbook.css';
 
 import { CSSProperties } from 'react';
 import { NavLink, useSearchParams } from 'react-router';
-import { AsteroidIcon, DifficultyLevel, EnginePower, SpaceshipIcon, SpecialAbilityIcon } from '../../components';
-import { Page, useCustomNavigation, useEventListener } from '../../hooks';
+import {
+  AsteroidIcon,
+  DifficultyLevel,
+  EnginePower,
+  SpaceshipIcon,
+  SpecialAbilityIcon
+} from 'spaceship-survival-3/components';
+import { Page, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
 import { menuKeybinds } from '../menu-keybinds';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';

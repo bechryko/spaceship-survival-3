@@ -1,9 +1,9 @@
 import './Menu.css';
 
 import { NavLink } from 'react-router';
-import { HandbookIcon } from '../components';
-import { Page, useLastUrlSegment } from '../hooks';
-import { version } from '../version';
+import { HandbookIcon } from 'spaceship-survival-3/components';
+import { Page, useLastUrlSegment } from 'spaceship-survival-3/hooks';
+import { appVersion } from 'spaceship-survival-3/version';
 import Settings from './Settings/Settings';
 import StarBackground from './StarBackground';
 
@@ -31,7 +31,7 @@ export default function Menu() {
         <main className="menu">
           <hgroup>
             <h1>Spaceship Survival 3</h1>
-            <span className="version">Version: {version}</span>
+            <span className="version">Version: {appVersion}</span>
           </hgroup>
           <section>
             <NavLink className="button" to={Page.GAME} state={{ quickPlay: true }}>

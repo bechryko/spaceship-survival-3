@@ -1,4 +1,4 @@
-import { loadColor } from '../../localstorage';
+import { loadColor } from 'spaceship-survival-3/localstorage';
 
 export function HandbookIcon() {
   const mainColor = loadColor();

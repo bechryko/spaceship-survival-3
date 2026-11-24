@@ -1,5 +1,5 @@
-import { Settings } from '../../context';
-import { loadColor, loadHighscore } from '../../localstorage';
+import { Settings } from 'spaceship-survival-3/context';
+import { loadColor, loadHighscore } from 'spaceship-survival-3/localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars } from '../background';
 import { createGlobalEffectsState } from '../global-effects';

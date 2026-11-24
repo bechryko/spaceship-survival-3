@@ -1,10 +1,10 @@
 import {
   AbilityAlmanac,
   AbilityClass,
-  spaceshipAbilityClassShipShapeMap,
   SpaceshipShape,
-  SpecialAbilityName
-} from '../../Game/spaceships';
+  SpecialAbilityName,
+  spaceshipAbilityClassShipShapeMap
+} from 'spaceship-survival-3/Game/spaceships';
 
 export interface SpaceshipDefinition {
   id: AbilityClass;

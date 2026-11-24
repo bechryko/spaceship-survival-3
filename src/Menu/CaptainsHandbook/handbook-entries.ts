@@ -8,13 +8,13 @@ import {
   ICE_ASTEROID_MAX_SHARD_RELEASE,
   ICE_ASTEROID_MIN_SHARD_RELEASE,
   TRIPLE_ASTEROID_CHANCE
-} from '../../Game/asteroids';
+} from 'spaceship-survival-3/Game/asteroids';
 import {
   AbilityAlmanac,
   AbilityClass,
   SPACESHIP_MAX_SURVIVE_CHANCE,
   SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE
-} from '../../Game/spaceships';
+} from 'spaceship-survival-3/Game/spaceships';
 import { SPACESHIPS } from '../SpaceshipSelect/spaceship-catalog';
 import { SPECIAL_ABILITIES } from '../SpecialAbilitySelect/special-abilities';
 import { HANDBOOK_TIPS } from './handbook-tips';

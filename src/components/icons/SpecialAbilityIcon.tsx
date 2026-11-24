@@ -1,4 +1,4 @@
-import { SpecialAbilityName } from '../../Game/spaceships/ability-almanac';
+import { SpecialAbilityName } from 'spaceship-survival-3/Game/spaceships';
 
 interface Props {
   id: string;

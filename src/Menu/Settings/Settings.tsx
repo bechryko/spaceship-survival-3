@@ -2,9 +2,9 @@ import './Settings.css';
 
 import { useState } from 'react';
 import { NavLink, useSearchParams } from 'react-router';
-import { OptionStepper, ToggleSwitch } from '../../components';
-import { Settings, useSettings } from '../../context';
-import { Page, useCustomNavigation, useEventListener } from '../../hooks';
+import { OptionStepper, ToggleSwitch } from 'spaceship-survival-3/components';
+import { Settings, useSettings } from 'spaceship-survival-3/context';
+import { Page, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
 import { menuKeybinds } from '../menu-keybinds';
 
 const RESOLUTION_OPTIONS = [

@@ -7,7 +7,6 @@ interface Props {
 
 const ENGINE_POWER_MAX_LEVELS = 5;
 
-/** "Engine power" with five rising bars, as many lit as the ship's speed level. */
 export function EnginePower({ level, label = true }: Props) {
   const lit = Math.min(ENGINE_POWER_MAX_LEVELS, Math.max(0, Math.round(level)));
 

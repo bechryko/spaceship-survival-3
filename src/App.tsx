@@ -10,18 +10,18 @@ import CaptainsHandbook from './Menu/CaptainsHandbook/CaptainsHandbook';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
 import SpecialAbilitySelect from './Menu/SpecialAbilitySelect/SpecialAbilitySelect';
-import { version } from './version';
+import { appVersion } from './version';
 
 export default function App() {
   useEffect(() => {
-    if (version.toLowerCase().startsWith('beta')) {
+    if (appVersion.toLowerCase().startsWith('beta')) {
       document.title = 'Spaceship Survival 3 (Beta)';
     }
 
-    if (loadLastPlayedVersion() !== version) {
+    if (loadLastPlayedVersion() !== appVersion) {
       saveHighscore(0);
       console.warn('Highscore reset due to new version!');
-      saveLastPlayedVersion(version);
+      saveLastPlayedVersion(appVersion);
     }
   }, []);
 

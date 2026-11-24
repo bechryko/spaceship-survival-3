@@ -1,18 +1,18 @@
 import './SpecialAbilitySelect.css';
 
-import { useState, type CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
-import { SpaceshipIcon, SpecialAbilityIcon } from '../../components';
-import { useSettings } from '../../context';
-import { forceRedirect, Page, useCustomNavigation, useEventListener } from '../../hooks';
-import { loadColor } from '../../localstorage';
+import { SpaceshipIcon, SpecialAbilityIcon } from 'spaceship-survival-3/components';
+import { useSettings } from 'spaceship-survival-3/context';
+import { Page, forceRedirect, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
+import { loadColor } from 'spaceship-survival-3/localstorage';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import {
-  getSpecialAbility,
   SPECIAL_ABILITIES,
   SPECIAL_ABILITY_GRID_COLUMNS,
-  SPECIAL_ABILITY_GRID_ROWS
+  SPECIAL_ABILITY_GRID_ROWS,
+  getSpecialAbility
 } from './special-abilities';
 
 interface SelectionState {

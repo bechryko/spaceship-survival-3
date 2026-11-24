@@ -1,7 +1,7 @@
 import './DifficultyLevel.css';
 
 import { CSSProperties } from 'react';
-import { clamp } from '../../Game/utils';
+import { clamp } from 'spaceship-survival-3/Game/utils';
 
 interface Props {
   level: number;

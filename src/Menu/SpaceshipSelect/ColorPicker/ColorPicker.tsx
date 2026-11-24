@@ -1,6 +1,6 @@
 import './ColorPicker.css';
 
-import type { CSSProperties } from 'react';
+import { CSSProperties } from 'react';
 import { SpaceshipColor } from './spaceship-colors';
 
 interface Props {

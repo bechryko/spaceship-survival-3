@@ -1,4 +1,4 @@
-import { Settings } from '../../context';
+import { Settings } from 'spaceship-survival-3/context';
 import { ASTEROID_SPAWN_CHANCES, calculateSizeIncrease, regularAsteroidBlueprint } from '../asteroids';
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';

@@ -1,4 +1,4 @@
-import { Settings } from '../../context';
+import { Settings } from 'spaceship-survival-3/context';
 
 export interface GlobalEffectsState {
   difficultyNotice: DifficultyNoticeState;

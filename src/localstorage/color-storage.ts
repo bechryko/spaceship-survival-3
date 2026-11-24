@@ -1,4 +1,4 @@
-import { SPACESHIP_COLORS } from '../Menu/SpaceshipSelect/ColorPicker/spaceship-colors';
+import { SPACESHIP_COLORS } from 'spaceship-survival-3/Menu/SpaceshipSelect/ColorPicker/spaceship-colors';
 import { createLocalstorageKey } from './localstorage-key';
 
 const COLOR_STORAGE_KEY = createLocalstorageKey('color');

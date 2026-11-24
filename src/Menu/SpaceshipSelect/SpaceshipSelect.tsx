@@ -1,11 +1,11 @@
 import './SpaceshipSelect.css';
 
-import { useState, type CSSProperties } from 'react';
+import { CSSProperties, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
-import { DifficultyLevel, EnginePower, SpaceshipIcon } from '../../components';
-import { useSettings } from '../../context';
-import { Page, useCustomNavigation, useEventListener } from '../../hooks';
-import { loadColor, saveColor } from '../../localstorage';
+import { DifficultyLevel, EnginePower, SpaceshipIcon } from 'spaceship-survival-3/components';
+import { useSettings } from 'spaceship-survival-3/context';
+import { Page, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
+import { loadColor, saveColor } from 'spaceship-survival-3/localstorage';
 import { menuKeybinds } from '../menu-keybinds';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';

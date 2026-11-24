@@ -2,9 +2,9 @@ import './Game.css';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
-import { useSettings } from '../context';
-import { forceRedirect, Page, useCustomNavigation } from '../hooks';
-import { saveHighscore } from '../localstorage';
+import { useSettings } from 'spaceship-survival-3/context';
+import { forceRedirect, Page, useCustomNavigation } from 'spaceship-survival-3/hooks';
+import { saveHighscore } from 'spaceship-survival-3/localstorage';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';

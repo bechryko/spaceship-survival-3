@@ -1,4 +1,4 @@
-import { Settings } from '../../context';
+import { Settings } from 'spaceship-survival-3/context';
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { abilities, specialAbilities } from './abilities';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName, SpeedAlmanac } from './ability-almanac';

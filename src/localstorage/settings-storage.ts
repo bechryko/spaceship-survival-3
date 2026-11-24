@@ -1,4 +1,4 @@
-import { defaultSettings, Settings } from '../context';
+import { Settings, defaultSettings } from 'spaceship-survival-3/context';
 import { createLocalstorageKey } from './localstorage-key';
 import { Schema, validateJSON } from './validator';
 

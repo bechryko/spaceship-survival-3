@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SpecialAbilityAlmanac } from '../../Game/spaceships/ability-almanac';
+
+import { SpecialAbilityAlmanac } from 'spaceship-survival-3/Game/spaceships';
 
 export interface SpecialAbilityDefinition {
   id: string;

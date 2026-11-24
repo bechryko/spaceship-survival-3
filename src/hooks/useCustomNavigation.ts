@@ -1,5 +1,5 @@
 import { NavigateOptions, useNavigate } from 'react-router';
-import { basename } from '../basename';
+import { basename } from 'spaceship-survival-3/basename';
 
 export enum Page {
   MENU = '/menu',

@@ -1,5 +1,5 @@
-import { Point } from '../../Game/models';
-import { SpaceshipShape } from '../../Game/spaceships';
+import { Point } from 'spaceship-survival-3/Game/models';
+import { SpaceshipShape } from 'spaceship-survival-3/Game/spaceships';
 
 const toPoints = (points: readonly Point[]): string => points.map(([x, y]) => `${x},${y}`).join(' ');
 

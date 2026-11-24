@@ -1,4 +1,4 @@
-import { AbilityAlmanac, AbilityClass, SpecialAbilityName } from '../../Game/spaceships';
+import { AbilityAlmanac, AbilityClass, SpecialAbilityName } from 'spaceship-survival-3/Game/spaceships';
 
 export const HANDBOOK_TIPS: Record<string, string[]> = {
   ['spaceship_' + AbilityClass.GUNSHIP]: [

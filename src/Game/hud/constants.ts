@@ -1,4 +1,4 @@
-import { menuKeybinds } from '../../Menu/menu-keybinds';
+import { menuKeybinds } from 'spaceship-survival-3/Menu/menu-keybinds';
 
 export const GAME_WIDTH = 960;
 export const GAME_HEIGHT = 540;

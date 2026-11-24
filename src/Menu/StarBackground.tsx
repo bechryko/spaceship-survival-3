@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Star, createStars, drawBackground } from '../Game/background';
+import { Star, createStars, drawBackground } from 'spaceship-survival-3/Game/background';
 
 const STAR_DENSITY = 1 / 3000;
 
