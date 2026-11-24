@@ -3,7 +3,7 @@ import { ASTEROID_SPAWN_CHANCES, calculateSizeIncrease, regularAsteroidBlueprint
 import { SMALL_STAR_MAX_SIZE } from '../background';
 import { Spaceship, SpecialAbilityAlmanac } from '../spaceships';
 import { calculateScore, countIf, displayKeyCode, fillMultilineText, getAlmanacForAbilities } from '../utils';
-import { BACK_TO_SELECTION_KEY_CODE, EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH, START_PAUSE_KEY_CODE } from './constants';
+import { EXIT_KEY_CODE, GAME_HEIGHT, GAME_WIDTH } from './constants';
 import { FpsCounter } from './create';
 import { GameState, GameStatus } from './game-state';
 
@@ -32,7 +32,7 @@ export function drawHUD(
 
   drawAbilityHud(ctx, state.player, state);
 
-  drawOverlays(ctx, state, isQuickPlay);
+  drawOverlays(ctx, state, settings, isQuickPlay);
 
   if (fpsCounter) {
     drawFps(ctx, fpsCounter, state.speed !== 1);
@@ -332,7 +332,7 @@ const OVERLAY_SCORE_LABEL_VALUE_GAP = 4;
 const OVERLAY_HINT_FONT_SIZE = 16;
 const OVERLAY_HINT_HEIGHT = 22;
 
-function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState, isQuickPlay: boolean): void {
+function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState, settings: Settings, isQuickPlay: boolean): void {
   if (state.status === GameStatus.PLAYING) {
     return;
   }
@@ -340,7 +340,7 @@ function drawOverlays(ctx: CanvasRenderingContext2D, state: GameState, isQuickPl
   ctx.fillStyle = HUD_OVERLAY_COLOR;
   ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-  const sections = buildOverlaySections(ctx, state, isQuickPlay);
+  const sections = buildOverlaySections(ctx, state, settings, isQuickPlay);
   const contentWidth = Math.max(OVERLAY_PANEL_MIN_CONTENT_WIDTH, ...sections.map(section => section.minWidth));
   const contentHeight =
     sections.reduce((sum, section) => sum + section.height, 0) + (sections.length - 1) * OVERLAY_SECTION_GAP;
@@ -374,7 +374,12 @@ interface OverlaySection {
   draw: (x: number, y: number, width: number) => void;
 }
 
-function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, isQuickPlay: boolean): OverlaySection[] {
+function buildOverlaySections(
+  ctx: CanvasRenderingContext2D,
+  state: GameState,
+  settings: Settings,
+  isQuickPlay: boolean
+): OverlaySection[] {
   ctx.save();
   const title = buildTextSection(
     ctx,
@@ -393,7 +398,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
     const controlTextSection = isQuickPlay
       ? buildTextSection(
           ctx,
-          `Press ${START_PAUSE_KEY_CODE} to restart!`,
+          `Press ${settings.controls.restart} to restart!`,
           400,
           OVERLAY_HINT_FONT_SIZE,
           OVERLAY_HINT_HEIGHT,
@@ -402,7 +407,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
         )
       : buildTextSection(
           ctx,
-          `Press ${START_PAUSE_KEY_CODE} to restart, ${BACK_TO_SELECTION_KEY_CODE} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
+          `Press ${settings.controls.restart} to restart, ${settings.controls.backToSelection} to go back to\nspaceship selection or ${EXIT_KEY_CODE} to exit to the menu!`,
           400,
           OVERLAY_HINT_FONT_SIZE,
           OVERLAY_HINT_HEIGHT,
@@ -438,7 +443,7 @@ function buildOverlaySections(ctx: CanvasRenderingContext2D, state: GameState, i
         )
       : buildTextSection(
           ctx,
-          `Press ${EXIT_KEY_CODE} to exit to the menu or\n${BACK_TO_SELECTION_KEY_CODE} to go back to spaceship selection!`,
+          `Press ${EXIT_KEY_CODE} to exit to the menu or\n${settings.controls.backToSelection} to go back to spaceship selection!`,
           400,
           OVERLAY_HINT_FONT_SIZE,
           OVERLAY_HINT_HEIGHT,

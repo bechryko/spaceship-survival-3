@@ -8,6 +8,7 @@ export function loadSettings(): Settings {
   const loaded = localStorage.getItem(SETTINGS_STORAGE_KEY);
 
   if (!loaded || !validateJSON(loaded, settingsSchema)) {
+    saveSettings(defaultSettings);
     return defaultSettings;
   }
   return JSON.parse(loaded);
@@ -17,6 +18,7 @@ export function saveSettings(settings: Settings): void {
   localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
 }
 
+// adjust SettingsContext.tsx
 const settingsSchema: Schema = {
   resolutionMultiplier: [1, 2, 4],
   difficultyMilestoneNoticeDuration: [0, 2, 3, 4, 5],
@@ -25,7 +27,8 @@ const settingsSchema: Schema = {
   debugStatistics: 'boolean',
 
   controls: {
-    pause: 'string',
+    pauseResume: 'string',
+    restart: 'string',
     backToSelection: 'string',
 
     player1: {

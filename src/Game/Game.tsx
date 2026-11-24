@@ -9,7 +9,6 @@ import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import { drawGlobalEffects, tickGlobalEffects } from './global-effects';
 import {
-  BACK_TO_SELECTION_KEY_CODE,
   createFpsCounter,
   createGameState,
   drawHUD,
@@ -18,7 +17,6 @@ import {
   GAME_WIDTH,
   GameStateConfig,
   GameStatus,
-  START_PAUSE_KEY_CODE,
   tickFps
 } from './hud';
 import { activateAbility, drawSpaceship, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
@@ -71,112 +69,112 @@ export default function Game() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const playerControlKeys = collectPlayerControls(stateRef.current.player);
+    const allControlKeys = [
+      ...playerControlKeys,
+      EXIT_KEY_CODE,
+      settings.controls.backToSelection,
+      settings.controls.pauseResume,
+      settings.controls.restart,
+      ...Object.values(settings.controls.debug)
+    ];
 
     // ----- Input -----
     const onKeyDown = (event: KeyboardEvent) => {
       const state = stateRef.current;
       const playerControls = state.player.controls;
       const playerAbilities = state.player.abilities;
-      if ([...playerControlKeys, 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
+      if (allControlKeys.includes(event.code)) {
         event.preventDefault();
       }
 
-      switch (event.code) {
-        case EXIT_KEY_CODE:
-          if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status)) {
-            navigate('/menu');
-          }
-          break;
-        case BACK_TO_SELECTION_KEY_CODE:
-          if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status) && !isQuickPlay) {
-            navigate('/select/1', { state: navigationState });
-          }
-          break;
-        case START_PAUSE_KEY_CODE:
-          switch (state.status) {
-            case GameStatus.PLAYING:
-              state.status = GameStatus.PAUSED;
-              break;
-            case GameStatus.PAUSED:
-              state.status = GameStatus.PLAYING;
-              break;
-            case GameStatus.OVER:
-              setGameState(createGameState(gameStateConfig, settings, GameStatus.PLAYING));
-              break;
-          }
-          break;
-        case 'ArrowLeft':
-        case playerControls.leftKeyCode:
+      if (event.code === EXIT_KEY_CODE) {
+        if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status)) {
+          navigate('/menu');
+        }
+      }
+
+      if (event.code === settings.controls.backToSelection) {
+        if ([GameStatus.PAUSED, GameStatus.OVER].includes(state.status) && !isQuickPlay) {
+          navigate('/select/1', { state: navigationState });
+        }
+      }
+
+      if (event.code === settings.controls.pauseResume) {
+        if (state.status === GameStatus.PLAYING) {
+          state.status = GameStatus.PAUSED;
+        } else if (state.status === GameStatus.PAUSED) {
+          state.status = GameStatus.PLAYING;
+        }
+      }
+
+      if (event.code === settings.controls.restart) {
+        if (state.status === GameStatus.OVER) {
+          setGameState(createGameState(gameStateConfig, settings, GameStatus.PLAYING));
+        }
+      }
+
+      if (state.status === GameStatus.PLAYING) {
+        if (event.code === playerControls.leftKeyCode) {
           playerControls.left = true;
-          break;
-        case 'ArrowRight':
-        case playerControls.rightKeyCode:
+        }
+        if (event.code === playerControls.rightKeyCode) {
           playerControls.right = true;
-          break;
-        default:
-          if (state.status === GameStatus.PLAYING) {
-            forEachAbility(abilityIdx => {
-              const abilityProfile = playerAbilities.profile[abilityIdx];
-              const ability = playerAbilities[abilityIdx];
-              const abilityAlmanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
+        }
 
-              activateAbility(state, event.code, ability, abilityProfile, abilityAlmanacEntry);
-            });
+        forEachAbility(abilityIdx => {
+          const abilityProfile = playerAbilities.profile[abilityIdx];
+          const ability = playerAbilities[abilityIdx];
+          const abilityAlmanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
 
-            const specialAbility = playerAbilities.r;
-            const specialAbilityProfile = playerAbilities.specialProfile;
-            const specialAbilityAlmanacEntry = SpecialAbilityAlmanac[playerAbilities.special];
+          activateAbility(state, event.code, ability, abilityProfile, abilityAlmanacEntry);
+        });
 
-            activateAbility(state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
-          }
-          if (settings.debugControls) {
-            switch (event.code) {
-              case 'KeyN':
-                state.speed = DEBUG_EXTRA_FAST_GAME_SPEED;
-                break;
-              case 'KeyM':
-                state.speed = DEBUG_FAST_GAME_SPEED;
-                break;
-              case 'Comma':
-                state.speed = 1;
-                break;
-              case 'Period':
-                state.speed = DEBUG_SLOW_GAME_SPEED;
-                break;
-              case 'Slash':
-                state.speed = DEBUG_EXTRA_SLOW_GAME_SPEED;
-                break;
-            }
-          }
+        const specialAbility = playerAbilities.r;
+        const specialAbilityProfile = playerAbilities.specialProfile;
+        const specialAbilityAlmanacEntry = SpecialAbilityAlmanac[playerAbilities.special];
+
+        activateAbility(state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
+      }
+
+      if (settings.debugControls) {
+        switch (event.code) {
+          case settings.controls.debug.extraFastGameSpeed:
+            state.speed = DEBUG_EXTRA_FAST_GAME_SPEED;
+            break;
+          case settings.controls.debug.fastGameSpeed:
+            state.speed = DEBUG_FAST_GAME_SPEED;
+            break;
+          case settings.controls.debug.normalGameSpeed:
+            state.speed = 1;
+            break;
+          case settings.controls.debug.slowGameSpeed:
+            state.speed = DEBUG_SLOW_GAME_SPEED;
+            break;
+          case settings.controls.debug.extraSlowGameSpeed:
+            state.speed = DEBUG_EXTRA_SLOW_GAME_SPEED;
+            break;
+        }
       }
     };
+
     const onKeyUp = (event: KeyboardEvent) => {
       const { player } = stateRef.current;
       const playerControls = player.controls;
       const playerAbilities = player.abilities;
 
-      switch (event.code) {
-        case 'ArrowLeft':
-        case playerControls.leftKeyCode:
-          playerControls.left = false;
-          break;
-        case 'ArrowRight':
-        case playerControls.rightKeyCode:
-          playerControls.right = false;
-          break;
-        case playerAbilities.q.key:
-          playerAbilities.q.reactivatable = true;
-          break;
-        case playerAbilities.w.key:
-          playerAbilities.w.reactivatable = true;
-          break;
-        case playerAbilities.e.key:
-          playerAbilities.e.reactivatable = true;
-          break;
-        case playerAbilities.r.key:
-          playerAbilities.r.reactivatable = true;
-          break;
+      if (event.code === playerControls.leftKeyCode) {
+        playerControls.left = false;
       }
+
+      if (event.code === playerControls.rightKeyCode) {
+        playerControls.right = false;
+      }
+
+      forEachAbility(ability => {
+        if (event.code === playerAbilities[ability].key) {
+          playerAbilities[ability].reactivatable = true;
+        }
+      }, true);
     };
 
     window.addEventListener('keydown', onKeyDown);

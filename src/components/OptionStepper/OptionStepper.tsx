@@ -1,15 +1,19 @@
-import { useId, type KeyboardEvent } from 'react';
 import './OptionStepper.css';
 
-export type StepperOption<T> = { value: T; label: string };
+import { useId } from 'react';
 
-type Props<T> = {
+export interface StepperOption<T> {
+  value: T;
+  label: string;
+}
+
+interface Props<T> {
   label: string;
   options: readonly StepperOption<T>[];
   value: T;
   onChange: (value: T) => void;
   loop?: boolean;
-};
+}
 
 export function OptionStepper<T>({ label, options, value, onChange, loop = false }: Props<T>) {
   const labelId = useId();
@@ -30,18 +34,8 @@ export function OptionStepper<T>({ label, options, value, onChange, loop = false
     }
   };
 
-  const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      step(-1);
-    } else if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      step(1);
-    }
-  };
-
   return (
-    <div className="stepper" role="group" aria-labelledby={labelId} onKeyDown={onKeyDown}>
+    <div className="stepper" role="group" aria-labelledby={labelId}>
       <span id={labelId} className="stepper-label">
         {label}
       </span>

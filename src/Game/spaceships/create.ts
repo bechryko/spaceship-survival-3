@@ -1,3 +1,4 @@
+import { Settings } from '../../context';
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { abilities, specialAbilities } from './abilities';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName, SpeedAlmanac } from './ability-almanac';
@@ -15,9 +16,11 @@ const initialAbilityStats: Omit<SpaceshipAbility, 'key'> = {
 export function createSpaceship(
   abilityClass: AbilityClass,
   color: string,
-  specialAbilityId: SpecialAbilityName
+  specialAbilityId: SpecialAbilityName,
+  settings: Settings
 ): Spaceship {
   const almanacEntry = AbilityAlmanac[abilityClass];
+  const controls = settings.controls.player1;
 
   return {
     x: GAME_WIDTH / 2,
@@ -29,28 +32,28 @@ export function createSpaceship(
       specialProfile: specialAbilities[specialAbilityId],
       q: {
         ...initialAbilityStats,
-        key: 'KeyQ'
+        key: controls.ability1
       },
       w: {
         ...initialAbilityStats,
-        key: 'KeyW'
+        key: controls.ability2
       },
       e: {
         ...initialAbilityStats,
-        key: 'KeyE',
+        key: controls.ability3,
         cooldownTimer: almanacEntry.e.cooldown
       },
       r: {
         ...initialAbilityStats,
-        key: 'KeyR',
+        key: controls.specialAbility,
         activeTimer: SpecialAbilityAlmanac[specialAbilityId].cooldown ? 0 : Infinity
       }
     },
     controls: {
       left: false,
       right: false,
-      leftKeyCode: 'KeyA',
-      rightKeyCode: 'KeyD'
+      leftKeyCode: controls.moveLeft,
+      rightKeyCode: controls.moveRight
     },
     color,
     shape: spaceshipAbilityClassShipShapeMap[abilityClass],

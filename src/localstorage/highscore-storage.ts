@@ -7,6 +7,7 @@ export function loadHighscore(): number {
   const loaded = localStorage.getItem(HIGHSCORE_STORAGE_KEY);
 
   if (!loaded || !validateJSON(loaded, 'number')) {
+    saveHighscore(0);
     return 0;
   }
   return JSON.parse(loaded);
