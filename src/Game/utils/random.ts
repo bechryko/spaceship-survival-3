@@ -40,3 +40,7 @@ export function between(min: number, max: number, config: Partial<BetweenConfig>
 export function choose<T>(array: T[], seed?: number): T {
   return array[between(0, array.length, { includeMax: false, seed })];
 }
+
+export function randomAngle(): number {
+  return between(0, Math.PI * 2, { floor: false });
+}

@@ -6,18 +6,22 @@ import { Spaceship } from '../spaceships';
 
 export interface GameState {
   status: GameStatus;
+  highscore: number;
   speed: number;
   statistics: GameStatistics;
   asteroidBlueprints: {
     level2: AsteroidBlueprint;
   };
-  highscore: number;
-  player: Spaceship;
   asteroids: Asteroid[];
+  spawnTimer: AsteroidSpawnTimer;
+  player: Spaceship;
   entities: Entity[];
   globalEffects: GlobalEffectsState;
-  stars: Star[];
-  spawnTimer: AsteroidSpawnTimer;
+  visual: {
+    backgroundColor: string;
+    backgroundFeatureImage: HTMLCanvasElement;
+    stars: Star[];
+  };
 }
 
 export enum GameStatus {

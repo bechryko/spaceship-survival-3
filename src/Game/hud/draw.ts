@@ -273,7 +273,7 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
     state.asteroidBlueprints.level2,
     state.statistics.asteroidsSpawned
   );
-  const smallStarCount = countIf(state.stars, s => s.size <= SMALL_STAR_MAX_SIZE);
+  const smallStarCount = countIf(state.visual.stars, s => s.size <= SMALL_STAR_MAX_SIZE);
 
   const debugStatisticsLines = [
     `Asteroids: ${state.asteroids.length} (${countIf(state.asteroids, a => a.active)} active)`,
@@ -283,7 +283,7 @@ function drawDebugStatistics(ctx: CanvasRenderingContext2D, state: GameState): v
     `Level 2 asteroid size: ${state.asteroidBlueprints.level2.minSize + level2AsteroidSizeIncrease.minSizeIncrease} - ${state.asteroidBlueprints.level2.maxSize + level2AsteroidSizeIncrease.maxSizeIncrease}`,
     `Asteroid wave countdown: ${asteroidWaveSpawn < 0 ? 'off' : asteroidWaveSpawn}`,
     `Entities: ${state.entities.length} (${countIf(state.entities, e => e.active)} active)`,
-    `Stars: ${state.stars.length} (${smallStarCount} small, ${state.stars.length - smallStarCount} big)`,
+    `Stars: ${state.visual.stars.length} (${smallStarCount} small, ${state.visual.stars.length - smallStarCount} big)`,
     `Game status: ${state.status}`,
     `Game speed: ${state.speed * 100}%`
   ];

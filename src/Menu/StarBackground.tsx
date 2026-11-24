@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Star, createStars, drawBackground } from 'spaceship-survival-3/Game/background';
+import { Star, createStars, drawStars } from 'spaceship-survival-3/Game/background';
 
 const STAR_DENSITY = 1 / 3000;
 
@@ -18,6 +18,11 @@ export default function StarBackground() {
     let height = 0;
     let stars: Star[] = [];
 
+    const drawBackground = (width: number, height: number) => {
+      ctx.fillStyle = BACKGROUND_COLOR;
+      ctx.fillRect(0, 0, width, height);
+    };
+
     const resize = () => {
       const dpr = window.devicePixelRatio || 1;
       width = canvas.clientWidth;
@@ -30,7 +35,8 @@ export default function StarBackground() {
       stars = createStars(width, height, Math.round(width * height * STAR_DENSITY), day);
 
       if (reducedMotion.matches) {
-        drawBackground(ctx, stars, BACKGROUND_COLOR, width, height);
+        drawBackground(width, height);
+        drawStars(ctx, stars);
       }
     };
 
@@ -44,7 +50,8 @@ export default function StarBackground() {
       for (const star of stars) {
         star.phaseChange = Date.now() / 1000;
       }
-      drawBackground(ctx, stars, BACKGROUND_COLOR, width, height);
+      drawBackground(width, height);
+      drawStars(ctx, stars);
       rafId = requestAnimationFrame(frame);
     };
 

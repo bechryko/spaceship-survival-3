@@ -9,19 +9,9 @@ import { drawAsteroid, tickAsteroids } from './asteroids';
 import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import { drawGlobalEffects, tickGlobalEffects } from './global-effects';
-import {
-  createFpsCounter,
-  createGameState,
-  drawHUD,
-  EXIT_KEY_CODE,
-  GAME_HEIGHT,
-  GAME_WIDTH,
-  GameStateConfig,
-  GameStatus,
-  tickFps
-} from './hud';
+import { createFpsCounter, createGameState, drawHUD, EXIT_KEY_CODE, GameStateConfig, GameStatus, tickFps } from './hud';
 import { activateAbility, drawSpaceship, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
-import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities } from './utils';
+import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities, initCanvas } from './utils';
 
 const DEBUG_EXTRA_FAST_GAME_SPEED = 5;
 const DEBUG_FAST_GAME_SPEED = 2;
@@ -62,12 +52,7 @@ export default function Game() {
 
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d')!;
-
-    // Crisp rendering on HiDPI screens
-    const dpr = (window.devicePixelRatio || 1) * settings.resolutionMultiplier;
-    canvas.width = GAME_WIDTH * dpr;
-    canvas.height = GAME_HEIGHT * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    initCanvas(canvas, settings);
 
     const playerControlKeys = collectPlayerControls(stateRef.current.player);
     const allControlKeys = [
@@ -189,7 +174,7 @@ export default function Game() {
       state.statistics.time += deltaTime;
 
       tickFps(fpsCounter, originalDeltaTime);
-      tickStars(state.stars, deltaTime);
+      tickStars(state.visual.stars, deltaTime);
       tickSpaceships(state, deltaTime);
       tickEntities(state, deltaTime);
       const { hit } = tickAsteroids(state, deltaTime);
@@ -208,7 +193,7 @@ export default function Game() {
       const state = stateRef.current;
       const { time } = state.statistics;
 
-      drawBackground(ctx, state.stars);
+      drawBackground(ctx, state);
       for (const asteroid of state.asteroids) {
         if (!asteroid.active) {
           continue;

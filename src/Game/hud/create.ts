@@ -1,10 +1,10 @@
 import { Settings } from 'spaceship-survival-3/context';
 import { loadColor, loadHighscore } from 'spaceship-survival-3/localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
-import { createStars } from '../background';
+import { createStars, initBackgroundFeatures, Star } from '../background';
 import { createGlobalEffectsState } from '../global-effects';
-import { AbilityClass, SpecialAbilityName, createSpaceship } from '../spaceships';
-import { choose } from '../utils';
+import { AbilityClass, createSpaceship, SpecialAbilityName } from '../spaceships';
+import { choose, initCanvas } from '../utils';
 import { GameState, GameStatus } from './game-state';
 
 export type GameStateConfig =
@@ -25,6 +25,8 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
     ? choose(Object.values(SpecialAbilityName))
     : config.specialAbilityName;
 
+  const stars = createStars();
+
   return {
     status,
     speed: 1,
@@ -42,13 +44,32 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
     asteroids: [],
     entities: [],
     globalEffects: createGlobalEffectsState(settings),
-    stars: createStars(),
+    visual: {
+      backgroundColor: getRandomBackgroundColor(),
+      backgroundFeatureImage: createUtilityCanvas(settings, stars),
+      stars
+    },
     spawnTimer: {
       spawnTime: 0,
       timer: 0,
       asteroidWaveSpawn: -1
     }
   };
+}
+
+const BACKGROUND_COLORS = ['#0C1230', '#1d1a37', '#1B2042', '#131934', '#171038', '#071a2a', '#19152B'];
+
+function getRandomBackgroundColor(): string {
+  return choose(BACKGROUND_COLORS);
+}
+
+function createUtilityCanvas(settings: Settings, stars: Star[]): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+
+  initCanvas(canvas, settings);
+  initBackgroundFeatures(canvas, stars);
+
+  return canvas;
 }
 
 export interface FpsCounter {
