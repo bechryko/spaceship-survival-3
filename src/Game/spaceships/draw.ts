@@ -1,5 +1,6 @@
 import { between, boundingRadius, clamp01, easeOutBack, hash, withAlpha } from '../utils';
-import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
+import { SpecialAbilityName } from './ability-almanac';
+import { findEffect, SpaceshipEffect, SpaceshipEffectType } from './effects';
 import { Spaceship } from './spaceship';
 
 export function drawSpaceships(ctx: CanvasRenderingContext2D, spaceships: Spaceship[], time: number): void {
@@ -71,8 +72,9 @@ export function drawSpaceships(ctx: CanvasRenderingContext2D, spaceships: Spaces
 
     ctx.restore();
 
-    if (spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0) {
-      drawShield(ctx, spaceship);
+    const shieldEffect = findEffect(spaceship, SpaceshipEffectType.SHIELD);
+    if (shieldEffect) {
+      drawShield(ctx, spaceship, shieldEffect);
     }
   }
 }
@@ -167,13 +169,12 @@ const SHIELD_APPEAR_TIME = 0.25;
 const SHIELD_FADE_TIME = 0.5;
 const SHIELD_WARNING_TIME = 0.6;
 
-function drawShield(ctx: CanvasRenderingContext2D, spaceship: Spaceship): void {
-  const shieldTimeLeft = spaceship.abilities.r.activeTimer;
-  const shieldTimeTotal = SpecialAbilityAlmanac[spaceship.abilities.special].activeTime;
-  const elapsed = shieldTimeTotal - shieldTimeLeft;
+function drawShield(ctx: CanvasRenderingContext2D, spaceship: Spaceship, effect: SpaceshipEffect): void {
+  const elapsed = effect.age;
+  const timeLeft = effect.duration - elapsed;
   const appear = easeOutBack(clamp01(elapsed / SHIELD_APPEAR_TIME));
-  const fade = clamp01(shieldTimeLeft / SHIELD_FADE_TIME);
-  const flicker = shieldTimeLeft < SHIELD_WARNING_TIME && Math.sin(shieldTimeLeft * 45) < 0 ? 0.5 : 1;
+  const fade = clamp01(timeLeft / SHIELD_FADE_TIME);
+  const flicker = timeLeft < SHIELD_WARNING_TIME && Math.sin(timeLeft * 45) < 0 ? 0.5 : 1;
   const alpha = fade * flicker;
   const radius = boundingRadius(spaceship.shape.hull) * appear;
   if (radius < 1) {

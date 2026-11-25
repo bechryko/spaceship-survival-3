@@ -16,7 +16,22 @@ function tickSpaceship(spaceship: Spaceship, deltaTime: number): void {
 
     spaceship.x += dir * calculateSpaceshipSpeed(spaceship) * deltaTime;
     spaceship.x = Math.max(halfWidth, Math.min(GAME_WIDTH - halfWidth, spaceship.x));
+  } else {
+    const host = spaceship.host!;
+
+    spaceship.x = host.x;
+    spaceship.y = host.y;
   }
+
+  let isEndedEffect = false;
+  spaceship.effects.forEach(effect => {
+    effect.age += deltaTime;
+
+    if (!isEndedEffect && effect.age >= effect.duration) {
+      isEndedEffect = true;
+    }
+  });
+  spaceship.effects = spaceship.effects.filter(effect => effect.age < effect.duration);
 
   forEachAbility(abilityIdx => {
     const ability = spaceship.abilities[abilityIdx];

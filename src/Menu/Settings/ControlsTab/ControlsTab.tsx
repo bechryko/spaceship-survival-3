@@ -68,8 +68,6 @@ export default function ControlsTab({ controls, onChange }: Props) {
     switch (groupId) {
       case SettingsControlGroup.DEBUG:
         return settings.debugControls;
-      case SettingsControlGroup.PLAYER_2:
-        return false;
       default:
         return true;
     }

@@ -4,6 +4,7 @@ export * from './ability-class';
 export * from './create';
 export * from './destroy';
 export * from './draw';
+export * from './effects';
 export * from './hitbox';
 export * from './spaceship-abilities';
 export * from './spaceship.d';

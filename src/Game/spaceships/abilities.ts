@@ -14,6 +14,7 @@ import { GameState } from '../hud';
 import { forEachAbility } from '../utils';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { AbilityClass } from './ability-class';
+import { SpaceshipEffectType, startEffect } from './effects';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbilitiesProfile, SpaceshipAbilityProfile, SpaceshipAbilityType } from './spaceship-abilities';
 
@@ -67,11 +68,12 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
       type: SpaceshipAbilityType.DEVICE,
       callback: (spaceship: Spaceship, state: GameState) => {
         const flySpeed = AbilityAlmanac[AbilityClass.SCIENTIST].q.flySpeed;
+        const owner = spaceship.alive ? spaceship : spaceship.host!;
 
         spawnEntity<ScienceProbe>(
           {
             type: EntityType.SCIENCE_PROBE,
-            owner: spaceship,
+            owner,
             phase: 'flying',
             x: spaceship.x,
             y: spaceship.y - AbilityAlmanac[AbilityClass.SCIENTIST].q.noseOffset,
@@ -185,16 +187,26 @@ export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfil
   },
   [SpecialAbilityName.SHIELD_GENERATOR]: {
     type: SpaceshipAbilityType.DEVICE,
-    callback: () => {}
+    callback: (spaceship: Spaceship) => {
+      const owner = spaceship.alive ? spaceship : spaceship.host!;
+
+      startEffect(
+        owner,
+        SpaceshipEffectType.SHIELD,
+        Number(SpecialAbilityAlmanac[SpecialAbilityName.SHIELD_GENERATOR].duration)
+      );
+    }
   },
   [SpecialAbilityName.URGENT_ORDERS]: {
     type: SpaceshipAbilityType.DEVICE,
     callback: (spaceship: Spaceship) => {
+      const owner = spaceship.alive ? spaceship : spaceship.host!;
+
       forEachAbility(a => {
-        spaceship.abilities[a].cooldownTimer *= Number(
+        owner.abilities[a].cooldownTimer *= Number(
           SpecialAbilityAlmanac[SpecialAbilityName.URGENT_ORDERS].cooldownMultiplier
         );
-      });
+      }, owner !== spaceship);
     },
     isDisabled: (spaceship: Spaceship) => {
       let isDisabled = true;

@@ -1,3 +1,4 @@
+import { SpaceshipEffect } from './effects';
 import { SpaceshipShape } from './hitbox';
 import { SpaceshipAbilities } from './spaceship-abilities';
 
@@ -7,11 +8,13 @@ export interface Spaceship {
   x: number;
   y: number;
   speed: number;
+  effects: SpaceshipEffect[];
   abilities: SpaceshipAbilities;
   controls: SpaceshipControls;
   color: string;
   shape: SpaceshipShape;
   asteroidKnowledge: number;
+  host?: Spaceship;
 }
 
 export interface SpaceshipControls {

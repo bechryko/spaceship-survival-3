@@ -1,8 +1,8 @@
 import { Asteroid, AsteroidType } from '../asteroids';
 import { GameState } from '../hud';
-import { SpecialAbilityName } from './ability-almanac';
+import { findEffect, SpaceshipEffectType } from './effects';
 import { Spaceship } from './spaceship';
-import { SpaceshipAbility, SpaceshipAbilityProfile } from './spaceship-abilities';
+import { SpaceshipAbility, SpaceshipAbilityProfile, SpaceshipAbilityType } from './spaceship-abilities';
 
 export const SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE = 0.005;
 export const SPACESHIP_MAX_SURVIVE_CHANCE = 0.4;
@@ -12,8 +12,7 @@ export function isSpaceshipImmune(spaceship: Spaceship, asteroid: Asteroid): boo
     return false;
   }
 
-  const hasShieldFromShieldGenerator =
-    spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0;
+  const hasShieldFromShieldGenerator = Boolean(findEffect(spaceship, SpaceshipEffectType.SHIELD));
 
   const knowledgeChance = Math.min(
     SPACESHIP_MAX_SURVIVE_CHANCE,
@@ -38,7 +37,11 @@ export function activateAbility(
   abilityProfile: SpaceshipAbilityProfile,
   abilityAlmanacEntry: AlmanacEntry
 ): void {
-  if (eventCode !== ability.key || abilityProfile.isDisabled?.(player, state) || !player.alive) {
+  if (
+    eventCode !== ability.key ||
+    abilityProfile.isDisabled?.(player, state) ||
+    (!player.alive && abilityProfile.type === SpaceshipAbilityType.EQUIPMENT)
+  ) {
     return;
   }
 

@@ -6,6 +6,8 @@ const SPACESHIP_EXPLOSION_RADIUS = 150;
 
 export function destroySpaceship(spaceship: Spaceship, state: GameState): void {
   spaceship.alive = false;
+  const aliveSpaceship = state.players.find(spaceship => spaceship.alive)!;
+  spaceship.host = aliveSpaceship;
 
   explode(state, spaceship.x, spaceship.y, SPACESHIP_EXPLOSION_RADIUS, spaceship.color);
 }

@@ -74,7 +74,7 @@ const debugControls = (): ControlDefinition[] =>
 
 export const CONTROL_GROUPS: readonly ControlGroup[] = [
   { id: SettingsControlGroup.GENERAL, title: 'General', controls: generalControls() },
-  { id: SettingsControlGroup.PLAYER_1, title: 'Player', controls: playerControls('player1') },
+  { id: SettingsControlGroup.PLAYER_1, title: 'Player 1', controls: playerControls('player1') },
   { id: SettingsControlGroup.PLAYER_2, title: 'Player 2', controls: playerControls('player2') },
   { id: SettingsControlGroup.DEBUG, title: 'Debug', controls: debugControls() }
 ];

@@ -32,6 +32,7 @@ export function createSpaceships(config: GameStateConfig, settings: Settings): S
       x,
       y: GAME_HEIGHT - 70,
       speed: SpeedAlmanac[almanacEntry.speedLevel],
+      effects: [],
       abilities: {
         profile: abilities[abilityClass],
         special: specialAbilityId,
