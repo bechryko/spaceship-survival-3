@@ -2,72 +2,74 @@ import { between, boundingRadius, clamp01, easeOutBack, hash, withAlpha } from '
 import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { Spaceship } from './spaceship';
 
-export function drawSpaceship(ctx: CanvasRenderingContext2D, spaceship: Spaceship, time: number): void {
-  ctx.save();
-  ctx.translate(spaceship.x, spaceship.y);
+export function drawSpaceships(ctx: CanvasRenderingContext2D, spaceships: Spaceship[], time: number): void {
+  for (const spaceship of spaceships) {
+    ctx.save();
+    ctx.translate(spaceship.x, spaceship.y);
 
-  drawFlame(ctx, spaceship, time);
+    drawFlame(ctx, spaceship, time);
 
-  const { hull, spine, cockpit, panels, lights } = spaceship.shape;
+    const { hull, spine, cockpit, panels, lights } = spaceship.shape;
 
-  // Hull
-  ctx.beginPath();
-  hull.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
-  ctx.closePath();
-  ctx.fillStyle = spaceship.color;
-  ctx.fill();
-  ctx.lineJoin = 'round';
-  ctx.lineWidth = 1.5;
-  ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-  ctx.stroke();
-
-  // Panels
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  for (const panel of panels ?? []) {
+    // Hull
     ctx.beginPath();
-    panel.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+    hull.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
     ctx.closePath();
+    ctx.fillStyle = spaceship.color;
     ctx.fill();
-  }
-
-  // Spine
-  if (spine) {
-    ctx.beginPath();
-    spine.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
     ctx.stroke();
-  }
 
-  // Sensor lights
-  ctx.fillStyle = '#7fe8ff';
-  for (const [x, y] of lights ?? []) {
+    // Panels
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    for (const panel of panels ?? []) {
+      ctx.beginPath();
+      panel.forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Spine
+    if (spine) {
+      ctx.beginPath();
+      spine.forEach(([px, py], i) => (i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py)));
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.stroke();
+    }
+
+    // Sensor lights
+    ctx.fillStyle = '#7fe8ff';
+    for (const [x, y] of lights ?? []) {
+      ctx.beginPath();
+      ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Cockpit
+    ctx.fillStyle = '#bde0fe';
     ctx.beginPath();
-    ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+    ctx.ellipse(cockpit.cx, cockpit.cy, cockpit.rx, cockpit.ry, 0, 0, Math.PI * 2);
     ctx.fill();
-  }
+    ctx.beginPath();
+    ctx.ellipse(
+      cockpit.cx - cockpit.rx * 0.3,
+      cockpit.cy - cockpit.ry * 0.35,
+      cockpit.rx * 0.35,
+      cockpit.ry * 0.3,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+    ctx.fill();
 
-  // Cockpit
-  ctx.fillStyle = '#bde0fe';
-  ctx.beginPath();
-  ctx.ellipse(cockpit.cx, cockpit.cy, cockpit.rx, cockpit.ry, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(
-    cockpit.cx - cockpit.rx * 0.3,
-    cockpit.cy - cockpit.ry * 0.35,
-    cockpit.rx * 0.35,
-    cockpit.ry * 0.3,
-    0,
-    0,
-    Math.PI * 2
-  );
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-  ctx.fill();
+    ctx.restore();
 
-  ctx.restore();
-
-  if (spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0) {
-    drawShield(ctx, spaceship);
+    if (spaceship.abilities.special === SpecialAbilityName.SHIELD_GENERATOR && spaceship.abilities.r.activeTimer > 0) {
+      drawShield(ctx, spaceship);
+    }
   }
 }
 

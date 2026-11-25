@@ -31,7 +31,7 @@ export function drawHUD(
     HUD_FONT_SIZE
   );
 
-  drawAbilityHud(ctx, state.player, state);
+  state.players.forEach(player => drawPlayerHud(ctx, player, state));
 
   drawOverlays(ctx, state, settings, isQuickPlay);
 
@@ -79,7 +79,7 @@ const ABILITY_HUD_KNOWLEDGE_TEXT_SIZE = 15;
 const ABILITY_HUD_KNOWLEDGE_OUTLINE_COLOR = 'rgba(0, 0, 0, 0.4)';
 const ABILITY_HUD_KNOWLEDGE_DETAIL_COLOR = 'rgba(255, 255, 255, 0.4)';
 
-function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
+function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
   const { abilities } = player;
   const almanac = getAlmanacForAbilities(player);
   const specialAlmanac = SpecialAbilityAlmanac[player.abilities.special];
@@ -202,10 +202,7 @@ function drawAbilityHud(ctx: CanvasRenderingContext2D, player: Spaceship, state:
     );
   });
 
-  // Knowledge: a book in the player colour and how many points there are, centred under the slots.
-  // Only drawn once there is some.
   if (player.asteroidKnowledge > 0) {
-    // Below the ability names, which take as many lines as the longest name has words
     const nameLines = Math.max(...slots.map(slot => slot.label.split(' ').length));
     const namesBottom =
       totalTopMargin +

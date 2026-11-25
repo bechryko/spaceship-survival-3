@@ -18,9 +18,9 @@ export default function App() {
       document.title = 'Spaceship Survival 3 (Beta)';
     }
 
-    const lastPlayerVersion = loadLastPlayedVersion();
+    const lastPlayedVersion = loadLastPlayedVersion();
 
-    if (lastPlayerVersion && didUpdateThroughBreakingVersion(lastPlayerVersion)) {
+    if (lastPlayedVersion && didUpdateThroughBreakingVersion(lastPlayedVersion)) {
       saveHighscore(0);
       console.warn('Highscore reset due to new version!');
       saveLastPlayedVersion(appVersion);

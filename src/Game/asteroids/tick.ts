@@ -20,7 +20,7 @@ export const TRIPLE_ASTEROID_CHANCE = 0.5;
 const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
 const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
 
-export function tickAsteroids(state: GameState, deltaTime: number): { hit: boolean } {
+export function tickAsteroids(state: GameState, deltaTime: number): { hitIndexes: number[] } {
   state.spawnTimer.timer += deltaTime;
 
   if (state.spawnTimer.timer >= state.spawnTimer.spawnTime) {
@@ -40,6 +40,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     }
   }
 
+  const hitIndexes: number[] = [];
   for (const asteroid of state.asteroids) {
     if (!asteroid.active) {
       continue;
@@ -48,21 +49,22 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
     asteroid.y += asteroid.velocity * deltaTime;
     asteroid.x += asteroid.velocityHorizontal * deltaTime;
 
-    const { player } = state;
-    const { hitbox } = player.shape;
-    const lx = asteroid.x - player.x;
-    const ly = asteroid.y - player.y;
+    state.players.forEach((player, index) => {
+      const { hitbox } = player.shape;
+      const lx = asteroid.x - player.x;
+      const ly = asteroid.y - player.y;
 
-    const hit =
-      lx ** 2 + ly ** 2 <= (boundingRadius(hitbox) + asteroid.r) ** 2 &&
-      polygonsCollide(hitbox, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
-    if (hit) {
-      if (isSpaceshipImmune(player, asteroid)) {
-        destroyAsteroid(asteroid, state);
-      } else {
-        return { hit: true };
+      const hit =
+        lx ** 2 + ly ** 2 <= (boundingRadius(hitbox) + asteroid.r) ** 2 &&
+        polygonsCollide(hitbox, transformPolygon(asteroid.shape, asteroid.r, asteroid.angle, lx, ly));
+      if (hit) {
+        if (isSpaceshipImmune(player, asteroid)) {
+          destroyAsteroid(asteroid, state);
+        } else {
+          hitIndexes.push(index);
+        }
       }
-    }
+    });
 
     if (asteroid.type === AsteroidType.ICE) {
       asteroid.data.iceShardBreakOffTimer! = Math.max(0, asteroid.data.iceShardBreakOffTimer! - deltaTime);
@@ -104,7 +106,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hit: boole
       a.active = false;
     });
 
-  return { hit: false };
+  return { hitIndexes };
 }
 
 export function spawnAsteroid(state: GameState, creationModifiers: AsteroidCreationModifiers = {}): Asteroid {

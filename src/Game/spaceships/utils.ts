@@ -31,17 +31,16 @@ interface AlmanacEntry {
 }
 
 export function activateAbility(
+  player: Spaceship,
   state: GameState,
   eventCode: string,
   ability: SpaceshipAbility,
   abilityProfile: SpaceshipAbilityProfile,
   abilityAlmanacEntry: AlmanacEntry
 ): void {
-  if (eventCode !== ability.key || abilityProfile.isDisabled?.(state.player, state)) {
+  if (eventCode !== ability.key || abilityProfile.isDisabled?.(player, state)) {
     return;
   }
-
-  const { player } = state;
 
   // Activation
   if (ability.cooldownTimer === 0 && ability.activeTimer === 0) {

@@ -14,7 +14,7 @@ export interface GameState {
   };
   asteroids: Asteroid[];
   spawnTimer: AsteroidSpawnTimer;
-  player: Spaceship;
+  players: Spaceship[];
   entities: Entity[];
   globalEffects: GlobalEffectsState;
   visual: {

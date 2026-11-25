@@ -10,7 +10,7 @@ import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
 import { drawGlobalEffects, tickGlobalEffects } from './global-effects';
 import { createFpsCounter, createGameState, drawHUD, EXIT_KEY_CODE, GameStateConfig, GameStatus, tickFps } from './hud';
-import { activateAbility, drawSpaceship, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
+import { activateAbility, drawSpaceships, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
 import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities, initCanvas } from './utils';
 
 const DEBUG_EXTRA_FAST_GAME_SPEED = 5;
@@ -54,7 +54,7 @@ export default function Game() {
     const ctx = canvas.getContext('2d')!;
     initCanvas(canvas, settings);
 
-    const playerControlKeys = collectPlayerControls(stateRef.current.player);
+    const playerControlKeys = collectPlayerControls(stateRef.current.players);
     const allControlKeys = [
       ...playerControlKeys,
       EXIT_KEY_CODE,
@@ -67,8 +67,6 @@ export default function Game() {
     // ----- Input -----
     const onKeyDown = (event: KeyboardEvent) => {
       const state = stateRef.current;
-      const playerControls = state.player.controls;
-      const playerAbilities = state.player.abilities;
       if (allControlKeys.includes(event.code)) {
         event.preventDefault();
       }
@@ -100,26 +98,31 @@ export default function Game() {
       }
 
       if (state.status === GameStatus.PLAYING) {
-        if (event.code === playerControls.leftKeyCode) {
-          playerControls.left = true;
-        }
-        if (event.code === playerControls.rightKeyCode) {
-          playerControls.right = true;
-        }
+        state.players.forEach(player => {
+          const playerControls = player.controls;
+          const playerAbilities = player.abilities;
 
-        forEachAbility(abilityIdx => {
-          const abilityProfile = playerAbilities.profile[abilityIdx];
-          const ability = playerAbilities[abilityIdx];
-          const abilityAlmanacEntry = getAlmanacForAbilities(state.player)[abilityIdx];
+          if (event.code === playerControls.leftKeyCode) {
+            playerControls.left = true;
+          }
+          if (event.code === playerControls.rightKeyCode) {
+            playerControls.right = true;
+          }
 
-          activateAbility(state, event.code, ability, abilityProfile, abilityAlmanacEntry);
+          forEachAbility(abilityIdx => {
+            const abilityProfile = playerAbilities.profile[abilityIdx];
+            const ability = playerAbilities[abilityIdx];
+            const abilityAlmanacEntry = getAlmanacForAbilities(player)[abilityIdx];
+
+            activateAbility(player, state, event.code, ability, abilityProfile, abilityAlmanacEntry);
+          });
+
+          const specialAbility = playerAbilities.r;
+          const specialAbilityProfile = playerAbilities.specialProfile;
+          const specialAbilityAlmanacEntry = SpecialAbilityAlmanac[playerAbilities.special];
+
+          activateAbility(player, state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
         });
-
-        const specialAbility = playerAbilities.r;
-        const specialAbilityProfile = playerAbilities.specialProfile;
-        const specialAbilityAlmanacEntry = SpecialAbilityAlmanac[playerAbilities.special];
-
-        activateAbility(state, event.code, specialAbility, specialAbilityProfile, specialAbilityAlmanacEntry);
       }
 
       if (settings.debugControls) {
@@ -144,23 +147,24 @@ export default function Game() {
     };
 
     const onKeyUp = (event: KeyboardEvent) => {
-      const { player } = stateRef.current;
-      const playerControls = player.controls;
-      const playerAbilities = player.abilities;
+      stateRef.current.players.forEach(player => {
+        const playerControls = player.controls;
+        const playerAbilities = player.abilities;
 
-      if (event.code === playerControls.leftKeyCode) {
-        playerControls.left = false;
-      }
-
-      if (event.code === playerControls.rightKeyCode) {
-        playerControls.right = false;
-      }
-
-      forEachAbility(ability => {
-        if (event.code === playerAbilities[ability].key) {
-          playerAbilities[ability].reactivatable = true;
+        if (event.code === playerControls.leftKeyCode) {
+          playerControls.left = false;
         }
-      }, true);
+
+        if (event.code === playerControls.rightKeyCode) {
+          playerControls.right = false;
+        }
+
+        forEachAbility(ability => {
+          if (event.code === playerAbilities[ability].key) {
+            playerAbilities[ability].reactivatable = true;
+          }
+        }, true);
+      });
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -177,8 +181,8 @@ export default function Game() {
       tickStars(state.visual.stars, deltaTime);
       tickSpaceships(state, deltaTime);
       tickEntities(state, deltaTime);
-      const { hit } = tickAsteroids(state, deltaTime);
-      if (hit) {
+      const { hitIndexes } = tickAsteroids(state, deltaTime);
+      if (hitIndexes.length > 0) {
         state.status = GameStatus.OVER;
         const score = calculateScore(state);
 
@@ -202,7 +206,7 @@ export default function Game() {
         drawAsteroid(ctx, asteroid);
       }
       drawEntities(ctx, state.entities, time);
-      drawSpaceship(ctx, state.player, time);
+      drawSpaceships(ctx, state.players, time);
       drawGlobalEffects(ctx, state);
       drawHUD(ctx, state, settings, isQuickPlay, settings.showFps ? fpsCounter : null);
     };

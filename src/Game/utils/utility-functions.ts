@@ -17,11 +17,15 @@ export function getAlmanacForAbilities(player: Spaceship) {
   return AbilityAlmanac[player.abilities.profile.abilityClass as keyof typeof AbilityAlmanac];
 }
 
-export function collectPlayerControls(player: Spaceship): string[] {
-  const controls = [player.controls.leftKeyCode, player.controls.rightKeyCode];
+export function collectPlayerControls(players: Spaceship[]): string[] {
+  const controls: string[] = [];
 
-  forEachAbility(a => {
-    controls.push(player.abilities[a].key);
+  players.forEach(player => {
+    controls.push(player.controls.leftKeyCode, player.controls.rightKeyCode);
+
+    forEachAbility(a => {
+      controls.push(player.abilities[a].key);
+    });
   });
 
   return controls;

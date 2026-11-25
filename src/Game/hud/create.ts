@@ -40,7 +40,7 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
       level2: choose(level2AsteroidBlueprints)
     },
     highscore: loadHighscore(),
-    player: createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId, settings),
+    players: [createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId, settings)],
     asteroids: [],
     entities: [],
     globalEffects: createGlobalEffectsState(settings),

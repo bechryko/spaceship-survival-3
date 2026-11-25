@@ -4,7 +4,9 @@ import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { Spaceship } from './spaceship';
 
 export function tickSpaceships(state: GameState, deltaTime: number): void {
-  tickSpaceship(state.player, deltaTime);
+  for (const player of state.players) {
+    tickSpaceship(player, deltaTime);
+  }
 }
 
 function tickSpaceship(spaceship: Spaceship, deltaTime: number): void {
