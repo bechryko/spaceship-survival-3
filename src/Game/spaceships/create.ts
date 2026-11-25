@@ -28,6 +28,7 @@ export function createSpaceships(config: GameStateConfig, settings: Settings): S
 
     spaceships.push({
       index,
+      alive: true,
       x,
       y: GAME_HEIGHT - 70,
       speed: SpeedAlmanac[almanacEntry.speedLevel],

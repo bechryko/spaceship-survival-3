@@ -4,6 +4,10 @@ import { Spaceship } from './spaceship';
 
 export function drawSpaceships(ctx: CanvasRenderingContext2D, spaceships: Spaceship[], time: number): void {
   for (const spaceship of spaceships) {
+    if (!spaceship.alive) {
+      continue;
+    }
+
     ctx.save();
     ctx.translate(spaceship.x, spaceship.y);
 

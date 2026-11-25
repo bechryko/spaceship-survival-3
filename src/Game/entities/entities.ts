@@ -43,6 +43,7 @@ export interface Explosion extends EntityBase {
   r: number;
   age: number;
   sparks: Spark[];
+  color?: string;
 }
 
 export interface Spark {

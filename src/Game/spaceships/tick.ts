@@ -10,11 +10,13 @@ export function tickSpaceships(state: GameState, deltaTime: number): void {
 }
 
 function tickSpaceship(spaceship: Spaceship, deltaTime: number): void {
-  const dir = Number(spaceship.controls.right) - Number(spaceship.controls.left);
-  const halfWidth = spaceship.shape.width / 2;
+  if (spaceship.alive) {
+    const dir = Number(spaceship.controls.right) - Number(spaceship.controls.left);
+    const halfWidth = spaceship.shape.width / 2;
 
-  spaceship.x += dir * calculateSpaceshipSpeed(spaceship) * deltaTime;
-  spaceship.x = Math.max(halfWidth, Math.min(GAME_WIDTH - halfWidth, spaceship.x));
+    spaceship.x += dir * calculateSpaceshipSpeed(spaceship) * deltaTime;
+    spaceship.x = Math.max(halfWidth, Math.min(GAME_WIDTH - halfWidth, spaceship.x));
+  }
 
   forEachAbility(abilityIdx => {
     const ability = spaceship.abilities[abilityIdx];

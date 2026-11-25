@@ -38,7 +38,7 @@ export function activateAbility(
   abilityProfile: SpaceshipAbilityProfile,
   abilityAlmanacEntry: AlmanacEntry
 ): void {
-  if (eventCode !== ability.key || abilityProfile.isDisabled?.(player, state)) {
+  if (eventCode !== ability.key || abilityProfile.isDisabled?.(player, state) || !player.alive) {
     return;
   }
 

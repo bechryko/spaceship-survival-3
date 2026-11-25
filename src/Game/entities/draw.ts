@@ -1,7 +1,7 @@
 import { getAsteroidPolygon } from '../asteroids';
 import { Point } from '../models';
 import { AbilityAlmanac, AbilityClass, Spaceship } from '../spaceships';
-import { clamp01, easeOutCubic, hash } from '../utils';
+import { clamp01, darken, easeOutCubic, hash, lighten, withAlpha } from '../utils';
 import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import { EXPLOSION_DURATION } from './tick';
 
@@ -202,6 +202,14 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
   ctx.restore();
 }
 
+const EXPLOSION_DEFAULT_COLOR = '#ff9632';
+const EXPLOSION_DEFAULT_EDGE_COLOR = '#ff5014';
+const EXPLOSION_EDGE_COLOR_DARKEN = 0.5;
+const EXPLOSION_DEFAULT_RING_COLOR = '#ffc878';
+const EXPLOSION_RING_COLOR_LIGHTEN = 0.6;
+const EXPLOSION_DEFAULT_SPARK_COLOR = '#ffd28c';
+const EXPLOSION_SPARK_COLOR_LIGHTEN = 0.75;
+
 function drawExplosion(ctx: CanvasRenderingContext2D, explosion: Explosion) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
@@ -210,12 +218,23 @@ function drawExplosion(ctx: CanvasRenderingContext2D, explosion: Explosion) {
   const ease = 1 - (1 - t) ** 3;
   const fade = 1 - t;
 
+  const color = explosion.color ?? EXPLOSION_DEFAULT_COLOR;
+  const edgeColor = explosion.color
+    ? darken(explosion.color, EXPLOSION_EDGE_COLOR_DARKEN)
+    : EXPLOSION_DEFAULT_EDGE_COLOR;
+  const ringColor = explosion.color
+    ? lighten(explosion.color, EXPLOSION_RING_COLOR_LIGHTEN)
+    : EXPLOSION_DEFAULT_RING_COLOR;
+  const sparkColor = explosion.color
+    ? lighten(explosion.color, EXPLOSION_SPARK_COLOR_LIGHTEN)
+    : EXPLOSION_DEFAULT_SPARK_COLOR;
+
   // Fireball flash
   const flashRadius = explosion.r * (0.6 + 0.9 * ease);
   const flash = ctx.createRadialGradient(explosion.x, explosion.y, 0, explosion.x, explosion.y, flashRadius);
-  flash.addColorStop(0, `rgba(255, 245, 200, ${fade})`);
-  flash.addColorStop(0.4, `rgba(255, 150, 50, ${fade * 0.7})`);
-  flash.addColorStop(1, 'rgba(255, 80, 20, 0)');
+  flash.addColorStop(0, withAlpha('#ffffff', fade));
+  flash.addColorStop(0.4, withAlpha(color, fade * 0.7));
+  flash.addColorStop(1, withAlpha(edgeColor, 0));
   ctx.fillStyle = flash;
   ctx.beginPath();
   ctx.arc(explosion.x, explosion.y, flashRadius, 0, Math.PI * 2);
@@ -225,11 +244,11 @@ function drawExplosion(ctx: CanvasRenderingContext2D, explosion: Explosion) {
   ctx.beginPath();
   ctx.arc(explosion.x, explosion.y, explosion.r * (0.5 + 1.6 * ease), 0, Math.PI * 2);
   ctx.lineWidth = 0.5 + 3 * fade;
-  ctx.strokeStyle = `rgba(255, 200, 120, ${fade * 0.8})`;
+  ctx.strokeStyle = withAlpha(ringColor, fade * 0.8);
   ctx.stroke();
 
   // Sparks flying outwards
-  ctx.fillStyle = `rgba(255, 210, 140, ${fade})`;
+  ctx.fillStyle = withAlpha(sparkColor, fade);
   for (const spark of explosion.sparks) {
     const d = spark.distance * ease;
     ctx.beginPath();

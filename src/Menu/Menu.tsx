@@ -34,7 +34,7 @@ export default function Menu() {
             <span className="version">Version: {appVersion}</span>
           </hgroup>
           <section>
-            <NavLink className="button blur-background" to={Page.GAME} state={{ quickPlay: true }}>
+            <NavLink className="button blur-background" to={Page.GAME} state={{ players: 1, quickPlay: true }}>
               Quick Play
             </NavLink>
             <NavLink className="button blur-background" to={Page.SPACESHIP_SELECTION}>

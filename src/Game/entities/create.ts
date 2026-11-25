@@ -21,7 +21,7 @@ export function spawnEntity<ET extends Entity>(entity: Omit<ET, 'active'>, state
   }
 }
 
-export function explode(state: GameState, x: number, y: number, r: number) {
+export function explode(state: GameState, x: number, y: number, r: number, color?: string) {
   spawnEntity<Explosion>(
     {
       type: EntityType.EXPLOSION,
@@ -33,7 +33,8 @@ export function explode(state: GameState, x: number, y: number, r: number) {
         angle: Math.random() * Math.PI * 2,
         distance: r * between(EXPLOSION_SPARK_MIN_DISTANCE, EXPLOSION_SPARK_MAX_DISTANCE, { floor: false }),
         size: between(EXPLOSION_SPARK_MIN_SIZE, EXPLOSION_SPARK_MAX_SIZE, { floor: false })
-      }))
+      })),
+      color
     },
     state
   );

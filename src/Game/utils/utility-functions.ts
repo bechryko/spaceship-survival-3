@@ -39,12 +39,6 @@ export function clamp01(value: number): number {
   return clamp(value, 0, 1);
 }
 
-/** '#rrggbb' to 'rgba(r, g, b, alpha)' */
-export function withAlpha(hex: string, alpha: number): string {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
-}
-
 /** Rises past 1 and settles back: a "pop" when something appears. 0 at t = 0, 1 at t = 1. */
 export function easeOutBack(t: number): number {
   const c1 = 1.70158;

@@ -11,7 +11,14 @@ import { drawEntities, tickEntities } from './entities';
 import { drawGlobalEffects, tickGlobalEffects } from './global-effects';
 import { createFpsCounter, createGameState, drawHUD, EXIT_KEY_CODE, GameStateConfig, GameStatus, tickFps } from './hud';
 import { activateAbility, drawSpaceships, SpecialAbilityAlmanac, tickSpaceships } from './spaceships';
-import { calculateScore, collectPlayerControls, forEachAbility, getAlmanacForAbilities, initCanvas } from './utils';
+import {
+  calculateScore,
+  collectPlayerControls,
+  countIf,
+  forEachAbility,
+  getAlmanacForAbilities,
+  initCanvas
+} from './utils';
 
 const DEBUG_EXTRA_FAST_GAME_SPEED = 5;
 const DEBUG_FAST_GAME_SPEED = 2;
@@ -186,8 +193,8 @@ export default function Game() {
       tickStars(state.visual.stars, deltaTime);
       tickSpaceships(state, deltaTime);
       tickEntities(state, deltaTime);
-      const { hitIndexes } = tickAsteroids(state, deltaTime);
-      if (hitIndexes.length > 0) {
+      const hit = tickAsteroids(state, deltaTime);
+      if (hit && countIf(state.players, player => player.alive) === 0) {
         state.status = GameStatus.OVER;
         const score = calculateScore(state);
 

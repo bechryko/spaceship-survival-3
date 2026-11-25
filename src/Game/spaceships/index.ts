@@ -2,6 +2,7 @@ export * from './abilities';
 export * from './ability-almanac';
 export * from './ability-class';
 export * from './create';
+export * from './destroy';
 export * from './draw';
 export * from './hitbox';
 export * from './spaceship-abilities';

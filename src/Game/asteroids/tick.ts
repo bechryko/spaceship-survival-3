@@ -1,5 +1,5 @@
 import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
-import { isSpaceshipImmune } from '../spaceships';
+import { destroySpaceship, isSpaceshipImmune } from '../spaceships';
 import { between, boundingRadius, clamp01, polygonsCollide, transformPolygon } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import {
@@ -20,7 +20,7 @@ export const TRIPLE_ASTEROID_CHANCE = 0.5;
 const ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY = 45;
 const ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY = 75;
 
-export function tickAsteroids(state: GameState, deltaTime: number): { hitIndexes: number[] } {
+export function tickAsteroids(state: GameState, deltaTime: number): boolean {
   state.spawnTimer.timer += deltaTime;
 
   if (state.spawnTimer.timer >= state.spawnTimer.spawnTime) {
@@ -50,6 +50,10 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hitIndexes
     asteroid.x += asteroid.velocityHorizontal * deltaTime;
 
     state.players.forEach((player, index) => {
+      if (!player.alive) {
+        return;
+      }
+
       const { hitbox } = player.shape;
       const lx = asteroid.x - player.x;
       const ly = asteroid.y - player.y;
@@ -106,7 +110,11 @@ export function tickAsteroids(state: GameState, deltaTime: number): { hitIndexes
       a.active = false;
     });
 
-  return { hitIndexes };
+  hitIndexes.forEach(index => {
+    destroySpaceship(state.players[index], state);
+  });
+
+  return hitIndexes.length > 0;
 }
 
 export function spawnAsteroid(state: GameState, creationModifiers: AsteroidCreationModifiers = {}): Asteroid {

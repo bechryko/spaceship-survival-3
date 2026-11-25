@@ -90,7 +90,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
       remaining: abilities.q.cooldownTimer,
       total: almanac.q.cooldown,
       active: abilities.q.activeTimer,
-      disabled: player.abilities.profile.q.isDisabled?.(player, state)
+      disabled: !player.alive || player.abilities.profile.q.isDisabled?.(player, state)
     },
     {
       key: displayKeyCode(abilities.w.key),
@@ -98,7 +98,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
       remaining: abilities.w.cooldownTimer,
       total: almanac.w.cooldown,
       active: abilities.w.activeTimer,
-      disabled: player.abilities.profile.w.isDisabled?.(player, state)
+      disabled: !player.alive || player.abilities.profile.w.isDisabled?.(player, state)
     },
     {
       key: displayKeyCode(abilities.e.key),
@@ -106,7 +106,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
       remaining: abilities.e.cooldownTimer,
       total: almanac.e.cooldown,
       active: abilities.e.activeTimer,
-      disabled: player.abilities.profile.e.isDisabled?.(player, state)
+      disabled: !player.alive || player.abilities.profile.e.isDisabled?.(player, state)
     },
     {
       key: displayKeyCode(abilities.r.key),
@@ -114,7 +114,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
       remaining: abilities.r.cooldownTimer,
       total: specialAlmanac.cooldown,
       active: abilities.r.activeTimer,
-      disabled: player.abilities.specialProfile.isDisabled?.(player, state)
+      disabled: !player.alive || player.abilities.specialProfile.isDisabled?.(player, state)
     }
   ];
 

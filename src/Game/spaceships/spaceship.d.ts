@@ -3,6 +3,7 @@ import { SpaceshipAbilities } from './spaceship-abilities';
 
 export interface Spaceship {
   index: number;
+  alive: boolean;
   x: number;
   y: number;
   speed: number;
