@@ -4,15 +4,16 @@ import { CSSProperties } from 'react';
 import { SpaceshipColor } from './spaceship-colors';
 
 interface Props {
+  className?: string;
   label?: string;
   colors: readonly SpaceshipColor[];
   value: string;
   onChange: (value: string) => void;
 }
 
-export default function ColorPicker({ label = 'Color', colors, value, onChange }: Props) {
+export default function ColorPicker({ className = '', label = 'Color', colors, value, onChange }: Props) {
   return (
-    <div className="color-picker blur-background">
+    <div className={'color-picker blur-background ' + className}>
       <span className="color-picker-label" aria-hidden="true">
         {label}
       </span>

@@ -1,5 +1,7 @@
-import { Settings } from 'spaceship-survival-3/context';
-import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
+import { ControlsSettings, PlayerControlsSettings, Settings } from 'spaceship-survival-3/context';
+import { loadColor } from 'spaceship-survival-3/localstorage';
+import { GAME_HEIGHT, GAME_WIDTH, GameStateConfig } from '../hud';
+import { choose } from '../utils';
 import { abilities, specialAbilities } from './abilities';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName, SpeedAlmanac } from './ability-almanac';
 import { AbilityClass } from './ability-class';
@@ -13,50 +15,72 @@ const initialAbilityStats: Omit<SpaceshipAbility, 'key'> = {
   reactivatable: false
 };
 
-export function createSpaceship(
-  abilityClass: AbilityClass,
-  color: string,
-  specialAbilityId: SpecialAbilityName,
-  settings: Settings
-): Spaceship {
-  const almanacEntry = AbilityAlmanac[abilityClass];
-  const controls = settings.controls.player1;
+export function createSpaceships(config: GameStateConfig, settings: Settings): Spaceship[] {
+  const spaceships: Spaceship[] = [];
+
+  for (let index = 0; index < config.players; index++) {
+    const { abilityClass, specialAbilityId } = getLoadout(index, config);
+
+    const x = (GAME_WIDTH / (config.players + 1)) * (index + 1);
+    const color = loadColor(index === 1);
+    const almanacEntry = AbilityAlmanac[abilityClass];
+    const controls = settings.controls[('player' + (index + 1)) as keyof ControlsSettings] as PlayerControlsSettings;
+
+    spaceships.push({
+      index,
+      x,
+      y: GAME_HEIGHT - 70,
+      speed: SpeedAlmanac[almanacEntry.speedLevel],
+      abilities: {
+        profile: abilities[abilityClass],
+        special: specialAbilityId,
+        specialProfile: specialAbilities[specialAbilityId],
+        q: {
+          ...initialAbilityStats,
+          key: controls.ability1
+        },
+        w: {
+          ...initialAbilityStats,
+          key: controls.ability2
+        },
+        e: {
+          ...initialAbilityStats,
+          key: controls.ability3,
+          cooldownTimer: almanacEntry.e.cooldown
+        },
+        r: {
+          ...initialAbilityStats,
+          key: controls.specialAbility,
+          activeTimer: SpecialAbilityAlmanac[specialAbilityId].cooldown ? 0 : Infinity
+        }
+      },
+      controls: {
+        left: false,
+        right: false,
+        leftKeyCode: controls.moveLeft,
+        rightKeyCode: controls.moveRight
+      },
+      color,
+      shape: spaceshipAbilityClassShipShapeMap[abilityClass],
+      asteroidKnowledge: 0
+    });
+  }
+  return spaceships;
+}
+
+function getLoadout(
+  index: number,
+  config: GameStateConfig
+): { abilityClass: AbilityClass; specialAbilityId: SpecialAbilityName } {
+  if (config.isQuickPlay) {
+    return {
+      abilityClass: choose(Object.values(AbilityClass)),
+      specialAbilityId: choose(Object.values(SpecialAbilityName))
+    };
+  }
 
   return {
-    x: GAME_WIDTH / 2,
-    y: GAME_HEIGHT - 70,
-    speed: SpeedAlmanac[almanacEntry.speedLevel],
-    abilities: {
-      profile: abilities[abilityClass],
-      special: specialAbilityId,
-      specialProfile: specialAbilities[specialAbilityId],
-      q: {
-        ...initialAbilityStats,
-        key: controls.ability1
-      },
-      w: {
-        ...initialAbilityStats,
-        key: controls.ability2
-      },
-      e: {
-        ...initialAbilityStats,
-        key: controls.ability3,
-        cooldownTimer: almanacEntry.e.cooldown
-      },
-      r: {
-        ...initialAbilityStats,
-        key: controls.specialAbility,
-        activeTimer: SpecialAbilityAlmanac[specialAbilityId].cooldown ? 0 : Infinity
-      }
-    },
-    controls: {
-      left: false,
-      right: false,
-      leftKeyCode: controls.moveLeft,
-      rightKeyCode: controls.moveRight
-    },
-    color,
-    shape: spaceshipAbilityClassShipShapeMap[abilityClass],
-    asteroidKnowledge: 0
+    abilityClass: config.abilityClasses[index],
+    specialAbilityId: config.specialAbilityNames[index]
   };
 }

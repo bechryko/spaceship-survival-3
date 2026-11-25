@@ -25,17 +25,22 @@ export default function Game() {
     () =>
       isQuickPlay
         ? {
+            players: navigationState?.players,
             isQuickPlay
           }
         : {
+            players: navigationState?.players,
             isQuickPlay,
-            abilityClass: navigationState?.spaceshipId,
-            specialAbilityName: navigationState?.specialAbilityId
+            abilityClasses: navigationState?.spaceshipIds,
+            specialAbilityNames: navigationState?.specialAbilityIds
           },
     [isQuickPlay, navigationState]
   );
 
-  if (!isQuickPlay && (!navigationState?.spaceshipId || !navigationState?.specialAbilityId)) {
+  if (
+    !navigationState?.players ||
+    (!isQuickPlay && (!navigationState?.spaceshipIds?.[0] || !navigationState?.specialAbilityIds?.[0]))
+  ) {
     forceRedirect(Page.SPACESHIP_SELECTION);
   }
 

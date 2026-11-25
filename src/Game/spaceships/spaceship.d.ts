@@ -2,6 +2,7 @@ import { SpaceshipShape } from './hitbox';
 import { SpaceshipAbilities } from './spaceship-abilities';
 
 export interface Spaceship {
+  index: number;
   x: number;
   y: number;
   speed: number;

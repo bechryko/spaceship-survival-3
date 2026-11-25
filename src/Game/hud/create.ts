@@ -1,30 +1,25 @@
 import { Settings } from 'spaceship-survival-3/context';
-import { loadColor, loadHighscore } from 'spaceship-survival-3/localstorage';
+import { loadHighscore } from 'spaceship-survival-3/localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars, initBackgroundFeatures, Star } from '../background';
 import { createGlobalEffectsState } from '../global-effects';
-import { AbilityClass, createSpaceship, SpecialAbilityName } from '../spaceships';
+import { AbilityClass, createSpaceships, SpecialAbilityName } from '../spaceships';
 import { choose, initCanvas } from '../utils';
 import { GameState, GameStatus } from './game-state';
 
 export type GameStateConfig =
   | {
+      players: number;
       isQuickPlay: true;
     }
   | {
+      players: number;
       isQuickPlay: false;
-      abilityClass: AbilityClass;
-      specialAbilityName: SpecialAbilityName;
+      abilityClasses: AbilityClass[];
+      specialAbilityNames: SpecialAbilityName[];
     };
 
 export function createGameState(config: GameStateConfig, settings: Settings, status = GameStatus.PLAYING): GameState {
-  const spaceshipAbilityClass: AbilityClass = config.isQuickPlay
-    ? choose(Object.values(AbilityClass))
-    : config.abilityClass;
-  const specialAbilityId: SpecialAbilityName = config.isQuickPlay
-    ? choose(Object.values(SpecialAbilityName))
-    : config.specialAbilityName;
-
   const stars = createStars();
 
   return {
@@ -40,7 +35,7 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
       level2: choose(level2AsteroidBlueprints)
     },
     highscore: loadHighscore(),
-    players: [createSpaceship(spaceshipAbilityClass, loadColor(), specialAbilityId, settings)],
+    players: createSpaceships(config, settings),
     asteroids: [],
     entities: [],
     globalEffects: createGlobalEffectsState(settings),

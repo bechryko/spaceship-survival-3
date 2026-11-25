@@ -80,7 +80,7 @@ const ABILITY_HUD_KNOWLEDGE_OUTLINE_COLOR = 'rgba(0, 0, 0, 0.4)';
 const ABILITY_HUD_KNOWLEDGE_DETAIL_COLOR = 'rgba(255, 255, 255, 0.4)';
 
 function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: GameState): void {
-  const { abilities } = player;
+  const { index, abilities } = player;
   const almanac = getAlmanacForAbilities(player);
   const specialAlmanac = SpecialAbilityAlmanac[player.abilities.special];
   const slots = [
@@ -119,13 +119,14 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
   ];
 
   const totalWidth = slots.length * ABILITY_HUD_SLOT_SIZE + (slots.length - 1) * ABILITY_HUD_SLOT_GAP;
+  const hudX = index === 0 ? ABILITY_HUD_X_MARGIN : GAME_WIDTH - ABILITY_HUD_X_MARGIN - totalWidth;
 
   ctx.save();
 
   // Player indicator: a thin bar above the slots with the player color
   ctx.fillStyle = player.color;
   ctx.beginPath();
-  ctx.roundRect(ABILITY_HUD_X_MARGIN, ABILITY_HUD_TOP_MARGIN, totalWidth, 3, 1.5);
+  ctx.roundRect(hudX, ABILITY_HUD_TOP_MARGIN, totalWidth, 3, 1.5);
   ctx.fill();
 
   ctx.textAlign = 'center';
@@ -134,7 +135,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
   const totalTopMargin = ABILITY_HUD_TOP_MARGIN + ABILITY_HUD_PLAYER_INDICATOR_OFFSET;
 
   slots.forEach((slot, i) => {
-    const x = ABILITY_HUD_X_MARGIN + i * (ABILITY_HUD_SLOT_SIZE + ABILITY_HUD_SLOT_GAP);
+    const x = hudX + i * (ABILITY_HUD_SLOT_SIZE + ABILITY_HUD_SLOT_GAP);
     const cx = x + ABILITY_HUD_SLOT_SIZE / 2;
     const cy = totalTopMargin + ABILITY_HUD_SLOT_SIZE / 2;
     const isActive = slot.active > 0;
@@ -216,7 +217,7 @@ function drawPlayerHud(ctx: CanvasRenderingContext2D, player: Spaceship, state: 
     setFont(ctx, ABILITY_HUD_KNOWLEDGE_TEXT_WEIGHT, ABILITY_HUD_KNOWLEDGE_TEXT_SIZE);
     const groupWidth =
       ABILITY_HUD_KNOWLEDGE_ICON_WIDTH + ABILITY_HUD_KNOWLEDGE_ICON_TEXT_GAP + ctx.measureText(countText).width;
-    const groupLeft = ABILITY_HUD_X_MARGIN + totalWidth / 2 - groupWidth / 2;
+    const groupLeft = hudX + totalWidth / 2 - groupWidth / 2;
 
     drawKnowledgeBook(ctx, groupLeft + ABILITY_HUD_KNOWLEDGE_ICON_WIDTH / 2, bookCy, player.color);
 
