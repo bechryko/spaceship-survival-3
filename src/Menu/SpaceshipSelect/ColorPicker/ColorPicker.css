@@ -37,6 +37,10 @@
   cursor: pointer;
   transition: border-color 0.15s ease;
 
+  &[disabled] {
+    cursor: default;
+  }
+
   &:hover {
     border-color: rgba(255, 255, 255, 0.75);
   }

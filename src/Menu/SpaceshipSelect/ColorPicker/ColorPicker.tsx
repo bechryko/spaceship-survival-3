@@ -7,11 +7,27 @@ interface Props {
   className?: string;
   label?: string;
   colors: readonly SpaceshipColor[];
+  disabledColorNames: string[];
   value: string;
   onChange: (value: string) => void;
 }
 
-export default function ColorPicker({ className = '', label = 'Color', colors, value, onChange }: Props) {
+export default function ColorPicker({
+  className = '',
+  label = 'Color',
+  colors,
+  disabledColorNames,
+  value,
+  onChange
+}: Props) {
+  const isDisabled = (color: SpaceshipColor) => disabledColorNames.includes(color.value);
+
+  const onClick = (color: SpaceshipColor) => {
+    if (!isDisabled(color)) {
+      onChange(color.value);
+    }
+  };
+
   return (
     <div className={'color-picker blur-background ' + className}>
       <span className="color-picker-label" aria-hidden="true">
@@ -22,13 +38,14 @@ export default function ColorPicker({ className = '', label = 'Color', colors, v
         {colors.map(color => (
           <button
             key={color.value}
-            title={color.name}
+            title={color.name + (isDisabled(color) ? ' (Unavailable)' : '')}
             type="button"
             className="swatch"
+            disabled={isDisabled(color)}
             style={{ '--swatch-color': color.value } as CSSProperties}
             aria-label={color.name}
             aria-pressed={color.value === value}
-            onClick={() => onChange(color.value)}
+            onClick={() => onClick(color)}
           />
         ))}
       </div>

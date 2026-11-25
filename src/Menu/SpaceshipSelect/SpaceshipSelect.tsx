@@ -39,7 +39,7 @@ export default function SpaceshipSelect() {
   const activeSelection = readyState[0] ? 2 : 1;
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [isMultiplayer, setMultiplayer] = useState(false);
+  const [isMultiplayer, setMultiplayer] = useState(selectedId2 !== null);
   const { settings } = useSettings();
 
   const previewId = hoveredId ?? (!readyState[0] ? selectedId1 : selectedId2);
@@ -50,6 +50,9 @@ export default function SpaceshipSelect() {
 
   const changeColor = (color: string, isPlayer2 = false) => {
     if (!isPlayer2) {
+      if (color === color2) {
+        changeColor(color1, true);
+      }
       setColor1(color);
     } else {
       setColor2(color);
@@ -107,6 +110,7 @@ export default function SpaceshipSelect() {
           className="player1"
           label="Change Color"
           colors={SPACESHIP_COLORS}
+          disabledColorNames={isMultiplayer ? [color2] : []}
           value={color1}
           onChange={changeColor}
         />
@@ -116,6 +120,7 @@ export default function SpaceshipSelect() {
             className="player2"
             label="Change Color"
             colors={SPACESHIP_COLORS}
+            disabledColorNames={[color1]}
             value={color2}
             onChange={color => changeColor(color, true)}
           />
