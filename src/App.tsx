@@ -5,7 +5,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router';
 import { basename } from './basename';
 import Game from './Game/Game';
 import { Page } from './hooks';
-import { loadLastPlayedVersion, saveHighscore, saveLastPlayedVersion } from './localstorage';
+import { loadLastPlayedVersion, saveHighscores, saveLastPlayedVersion } from './localstorage';
 import CaptainsHandbook from './Menu/CaptainsHandbook/CaptainsHandbook';
 import Menu from './Menu/Menu';
 import SpaceshipSelect from './Menu/SpaceshipSelect/SpaceshipSelect';
@@ -21,8 +21,8 @@ export default function App() {
     const lastPlayedVersion = loadLastPlayedVersion();
 
     if (lastPlayedVersion && didUpdateThroughBreakingVersion(lastPlayedVersion)) {
-      saveHighscore(0);
-      console.warn('Highscore reset due to new version!');
+      saveHighscores(null);
+      console.warn('Highscores reset due to new version!');
       saveLastPlayedVersion(appVersion);
     }
   }, []);

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { useSettings } from 'spaceship-survival-3/context';
 import { forceRedirect, Page, useCustomNavigation } from 'spaceship-survival-3/hooks';
-import { saveHighscore } from 'spaceship-survival-3/localstorage';
+import { Highscores, loadHighscores, saveHighscores } from 'spaceship-survival-3/localstorage';
 import { drawAsteroid, tickAsteroids } from './asteroids';
 import { drawBackground, tickStars } from './background';
 import { drawEntities, tickEntities } from './entities';
@@ -192,7 +192,11 @@ export default function Game() {
         const score = calculateScore(state);
 
         if (score > state.highscore) {
-          saveHighscore(score);
+          const highscores: Highscores = {
+            ...loadHighscores()
+          };
+          highscores[state.players.length === 1 ? 'single' : 'multi'] = score;
+          saveHighscores(highscores);
         }
       }
       tickGlobalEffects(state, deltaTime);

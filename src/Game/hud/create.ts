@@ -1,5 +1,5 @@
 import { Settings } from 'spaceship-survival-3/context';
-import { loadHighscore } from 'spaceship-survival-3/localstorage';
+import { loadHighscores } from 'spaceship-survival-3/localstorage';
 import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars, initBackgroundFeatures, Star } from '../background';
 import { createGlobalEffectsState } from '../global-effects';
@@ -21,6 +21,7 @@ export type GameStateConfig =
 
 export function createGameState(config: GameStateConfig, settings: Settings, status = GameStatus.PLAYING): GameState {
   const stars = createStars();
+  const highscores = loadHighscores();
 
   return {
     status,
@@ -34,7 +35,7 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
     asteroidBlueprints: {
       level2: choose(level2AsteroidBlueprints)
     },
-    highscore: loadHighscore(),
+    highscore: config.players === 1 ? highscores.single : highscores.multi,
     players: createSpaceships(config, settings),
     asteroids: [],
     entities: [],

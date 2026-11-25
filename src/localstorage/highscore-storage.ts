@@ -1,18 +1,41 @@
 import { createLocalstorageKey } from './localstorage-key';
-import { validateJSON } from './validator';
+import { Schema, validateJSON } from './validator';
 
 const HIGHSCORE_STORAGE_KEY = createLocalstorageKey('highscore');
 
-export function loadHighscore(): number {
+export interface Highscores {
+  single: number;
+  multi: number;
+}
+
+const defaultHighscores: Highscores = {
+  single: 0,
+  multi: 0
+};
+
+export function loadHighscores(): Highscores {
   const loaded = localStorage.getItem(HIGHSCORE_STORAGE_KEY);
 
-  if (!loaded || !validateJSON(loaded, 'number')) {
-    saveHighscore(0);
-    return 0;
+  if (!loaded || !validateJSON(loaded, highscoreSchema)) {
+    if (!loaded || validateJSON(loaded, 'number')) {
+      saveHighscores({
+        single: Number(JSON.parse(loaded ?? '0')),
+        multi: 0
+      });
+      return defaultHighscores;
+    }
+
+    saveHighscores(null);
+    return defaultHighscores;
   }
   return JSON.parse(loaded);
 }
 
-export function saveHighscore(highscore: number): void {
-  localStorage.setItem(HIGHSCORE_STORAGE_KEY, JSON.stringify(highscore));
+export function saveHighscores(highscores: Highscores | null): void {
+  localStorage.setItem(HIGHSCORE_STORAGE_KEY, JSON.stringify(highscores ?? defaultHighscores));
 }
+
+const highscoreSchema: Schema = {
+  single: 'number',
+  multi: 'number'
+};
