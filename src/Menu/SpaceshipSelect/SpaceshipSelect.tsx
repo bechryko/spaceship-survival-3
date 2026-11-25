@@ -124,7 +124,7 @@ export default function SpaceshipSelect() {
 
       <div className="select-top">
         <section className="player-selection player-1-selection">
-          <SpaceshipPreview preview={preview1} color={color1} selectedId={selectedId1} />
+          <SpaceshipPreview isMultiplayer={isMultiplayer} preview={preview1} color={color1} selectedId={selectedId1} />
 
           {!isMultiplayer ? (
             <button
@@ -155,7 +155,12 @@ export default function SpaceshipSelect() {
             </button>
           ) : (
             <>
-              <SpaceshipPreview preview={preview2} color={color2} selectedId={selectedId2} />
+              <SpaceshipPreview
+                isMultiplayer={isMultiplayer}
+                preview={preview2}
+                color={color2}
+                selectedId={selectedId2}
+              />
 
               <button
                 type="button"

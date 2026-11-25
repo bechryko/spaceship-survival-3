@@ -1,3 +1,4 @@
+import { capitalize } from 'spaceship-survival-3/utility';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import { getSpecialAbility } from '../SpecialAbilitySelect/special-abilities';
 import { HandbookEntry } from './handbook-entries';
@@ -38,13 +39,16 @@ export function getEntryStats(entry: HandbookEntry): HandbookStat[] {
       return [];
     }
 
-    if (ability.kind === 'passive') {
-      return [{ label: 'Type', value: 'Passive, always on' }];
+    const typeEntry: HandbookStat = { label: 'Type', value: capitalize(ability.type) };
+
+    if (ability.activation === 'passive') {
+      return [{ label: 'Activation', value: 'Passive, always on' }, typeEntry];
     }
 
-    const type = 'Activatable' + (ability.kind === 'active-reactivate' ? ', can be reactivated' : '');
+    const activation = 'Activatable' + (ability.activation === 'active-reactivate' ? ', can be reactivated' : '');
     return [
-      { label: 'Type', value: type },
+      { label: 'Activation', value: activation },
+      typeEntry,
       { label: 'Cooldown', value: `${ability.cooldown}s` }
     ];
   }

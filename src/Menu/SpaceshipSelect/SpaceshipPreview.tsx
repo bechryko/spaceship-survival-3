@@ -3,12 +3,13 @@ import { DifficultyLevel, EnginePower, SpaceshipIcon } from 'spaceship-survival-
 import { SpaceshipDefinition } from './spaceship-catalog';
 
 interface Props {
+  isMultiplayer: boolean;
   preview: SpaceshipDefinition | null;
   color: string;
   selectedId: string | null;
 }
 
-export default function SpaceshipPreview({ preview, color, selectedId }: Props) {
+export default function SpaceshipPreview({ isMultiplayer, preview, color, selectedId }: Props) {
   return (
     <div className="preview" aria-live="polite">
       {preview ? (
@@ -33,6 +34,7 @@ export default function SpaceshipPreview({ preview, color, selectedId }: Props) 
                   <div>
                     <span className="ability-name">{ability.name}</span>
                     <span className="ability-cooldown">{ability.cooldown}s cooldown</span>
+                    {isMultiplayer && <span className="ability-type">{ability.type}</span>}
                     <p className="ability-description">{ability.description}</p>
                   </div>
                 </li>

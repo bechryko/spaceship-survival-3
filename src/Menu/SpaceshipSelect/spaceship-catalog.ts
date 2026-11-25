@@ -1,8 +1,10 @@
 import {
   AbilityAlmanac,
   AbilityClass,
+  SpaceshipAbilityType,
   SpaceshipShape,
   SpecialAbilityName,
+  abilities,
   spaceshipAbilityClassShipShapeMap
 } from 'spaceship-survival-3/Game/spaceships';
 
@@ -18,6 +20,7 @@ export interface SpaceshipDefinition {
 }
 
 export interface SpaceshipAbilityInfo {
+  type: SpaceshipAbilityType;
   key: 'Q' | 'W' | 'E';
   name: string;
   description: string;
@@ -34,18 +37,21 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
     difficultyLevel: 1,
     abilities: [
       {
+        type: abilities[AbilityClass.GUNSHIP].q.type,
         key: 'Q',
         name: AbilityAlmanac[AbilityClass.GUNSHIP].q.name,
         description: AbilityAlmanac[AbilityClass.GUNSHIP].q.shortDescription,
         cooldown: AbilityAlmanac[AbilityClass.GUNSHIP].q.cooldown
       },
       {
+        type: abilities[AbilityClass.GUNSHIP].w.type,
         key: 'W',
         name: AbilityAlmanac[AbilityClass.GUNSHIP].w.name,
         description: AbilityAlmanac[AbilityClass.GUNSHIP].w.shortDescription,
         cooldown: AbilityAlmanac[AbilityClass.GUNSHIP].w.cooldown
       },
       {
+        type: abilities[AbilityClass.GUNSHIP].e.type,
         key: 'E',
         name: AbilityAlmanac[AbilityClass.GUNSHIP].e.name,
         description: AbilityAlmanac[AbilityClass.GUNSHIP].e.shortDescription,
@@ -64,18 +70,21 @@ export const SPACESHIPS: readonly SpaceshipDefinition[] = [
     difficultyLevel: 3,
     abilities: [
       {
+        type: abilities[AbilityClass.SCIENTIST].q.type,
         key: 'Q',
         name: AbilityAlmanac[AbilityClass.SCIENTIST].q.name,
         description: AbilityAlmanac[AbilityClass.SCIENTIST].q.shortDescription,
         cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].q.cooldown
       },
       {
+        type: abilities[AbilityClass.SCIENTIST].w.type,
         key: 'W',
         name: AbilityAlmanac[AbilityClass.SCIENTIST].w.name,
         description: AbilityAlmanac[AbilityClass.SCIENTIST].w.shortDescription,
         cooldown: AbilityAlmanac[AbilityClass.SCIENTIST].w.cooldown
       },
       {
+        type: abilities[AbilityClass.SCIENTIST].e.type,
         key: 'E',
         name: AbilityAlmanac[AbilityClass.SCIENTIST].e.name,
         description: AbilityAlmanac[AbilityClass.SCIENTIST].e.shortDescription,

@@ -114,6 +114,7 @@ export default function AbilitySelect() {
       <div className="select-top">
         <section className={'loadout-container' + (!isMultiplayer ? ' singleplayer' : '')}>
           <LoadoutPreview
+            isMultiplayer={isMultiplayer}
             specialAbilityPreview={preview1}
             color={color1}
             spaceship={spaceship1}
@@ -144,6 +145,7 @@ export default function AbilitySelect() {
         {isMultiplayer && (
           <section className="loadout-container">
             <LoadoutPreview
+              isMultiplayer={isMultiplayer}
               specialAbilityPreview={preview2}
               color={color2}
               spaceship={spaceship2}

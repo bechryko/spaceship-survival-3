@@ -4,13 +4,14 @@ import { SpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import { SpecialAbilityDefinition } from './special-abilities';
 
 interface Props {
+  isMultiplayer: boolean;
   specialAbilityPreview?: SpecialAbilityDefinition;
   color: string;
   spaceship: SpaceshipDefinition;
   selectedId: string | null;
 }
 
-export default function LoadoutPreview({ specialAbilityPreview, color, spaceship, selectedId }: Props) {
+export default function LoadoutPreview({ isMultiplayer, specialAbilityPreview, color, spaceship, selectedId }: Props) {
   return (
     <div className="loadout">
       <div className="loadout-ship">
@@ -33,9 +34,10 @@ export default function LoadoutPreview({ specialAbilityPreview, color, spaceship
                 {specialAbilityPreview.id === selectedId && <span className="preview-tag">Selected</span>}
               </h2>
               <p className="loadout-ability-meta">
-                {specialAbilityPreview.kind === 'passive'
+                {specialAbilityPreview.activation === 'passive'
                   ? 'Passive'
                   : `Press R · ${specialAbilityPreview.cooldown}s cooldown`}
+                {isMultiplayer && <span className="loadout-ability-type">{specialAbilityPreview.type}</span>}
               </p>
               <p className="loadout-ability-description">{specialAbilityPreview.shortDescription}</p>
             </div>

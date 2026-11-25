@@ -15,6 +15,7 @@ import {
   SPACESHIP_MAX_SURVIVE_CHANCE,
   SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE
 } from 'spaceship-survival-3/Game/spaceships';
+import { capitalize } from 'spaceship-survival-3/utility';
 import { SPACESHIPS } from '../SpaceshipSelect/spaceship-catalog';
 import { SPECIAL_ABILITIES } from '../SpecialAbilitySelect/special-abilities';
 import { HANDBOOK_TIPS } from './handbook-tips';
@@ -30,7 +31,7 @@ export interface HandbookGroup {
 
 export interface HandbookSection {
   heading: string;
-  paragraphs: readonly string[];
+  paragraphs: string[];
   isList?: boolean;
 }
 
@@ -141,6 +142,36 @@ function getGeneralEntries(): HandbookEntry[] {
           ]
         }
       ]
+    },
+    {
+      id: 'general_multiplayer',
+      group: 'general',
+      name: 'Multiplayer',
+      summary:
+        'You feel like the game is too much for you? Or just want to share the fun / suffering with your friend or partner? The game has multiplayer mode, so you can absolutely do that, while discovering the opportunities this mode can offer.',
+      sections: [
+        {
+          heading: 'How to play',
+          paragraphs: [
+            'To play in multiplayer, start the game and press the "Add player" button on the spaceship selection screen. And voilà, you can play together!',
+            "The game plays very similarly in multiplayer. It's over if both players are dead, and the highscore counts separately from the singleplayer mode's highscore."
+          ]
+        },
+        {
+          heading: 'Dead players',
+          paragraphs: [
+            "However, there are some differences. If one of the player's ship gets destroyed, they are unable to control it anymore, but their crew survives! They escape to the other player's ship, that becomes their host, where they can still cast abilities that are not bound to their spaceship."
+          ]
+        },
+        {
+          heading: 'Spaceship ability types',
+          paragraphs: [
+            'There are two types of spaceship abilities: equipments and devices. They have a huge role in a multiplayer game, and can affect loadout selection when trying to figure out what spaceship and special ability to choose.',
+            'Equipment abilities are bound to the spaceship. They are some kind of upgrades that are part of the spaceship (like a rocket launcher), that cannot be removed, so when the spaceship is destroyed, these abilities become unavailable.',
+            "Device abilities however are things that can be moved, so before an asteroid would hit the ship, the evacuating crew can take these abilities with them. Device abilities can be cast from another player's spaceship, and in some cases there are special interactions between an ability and another spaceship. You can find these interactions under their corresponding handbook entry."
+          ]
+        }
+      ]
     }
   ];
 }
@@ -157,16 +188,16 @@ function getSpaceshipEntries(): HandbookEntry[] {
       summary: spaceshipDefinition.description,
       sections: [
         {
-          heading: `${spaceshipDefinition.abilities[0].name} (Q)`,
-          paragraphs: [AbilityAlmanac[spaceshipDefinition.id].q.longDescription]
+          heading: `${spaceshipDefinition.abilities[0].name} (Q, ${capitalize(spaceshipDefinition.abilities[0].type)})`,
+          paragraphs: AbilityAlmanac[spaceshipDefinition.id].q.longDescription
         },
         {
-          heading: `${spaceshipDefinition.abilities[1].name} (W)`,
-          paragraphs: [AbilityAlmanac[spaceshipDefinition.id].w.longDescription]
+          heading: `${spaceshipDefinition.abilities[1].name} (W, ${capitalize(spaceshipDefinition.abilities[1].type)})`,
+          paragraphs: AbilityAlmanac[spaceshipDefinition.id].w.longDescription
         },
         {
-          heading: `${spaceshipDefinition.abilities[2].name} (E)`,
-          paragraphs: [AbilityAlmanac[spaceshipDefinition.id].e.longDescription]
+          heading: `${spaceshipDefinition.abilities[2].name} (E, ${capitalize(spaceshipDefinition.abilities[2].type)})`,
+          paragraphs: AbilityAlmanac[spaceshipDefinition.id].e.longDescription
         },
         {
           heading: 'Suggested Special Abilities',
@@ -195,7 +226,7 @@ function getSpecialAbilityEntries(): HandbookEntry[] {
       sections: [
         {
           heading: 'How it works',
-          paragraphs: [specialAbilityDefinition.longDescription]
+          paragraphs: specialAbilityDefinition.longDescription
         },
         {
           heading: 'Using it well',

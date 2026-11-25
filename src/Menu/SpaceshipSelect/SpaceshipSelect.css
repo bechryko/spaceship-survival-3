@@ -209,6 +209,15 @@
   opacity: 0.6;
 }
 
+.ability-type {
+  margin-left: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  font-size: 0.8rem;
+  opacity: calc(0.6 * 0.7);
+}
+
 .ability-description {
   margin: 0.15rem 0 0;
   font-size: 0.9rem;
