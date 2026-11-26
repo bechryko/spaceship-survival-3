@@ -4,7 +4,7 @@ import { level2AsteroidBlueprints } from '../asteroids';
 import { createStars, initBackgroundFeatures, Star } from '../background';
 import { createGlobalEffectsState } from '../global-effects';
 import { AbilityClass, createSpaceships, SpecialAbilityName } from '../spaceships';
-import { choose, initCanvas } from '../utils';
+import { between, choose, darken, initCanvas } from '../utils';
 import { GameState, GameStatus } from './game-state';
 
 export type GameStateConfig =
@@ -54,9 +54,13 @@ export function createGameState(config: GameStateConfig, settings: Settings, sta
 }
 
 const BACKGROUND_COLORS = ['#0C1230', '#1d1a37', '#1B2042', '#131934', '#171038', '#071a2a', '#19152B'];
+const BACKGROUND_COLOR_MAX_DARKEN_RATE = 0.5;
 
 function getRandomBackgroundColor(): string {
-  return choose(BACKGROUND_COLORS);
+  const baseColor = choose(BACKGROUND_COLORS);
+  const darkenRate = between(0, BACKGROUND_COLOR_MAX_DARKEN_RATE, { floor: false });
+  const color = darken(baseColor, darkenRate);
+  return color;
 }
 
 function createUtilityCanvas(settings: Settings, stars: Star[]): HTMLCanvasElement {

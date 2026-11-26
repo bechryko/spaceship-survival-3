@@ -1,7 +1,7 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { between, choose } from '../utils';
 
-export const STAR_COUNT = 160;
+const STAR_COUNT = 180;
 const STAR_TINTS = ['#ffffff', '#cfe3ff', '#fff1c9', '#ffecf6'];
 const SMALL_STAR_CHANCE = 0.875;
 const SMALL_STAR_MIN_SIZE = 1;

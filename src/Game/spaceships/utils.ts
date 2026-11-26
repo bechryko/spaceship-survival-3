@@ -1,5 +1,6 @@
 import { Asteroid, AsteroidType } from '../asteroids';
 import { GameState } from '../hud';
+import { chance } from '../utils';
 import { findEffect, SpaceshipEffectType } from './effects';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbility, SpaceshipAbilityProfile, SpaceshipAbilityType } from './spaceship-abilities';
@@ -18,8 +19,9 @@ export function isSpaceshipImmune(spaceship: Spaceship, asteroid: Asteroid): boo
     SPACESHIP_MAX_SURVIVE_CHANCE,
     spaceship.asteroidKnowledge * SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE
   );
-  const hasKnowledgeAndSurvive =
-    Math.random() < (asteroid.type === AsteroidType.ICE_SHARD ? knowledgeChance * 2 : knowledgeChance);
+  const hasKnowledgeAndSurvive = chance(
+    asteroid.type === AsteroidType.ICE_SHARD ? knowledgeChance * 2 : knowledgeChance
+  );
 
   return hasShieldFromShieldGenerator || hasKnowledgeAndSurvive;
 }

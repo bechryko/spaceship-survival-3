@@ -41,6 +41,17 @@ export function choose<T>(array: T[], seed?: number): T {
   return array[between(0, array.length, { includeMax: false, seed })];
 }
 
+export function chance(chance = 0.5): boolean {
+  return Math.random() < chance;
+}
+
 export function randomAngle(): number {
   return between(0, Math.PI * 2, { floor: false });
+}
+
+/** Normally distributed random number: mostly near 0, rarely far. Makes clusters look natural. */
+export function gaussian(): number {
+  let u = 0;
+  while (u === 0) u = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random());
 }

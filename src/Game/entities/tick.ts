@@ -2,7 +2,7 @@ import { Asteroid, AsteroidType, destroyAsteroid, getAsteroidPolygon, pushAstero
 import { GAME_HEIGHT, GameState } from '../hud';
 import { Point } from '../models';
 import { AbilityAlmanac, AbilityClass, SpecialAbilityAlmanac, SpecialAbilityName } from '../spaceships';
-import { clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide } from '../utils';
+import { chance, clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide } from '../utils';
 import { explode } from './create';
 import { Bomb, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import {
@@ -295,7 +295,7 @@ function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number
 
       // Sideways push
       const dx = asteroid.x - spaceship.x;
-      const side = dx === 0 ? (Math.random() < 0.5 ? 1 : -1) : Math.sign(dx);
+      const side = dx === 0 ? (chance() ? 1 : -1) : Math.sign(dx);
       const push = ((plasmaJetStats.sideAcceleration * strength) / inertia) * deltaTime;
       asteroid.velocityHorizontal += side * push;
 

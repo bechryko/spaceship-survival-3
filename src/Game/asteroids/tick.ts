@@ -1,6 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
 import { destroySpaceship, isSpaceshipImmune } from '../spaceships';
-import { between, boundingRadius, clamp01, polygonsCollide, transformPolygon } from '../utils';
+import { between, boundingRadius, chance, clamp01, polygonsCollide, transformPolygon } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import {
   createIceShardBlueprint,
@@ -30,7 +30,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): boolean {
     if (state.spawnTimer.asteroidWaveSpawn === 0) {
       spawnAsteroid(state);
 
-      if (state.statistics.asteroidsSpawned >= TRIPLE_ASTEROID_THRESHOLD && Math.random() < TRIPLE_ASTEROID_CHANCE) {
+      if (state.statistics.asteroidsSpawned >= TRIPLE_ASTEROID_THRESHOLD && chance(TRIPLE_ASTEROID_CHANCE)) {
         spawnAsteroid(state);
       }
     }

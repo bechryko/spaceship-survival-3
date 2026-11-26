@@ -54,6 +54,12 @@ export function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
 }
 
+/** 0 below edge0, 1 above edge1, a smooth curve between. Works with the edges swapped, too. */
+export function smoothstep(edge0: number, edge1: number, x: number): number {
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+}
+
 export function getNumberOrRangeValue(value: number | Range, isInteger = true): number {
   return typeof value === 'number' ? value : between(value.min, value.max, { floor: isInteger });
 }

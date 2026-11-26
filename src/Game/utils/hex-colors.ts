@@ -5,7 +5,7 @@ export function withAlpha(hex: string, alpha: number): string {
 }
 
 export function darken(hex: string, amount = 0.15): string {
-  const { r, g, b } = toRgb(hex);
+  const [r, g, b] = hexToRgb(hex);
 
   const darkenChannel = (value: number) => Math.round(value * (1 - amount));
 
@@ -13,20 +13,14 @@ export function darken(hex: string, amount = 0.15): string {
 }
 
 export function lighten(hex: string, amount = 0.15): string {
-  const { r, g, b } = toRgb(hex);
+  const [r, g, b] = hexToRgb(hex);
 
   const lightenChannel = (value: number) => Math.round(value + (255 - value) * amount);
 
   return `#${[r, g, b].map(channel => lightenChannel(channel).toString(16).padStart(2, '0')).join('')}`;
 }
 
-function toRgb(hex: string): { r: number; g: number; b: number } {
-  const normalized = hex.replace('#', '');
-  const num = parseInt(normalized, 16);
-
-  const r = (num >> 16) & 255;
-  const g = (num >> 8) & 255;
-  const b = num & 255;
-
-  return { r, g, b };
+export function hexToRgb(color: string): [number, number, number] {
+  const value = parseInt(color.slice(1), 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
 }

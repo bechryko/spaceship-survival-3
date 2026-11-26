@@ -1,5 +1,5 @@
 import { GAME_WIDTH, GameState } from '../hud';
-import { between, getNumberOrRangeValue } from '../utils';
+import { between, chance, getNumberOrRangeValue } from '../utils';
 import { Asteroid } from './asteroid';
 import { AsteroidBlueprint, regularAsteroidBlueprint, startingAsteroidDataProvider } from './blueprints';
 import { createCraters } from './craters';
@@ -159,7 +159,7 @@ function pickSpawnX(r: number, previousX: number | null, beforePreviousX: number
   const totalLength = intervals.reduce((sum, [start, end]) => sum + end - start, 0);
 
   if (totalLength === 0) {
-    return Math.random() < 0.5 ? lowerBound : upperBound;
+    return chance() ? lowerBound : upperBound;
   }
 
   let pick = Math.random() * totalLength;
