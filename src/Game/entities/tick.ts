@@ -74,9 +74,20 @@ function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
 const LASER_EXPLOSION_RADIUS_MULTIPLIER = 1.1;
 
 function tickLaser(laser: Laser, deltaTime: number, state: GameState): void {
+  if (!laser.owner.alive) {
+    laser.active = false;
+    return;
+  }
+
+  const laserStats = AbilityAlmanac[AbilityClass.GUNSHIP].e;
+
   laser.timeLeft = Math.max(0, laser.timeLeft - deltaTime);
 
-  const beam: LaserBeam = { x: laser.getX(), width: laser.width, bottomY: laser.getBottomY() };
+  const beam: LaserBeam = {
+    x: laser.owner.x + laserStats.sideXOffset,
+    width: laser.width,
+    bottomY: laser.owner.y + laserStats.launchYOffset
+  };
   laser.topY = getLaserTopY(beam, state.asteroids);
 
   for (let i = state.asteroids.length - 1; i >= 0; i--) {
@@ -237,6 +248,11 @@ function tickShockwave(wave: Shockwave, state: GameState, deltaTime: number): vo
 }
 
 function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number): void {
+  if (!plasmaJet.owner.alive) {
+    plasmaJet.active = false;
+    return;
+  }
+
   const plasmaJetStats = AbilityAlmanac[AbilityClass.SCIENTIST].e;
 
   if (plasmaJet.isActivated) {

@@ -1,7 +1,8 @@
 import { Spaceship } from './spaceship';
 
 export enum SpaceshipEffectType {
-  SHIELD
+  SHIELD,
+  STRONGER_ENGINES
 }
 
 export interface SpaceshipEffect {
@@ -21,3 +22,5 @@ export function startEffect(spaceship: Spaceship, effectType: SpaceshipEffectTyp
 export function findEffect(spaceship: Spaceship, effectType: SpaceshipEffectType): SpaceshipEffect | undefined {
   return spaceship.effects.find(effect => effect.type === effectType);
 }
+
+export const STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER = 1.25;

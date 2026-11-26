@@ -51,8 +51,7 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
           {
             type: EntityType.LASER,
             topY: 0,
-            getX: () => spaceship.x + AbilityAlmanac[AbilityClass.GUNSHIP].e.sideXOffset,
-            getBottomY: () => spaceship.y + AbilityAlmanac[AbilityClass.GUNSHIP].e.launchYOffset,
+            owner: spaceship,
             width: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserWidth,
             totalTime: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserDuration,
             timeLeft: AbilityAlmanac[AbilityClass.GUNSHIP].e.laserDuration

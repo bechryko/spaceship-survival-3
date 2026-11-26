@@ -126,10 +126,12 @@ function drawLaser(ctx: CanvasRenderingContext2D, laser: Laser): void {
     return;
   }
 
+  const laserStats = AbilityAlmanac[AbilityClass.GUNSHIP].e;
+
   // Quick fade-in at the start, short fade-out at the end
   const intensity = Math.max(0, Math.min(1, (totalTime - timeLeft) / 0.12, timeLeft / 0.25));
-  const x = laser.getX();
-  const bottomY = laser.getBottomY();
+  const x = laser.owner.x + laserStats.sideXOffset;
+  const bottomY = laser.owner.y + laserStats.launchYOffset;
   const topY = Math.min(laser.topY, bottomY);
   const pulse = 1 + 0.12 * Math.sin(timeLeft * 70);
 

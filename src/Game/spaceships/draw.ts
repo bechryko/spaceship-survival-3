@@ -1,5 +1,4 @@
 import { between, boundingRadius, clamp01, easeOutBack, hash, withAlpha } from '../utils';
-import { SpecialAbilityName } from './ability-almanac';
 import { findEffect, SpaceshipEffect, SpaceshipEffectType } from './effects';
 import { Spaceship } from './spaceship';
 
@@ -83,7 +82,7 @@ const NORMAL_FLAME_COLOR = '#ffb703';
 const NORMAL_FLAME_WIDTH = 10;
 
 function drawFlame(ctx: CanvasRenderingContext2D, spaceship: Spaceship, time: number): void {
-  const isStrongerFlame = spaceship.abilities.special === SpecialAbilityName.STRONGER_ENGINES;
+  const isStrongerFlame = Boolean(findEffect(spaceship, SpaceshipEffectType.STRONGER_ENGINES));
   const { engines } = spaceship.shape;
 
   engines.forEach(engine => {

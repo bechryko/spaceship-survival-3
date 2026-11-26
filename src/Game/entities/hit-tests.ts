@@ -95,7 +95,11 @@ function polygonIntersectsRect(
 }
 
 // ---------- Laser ----------
-export type LaserBeam = { x: number; width: number; bottomY: number };
+export interface LaserBeam {
+  x: number;
+  width: number;
+  bottomY: number;
+}
 
 /** A beam that only just touches the edge of an asteroid doesn't count as a hit. */
 const LASER_TOUCH_TOLERANCE = 0.01;

@@ -1,5 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH } from '../hud';
 import { AbilityClass } from './ability-class';
+import { STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER } from './effects';
 import { SPACESHIP_MAX_SURVIVE_CHANCE, SPACESHIP_SURVIVE_CHANCE_PER_KNOWLEDGE } from './utils';
 
 export const SpeedAlmanac: Record<number, number> = {
@@ -133,7 +134,7 @@ interface SpecialAbilityAlmanacEntry {
   [key: string]: string | string[] | number | boolean | undefined;
 }
 
-const STRONGER_ENGINES_SPEED_BONUS_PERCENT = 25;
+const STRONGER_ENGINES_SPEED_BONUS_PERCENT = (STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER - 1) * 100;
 const BOMB_EXPLOSION_DELAY = 3;
 const SHIELD_GENERATOR_DURATION = 3;
 
@@ -145,7 +146,7 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
       `Your spaceship moves ${STRONGER_ENGINES_SPEED_BONUS_PERCENT}% faster. This equals to roughly +2 Engine Power levels.`
     ],
     activeTime: Infinity,
-    movementSpeedMultiplier: 1 + STRONGER_ENGINES_SPEED_BONUS_PERCENT / 100
+    movementSpeedMultiplier: STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER
   },
   [SpecialAbilityName.BOMB]: {
     summary: 'Shoots a slow bomb forward that you can set off at the right moment.',

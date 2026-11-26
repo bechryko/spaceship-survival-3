@@ -1,6 +1,6 @@
 import { GAME_WIDTH, GameState } from '../hud';
 import { forEachAbility } from '../utils';
-import { SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
+import { findEffect, SpaceshipEffectType, STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER } from './effects';
 import { Spaceship } from './spaceship';
 
 export function tickSpaceships(state: GameState, deltaTime: number): void {
@@ -47,8 +47,8 @@ function tickSpaceship(spaceship: Spaceship, deltaTime: number): void {
 function calculateSpaceshipSpeed(spaceship: Spaceship): number {
   let speed = spaceship.speed;
 
-  if (spaceship.abilities.special === SpecialAbilityName.STRONGER_ENGINES) {
-    speed *= Number(SpecialAbilityAlmanac[SpecialAbilityName.STRONGER_ENGINES].movementSpeedMultiplier);
+  if (findEffect(spaceship, SpaceshipEffectType.STRONGER_ENGINES)) {
+    speed *= STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER;
   }
 
   return speed;

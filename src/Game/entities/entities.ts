@@ -28,9 +28,8 @@ export interface Rocket extends EntityBase {
 
 export interface Laser extends EntityBase {
   type: EntityType.LASER;
+  owner: Spaceship;
   topY: number;
-  getX: () => number;
-  getBottomY: () => number;
   width: number;
   totalTime: number;
   timeLeft: number;

@@ -5,6 +5,7 @@ import { choose } from '../utils';
 import { abilities, specialAbilities } from './abilities';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName, SpeedAlmanac } from './ability-almanac';
 import { AbilityClass } from './ability-class';
+import { SpaceshipEffect, SpaceshipEffectType } from './effects';
 import { spaceshipAbilityClassShipShapeMap } from './hitbox';
 import { Spaceship } from './spaceship';
 import { SpaceshipAbility } from './spaceship-abilities';
@@ -32,7 +33,7 @@ export function createSpaceships(config: GameStateConfig, settings: Settings): S
       x,
       y: GAME_HEIGHT - 70,
       speed: SpeedAlmanac[almanacEntry.speedLevel],
-      effects: [],
+      effects: getInitialEffects(specialAbilityId),
       abilities: {
         profile: abilities[abilityClass],
         special: specialAbilityId,
@@ -85,4 +86,18 @@ function getLoadout(
     abilityClass: config.abilityClasses[index],
     specialAbilityId: config.specialAbilityNames[index]
   };
+}
+
+function getInitialEffects(specialAbility: SpecialAbilityName): SpaceshipEffect[] {
+  const effects: SpaceshipEffect[] = [];
+
+  if (specialAbility === SpecialAbilityName.STRONGER_ENGINES) {
+    effects.push({
+      type: SpaceshipEffectType.STRONGER_ENGINES,
+      age: 0,
+      duration: Infinity
+    });
+  }
+
+  return effects;
 }
