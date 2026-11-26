@@ -6,6 +6,7 @@ import { SpaceshipIcon } from 'spaceship-survival-3/components';
 import { useSettings } from 'spaceship-survival-3/context';
 import { Page, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
 import { loadColor, saveColor } from 'spaceship-survival-3/localstorage';
+import { classNames } from 'spaceship-survival-3/utility';
 import { menuKeybinds } from '../menu-keybinds';
 import StarBackground from '../StarBackground';
 import ColorPicker from './ColorPicker/ColorPicker';
@@ -35,12 +36,12 @@ export default function SpaceshipSelect() {
   const [color2, setColor2] = useState(loadColor(true));
   const [specialAbilityName2, setSpecialAbilityName2] = useState(returned?.specialAbilityNames?.[1]);
 
-  const [readyState, setReadyState] = useState<[boolean, boolean]>([false, false]);
-  const activeSelection = readyState[0] ? 2 : 1;
-
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isMultiplayer, setMultiplayer] = useState(selectedId2 !== null);
   const { settings } = useSettings();
+
+  const [readyState, setReadyState] = useState<[boolean, boolean]>([false, false]);
+  const activeSelection = readyState[0] && isMultiplayer ? 2 : 1;
 
   const previewId = hoveredId ?? (!readyState[0] ? selectedId1 : selectedId2);
   const preview = previewId ? getSpaceshipDefinition(previewId) : null;
@@ -131,7 +132,7 @@ export default function SpaceshipSelect() {
       </div>
 
       <div className="select-top">
-        <section className="player-selection player-1-selection">
+        <section className={classNames({ 'player-selection': true, active: activeSelection === 1 && isMultiplayer })}>
           <SpaceshipPreview isMultiplayer={isMultiplayer} preview={preview1} color={color1} selectedId={selectedId1} />
 
           {!isMultiplayer ? (
@@ -155,7 +156,7 @@ export default function SpaceshipSelect() {
           )}
         </section>
 
-        <section className="player-selection player-2-selection">
+        <section className={classNames({ 'player-selection': true, active: activeSelection === 2 && isMultiplayer })}>
           {!isMultiplayer ? (
             <button className="button add-player blur-background" onClick={() => setMultiplayer(true)}>
               <span className="plus-sign">+</span>

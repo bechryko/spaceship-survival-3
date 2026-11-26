@@ -1,5 +1,6 @@
 import { Point } from 'spaceship-survival-3/Game/models';
 import { SpaceshipShape } from 'spaceship-survival-3/Game/spaceships';
+import { classNames } from 'spaceship-survival-3/utility';
 
 const toPoints = (points: readonly Point[]): string => points.map(([x, y]) => `${x},${y}`).join(' ');
 
@@ -18,7 +19,7 @@ export function SpaceshipIcon({ color, shape, flame = 'none' }: Props) {
         shape.engines.map(([x, y], index) => (
           <polygon
             key={index}
-            className={flame === 'animated' ? 'spaceship-flame' : undefined}
+            className={classNames({ 'spaceship-flame': flame === 'animated' })}
             points={`${x - flameHalfWidth},${y} ${x},${y + 16} ${x + flameHalfWidth},${y}`}
             fill="#ffb703"
             opacity="0.9"

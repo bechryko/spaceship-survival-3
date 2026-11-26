@@ -1,5 +1,7 @@
 import './EnginePower.css';
 
+import { classNames } from 'spaceship-survival-3/utility';
+
 interface Props {
   level: number;
   label?: boolean;
@@ -12,7 +14,7 @@ export function EnginePower({ level, label = true }: Props) {
 
   return (
     <div
-      className={'engine-power' + (label ? '' : ' no-margin')}
+      className={classNames({ 'engine-power': true, 'no-margin': !label })}
       role="img"
       aria-label={`Engine power: ${lit} out of ${ENGINE_POWER_MAX_LEVELS}`}
     >

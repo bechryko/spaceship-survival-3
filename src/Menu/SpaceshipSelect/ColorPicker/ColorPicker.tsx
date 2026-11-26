@@ -1,6 +1,7 @@
 import './ColorPicker.css';
 
 import { CSSProperties } from 'react';
+import { classNames } from 'spaceship-survival-3/utility';
 import { SpaceshipColor } from './spaceship-colors';
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export default function ColorPicker({
-  className = '',
+  className,
   label = 'Color',
   colors,
   disabledColorNames,
@@ -29,7 +30,7 @@ export default function ColorPicker({
   };
 
   return (
-    <div className={'color-picker blur-background ' + className}>
+    <div className={classNames({ 'color-picker': true, 'blur-background': true, [className ?? '']: className })}>
       <span className="color-picker-label" aria-hidden="true">
         {label}
       </span>

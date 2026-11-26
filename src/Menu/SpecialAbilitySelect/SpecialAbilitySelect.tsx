@@ -6,6 +6,7 @@ import { SpecialAbilityIcon } from 'spaceship-survival-3/components';
 import { useSettings } from 'spaceship-survival-3/context';
 import { Page, forceRedirect, useCustomNavigation, useEventListener } from 'spaceship-survival-3/hooks';
 import { loadColor } from 'spaceship-survival-3/localstorage';
+import { classNames } from 'spaceship-survival-3/utility';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
 import StarBackground from '../StarBackground';
 import LoadoutPreview from './LoadoutPreview';
@@ -112,7 +113,13 @@ export default function SpecialAbilitySelect() {
       </div>
 
       <div className="select-top">
-        <section className={'loadout-container' + (!isMultiplayer ? ' singleplayer' : '')}>
+        <section
+          className={classNames({
+            'loadout-container': true,
+            singleplayer: !isMultiplayer,
+            active: activeSelection === 1 && isMultiplayer
+          })}
+        >
           <LoadoutPreview
             isMultiplayer={isMultiplayer}
             specialAbilityPreview={preview1}
@@ -143,7 +150,9 @@ export default function SpecialAbilitySelect() {
         </section>
 
         {isMultiplayer && (
-          <section className="loadout-container">
+          <section
+            className={classNames({ 'loadout-container': true, active: activeSelection === 2 && isMultiplayer })}
+          >
             <LoadoutPreview
               isMultiplayer={isMultiplayer}
               specialAbilityPreview={preview2}
@@ -175,7 +184,7 @@ export default function SpecialAbilitySelect() {
               <button
                 key={slotAbility.id}
                 type="button"
-                className={'slot' + (isHighlighted ? ' highlighted' : '')}
+                className={classNames({ slot: true, highlighted: isHighlighted })}
                 aria-label={slotAbility.id}
                 aria-pressed={slotAbility.id === selectedId1}
                 onClick={() => selectSpecialAbility(slotAbility.id)}

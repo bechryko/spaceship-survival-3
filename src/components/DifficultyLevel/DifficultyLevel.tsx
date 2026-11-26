@@ -2,6 +2,7 @@ import './DifficultyLevel.css';
 
 import { CSSProperties } from 'react';
 import { clamp } from 'spaceship-survival-3/Game/utils';
+import { classNames } from 'spaceship-survival-3/utility';
 
 interface Props {
   level: number;
@@ -16,7 +17,7 @@ export function DifficultyLevel({ level, label = true }: Props) {
 
   return (
     <div
-      className={'difficulty' + (label ? '' : ' no-margin')}
+      className={classNames({ difficulty: true, 'no-margin': !label })}
       role="img"
       aria-label={`Difficulty: ${lit} out of ${DIFFICULTY_MAX_LEVEL}`}
     >
