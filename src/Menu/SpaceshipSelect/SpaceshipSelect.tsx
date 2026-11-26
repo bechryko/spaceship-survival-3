@@ -73,8 +73,8 @@ export default function SpaceshipSelect() {
   const next = () => {
     if (selectedId1) {
       navigate(Page.SPECIAL_ABILITY_SELECTION, {
-        spaceshipIds: [selectedId1, selectedId2],
-        specialAbilityNames: [specialAbilityName1, specialAbilityName2]
+        spaceshipIds: [selectedId1, null],
+        specialAbilityNames: [specialAbilityName1, null]
       });
     }
   };
@@ -85,7 +85,10 @@ export default function SpaceshipSelect() {
     newReadyState[player] = !previousReadyState;
 
     if (newReadyState[0] && newReadyState[1]) {
-      next();
+      navigate(Page.SPECIAL_ABILITY_SELECTION, {
+        spaceshipIds: [selectedId1, selectedId2],
+        specialAbilityNames: [specialAbilityName1, specialAbilityName2]
+      });
     } else {
       setReadyState(newReadyState);
     }
@@ -202,7 +205,7 @@ export default function SpaceshipSelect() {
                 onFocus={() => setHoveredId(spaceship.id)}
                 onBlur={() => setHoveredId(null)}
               >
-                <SpaceshipIcon color={color1} shape={spaceship.shape} flame="static" />
+                <SpaceshipIcon color={activeSelection === 1 ? color1 : color2} shape={spaceship.shape} flame="static" />
               </button>
             ) : (
               <span key={`empty-${index}`} className="slot slot-empty" aria-hidden="true" />

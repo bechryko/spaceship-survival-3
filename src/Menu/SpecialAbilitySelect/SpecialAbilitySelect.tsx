@@ -26,35 +26,35 @@ const SLOTS = Array.from(
   (_, index) => SPECIAL_ABILITIES[index] ?? null
 );
 
-export default function AbilitySelect() {
+export default function SpecialAbilitySelect() {
   const navigate = useCustomNavigation();
-  const location = useLocation();
-  const state = location.state as SelectionState | null;
-  const { settings } = useSettings();
+  const returned = useLocation().state as SelectionState | null;
 
-  const [selectedId1, setSelectedId1] = useState<string | null>(state?.specialAbilityNames?.[0] ?? null);
+  const [selectedId1, setSelectedId1] = useState<string | null>(returned?.specialAbilityNames?.[0] ?? null);
 
-  const [selectedId2, setSelectedId2] = useState<string | null>(state?.specialAbilityNames?.[1] ?? null);
+  const [selectedId2, setSelectedId2] = useState<string | null>(returned?.specialAbilityNames?.[1] ?? null);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [readyState, setReadyState] = useState<[boolean, boolean]>([false, false]);
   const activeSelection = readyState[0] ? 2 : 1;
 
+  const { settings } = useSettings();
+
   useEventListener('keydown', event => {
     if (event.code === settings.controls.menuBack) {
       navigate(Page.SPACESHIP_SELECTION, {
-        spaceshipIds: state?.spaceshipIds,
+        spaceshipIds: returned?.spaceshipIds,
         specialAbilityNames: [selectedId1, selectedId2]
       });
     }
   });
 
-  if (!state?.spaceshipIds) {
+  if (!returned?.spaceshipIds) {
     forceRedirect(Page.SPACESHIP_SELECTION);
     return;
   }
 
-  const [spaceshipId1, spaceshipId2] = state.spaceshipIds;
+  const [spaceshipId1, spaceshipId2] = returned.spaceshipIds;
   const isMultiplayer = spaceshipId2 !== null;
   const spaceship1 = getSpaceshipDefinition(spaceshipId1);
   const spaceship2 = getSpaceshipDefinition(spaceshipId2);
@@ -79,7 +79,7 @@ export default function AbilitySelect() {
     if (selectedId1) {
       navigate(Page.GAME, {
         players: !isMultiplayer ? 1 : 2,
-        spaceshipIds: state.spaceshipIds,
+        spaceshipIds: returned.spaceshipIds,
         specialAbilityIds: [selectedId1, selectedId2]
       });
     }
@@ -105,7 +105,7 @@ export default function AbilitySelect() {
         <NavLink
           className="button back-button blur-background"
           to={Page.SPACESHIP_SELECTION}
-          state={{ spaceshipIds: state.spaceshipIds, specialAbilityNames: [selectedId1, selectedId2] }}
+          state={{ spaceshipIds: returned.spaceshipIds, specialAbilityNames: [selectedId1, selectedId2] }}
         >
           Back to Spaceship selection
         </NavLink>
