@@ -76,9 +76,13 @@ function getLoadout(
   config: GameStateConfig
 ): { abilityClass: AbilityClass; specialAbilityId: SpecialAbilityName } {
   if (config.isQuickPlay) {
+    const availableSpecialAbilities = Object.values(SpecialAbilityName).filter(
+      specialAbility => config.players > 1 || !SpecialAbilityAlmanac[specialAbility].isMultiplayerOnly
+    );
+
     return {
       abilityClass: choose(Object.values(AbilityClass)),
-      specialAbilityId: choose(Object.values(SpecialAbilityName))
+      specialAbilityId: choose(availableSpecialAbilities)
     };
   }
 

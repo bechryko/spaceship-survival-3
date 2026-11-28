@@ -9,10 +9,11 @@ export enum EntityType {
   BOMB,
   SCIENCE_PROBE,
   SHOCKWAVE,
-  PLASMA_JET
+  PLASMA_JET,
+  SHIELD_TUNNEL
 }
 
-export type Entity = Rocket | Laser | Explosion | Bomb | ScienceProbe | Shockwave | PlasmaJet;
+export type Entity = Rocket | Laser | Explosion | Bomb | ScienceProbe | Shockwave | PlasmaJet | ShieldTunnel;
 
 interface EntityBase {
   type: EntityType;
@@ -24,6 +25,7 @@ export interface Rocket extends EntityBase {
   x: number;
   y: number;
   speed: number;
+  isPowerful?: boolean;
 }
 
 export interface Laser extends EntityBase {
@@ -98,4 +100,13 @@ export interface PlasmaJet extends EntityBase {
   usedTime: number;
   intensity: number;
   affected: Asteroid[];
+}
+
+export interface ShieldTunnel extends EntityBase {
+  type: EntityType.SHIELD_TUNNEL;
+  x1: number;
+  x2: number;
+  age: number;
+  duration: number;
+  shatter?: { x: number; y: number; age: number };
 }

@@ -1,6 +1,6 @@
 import { capitalize } from 'spaceship-survival-3/utility';
 import { getSpaceshipDefinition } from '../SpaceshipSelect/spaceship-catalog';
-import { getSpecialAbility } from '../SpecialAbilitySelect/special-abilities';
+import { getSpecialAbility, SpecialAbilityDefinition } from '../SpecialAbilitySelect/special-abilities';
 import { HandbookEntry } from './handbook-entries';
 
 export interface HandbookStat {
@@ -39,19 +39,29 @@ export function getEntryStats(entry: HandbookEntry): HandbookStat[] {
       return [];
     }
 
-    const typeEntry: HandbookStat = { label: 'Type', value: capitalize(ability.type) };
+    const commonStats: HandbookStat[] = [
+      { label: 'Type', value: capitalize(ability.type) },
+      ...getSpecialAbilityConditionStats(ability)
+    ];
 
     if (ability.activation === 'passive') {
-      return [{ label: 'Activation', value: 'Passive, always on' }, typeEntry];
+      return [{ label: 'Activation', value: 'Passive, always on' }, ...commonStats];
     }
 
     const activation = 'Activatable' + (ability.activation === 'active-reactivate' ? ', can be reactivated' : '');
-    return [
-      { label: 'Activation', value: activation },
-      typeEntry,
-      { label: 'Cooldown', value: `${ability.cooldown}s` }
-    ];
+    commonStats.splice(1, 0, { label: 'Cooldown', value: `${ability.cooldown}s` });
+    return [{ label: 'Activation', value: activation }, ...commonStats];
   }
 
   return [];
+}
+
+function getSpecialAbilityConditionStats({ conditions }: SpecialAbilityDefinition): HandbookStat[] {
+  const stats: HandbookStat[] = [];
+
+  if (conditions?.multiplayerOnly) {
+    stats.push({ label: 'Game Mode', value: 'Multiplayer Only' });
+  }
+
+  return stats;
 }

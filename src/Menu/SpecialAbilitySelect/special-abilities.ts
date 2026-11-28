@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   SpaceshipAbilityType,
   specialAbilities,
@@ -14,20 +13,28 @@ export interface SpecialAbilityDefinition {
   shortDescription: string;
   longDescription: string[];
   cooldown?: number;
+  conditions?: SpecialAbilityConditions;
+}
+
+interface SpecialAbilityConditions {
+  multiplayerOnly?: boolean;
 }
 
 export const SPECIAL_ABILITIES: readonly SpecialAbilityDefinition[] = Object.entries(SpecialAbilityAlmanac).map(
-  ([key, value]) => {
+  ([key, entry]) => {
     const profile = specialAbilities[key as SpecialAbilityName];
 
     return {
       id: key,
       type: profile.type,
-      activation: (value as any).cooldown ? ((value as any).reactivatable ? 'active-reactivate' : 'active') : 'passive',
-      summary: value.summary,
-      shortDescription: value.shortDescription,
-      longDescription: value.longDescription,
-      cooldown: (value as any).cooldown
+      activation: entry.cooldown ? (entry.reactivatable ? 'active-reactivate' : 'active') : 'passive',
+      summary: entry.summary,
+      shortDescription: entry.shortDescription,
+      longDescription: entry.longDescription,
+      cooldown: entry.cooldown,
+      conditions: {
+        multiplayerOnly: entry.isMultiplayerOnly
+      }
     };
   }
 );

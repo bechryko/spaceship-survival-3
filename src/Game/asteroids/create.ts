@@ -1,5 +1,5 @@
 import { GAME_WIDTH, GameState } from '../hud';
-import { between, chance, getNumberOrRangeValue } from '../utils';
+import { between, chance, getNumberOrRangeValue, randomAngle } from '../utils';
 import { Asteroid } from './asteroid';
 import { AsteroidBlueprint, regularAsteroidBlueprint, startingAsteroidDataProvider } from './blueprints';
 import { createCraters } from './craters';
@@ -69,7 +69,7 @@ export function createAsteroid(
     r,
     velocity,
     velocityHorizontal,
-    angle: Math.random() * Math.PI * 2,
+    angle: randomAngle(),
     color: {
       hue: getNumberOrRangeValue(blueprint.color.hue),
       saturation: getNumberOrRangeValue(blueprint.color.saturation),

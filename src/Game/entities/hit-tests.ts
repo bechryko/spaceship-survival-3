@@ -1,5 +1,38 @@
 import { Asteroid, getAsteroidPolygon } from '../asteroids';
+import { GAME_HEIGHT } from '../hud';
 import { Point } from '../models';
+
+/**
+ * Swept test along a rocket's or bomb's path this frame, against each asteroid's real outline, so a fast
+ * projectile can't skip an asteroid on a long frame. Returns the first asteroid it meets travelling up
+ * (not just the first in the list) and the y where they touched, or null.
+ */
+export function findFirstContact(
+  x: number,
+  fromY: number,
+  toY: number,
+  radius: number,
+  asteroids: readonly Asteroid[]
+): { index: number; y: number } | null {
+  if (toY > GAME_HEIGHT) {
+    return null;
+  }
+
+  let best: { index: number; y: number } | null = null;
+
+  for (let i = 0; i < asteroids.length; i++) {
+    if (!asteroids[i].active) {
+      continue;
+    }
+
+    const y = getSweptCircleContactY(asteroids[i], x, fromY, toY, radius);
+    if (y !== null && (best === null || y > best.y)) {
+      best = { index: i, y };
+    }
+  }
+
+  return best;
+}
 
 /**
  * Quick rejection before the exact test: the outline always lies inside a circle of about `r` around the
@@ -230,4 +263,110 @@ export function getSweptCircleContactY(
 /** Distance from (x, y) to the asteroid's real outline, 0 if the point is inside it. */
 export function getDistanceToAsteroid(asteroid: Asteroid, x: number, y: number): number {
   return distanceToPolygon(x, y, getAsteroidPolygon(asteroid));
+}
+
+const EPS = 1e-9;
+
+/** Checks if an asteroid touches a rectangle. Doesn't take into account if one is inside another. */
+export function isAsteroidTouchingRect(
+  asteroid: Asteroid,
+  left: number,
+  top: number,
+  right: number,
+  bottom: number,
+  cornerRadius = 0
+): boolean {
+  const polygon = getAsteroidPolygon(asteroid);
+  const r = Math.max(0, Math.min(cornerRadius, (right - left) / 2, (bottom - top) / 2));
+
+  // Check polygon edges against the four straight portions.
+  const straightEdges: [Point, Point][] = [
+    [
+      [left + r, top],
+      [right - r, top]
+    ],
+    [
+      [right, top + r],
+      [right, bottom - r]
+    ],
+    [
+      [right - r, bottom],
+      [left + r, bottom]
+    ],
+    [
+      [left, bottom - r],
+      [left, top + r]
+    ]
+  ];
+
+  // Rounded corner circle centers.
+  const corners: Point[] = [
+    [left + r, top + r],
+    [right - r, top + r],
+    [right - r, bottom - r],
+    [left + r, bottom - r]
+  ];
+
+  for (let i = 0; i < polygon.length; i++) {
+    const a = polygon[i];
+    const b = polygon[(i + 1) % polygon.length];
+
+    // Straight rectangle edges.
+    for (const [c, d] of straightEdges) {
+      if (segmentsIntersect(a, b, c, d)) return true;
+    }
+
+    // Rounded corners.
+    if (r > 0) {
+      for (let j = 0; j < 4; j++) {
+        if (segmentIntersectsArc(a, b, corners[j], j, r)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+/** Check whether a line segment intersects a circle, restricted to the appropriate quarter-circle. */
+function segmentIntersectsArc(a: Point, b: Point, center: Point, corner: number, r: number): boolean {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+
+  const fx = a[0] - center[0];
+  const fy = a[1] - center[1];
+
+  const A = dx * dx + dy * dy;
+
+  if (A < EPS) return false;
+
+  const B = 2 * (fx * dx + fy * dy);
+  const C = fx * fx + fy * fy - r * r;
+
+  const discriminant = B * B - 4 * A * C;
+
+  if (discriminant < -EPS) return false;
+
+  const sqrtD = Math.sqrt(Math.max(0, discriminant));
+
+  const roots = [(-B - sqrtD) / (2 * A), (-B + sqrtD) / (2 * A)];
+
+  for (const t of roots) {
+    if (t < -EPS || t > 1 + EPS) continue;
+
+    const x = a[0] + t * dx;
+    const y = a[1] + t * dy;
+
+    const inArc = [
+      x <= center[0] + EPS && y <= center[1] + EPS, // top-left
+      x >= center[0] - EPS && y <= center[1] + EPS, // top-right
+      x >= center[0] - EPS && y >= center[1] - EPS, // bottom-right
+      x <= center[0] + EPS && y >= center[1] - EPS // bottom-left
+    ][corner];
+
+    if (inArc) return true;
+  }
+
+  return false;
 }

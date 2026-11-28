@@ -87,3 +87,9 @@ export function countIf<T>(array: T[], callback: (element: T) => boolean): numbe
 
   return count;
 }
+
+export function clearObject<T extends object>(obj: T): void {
+  for (const variableKey in obj) {
+    delete obj[variableKey];
+  }
+}

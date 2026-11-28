@@ -68,7 +68,11 @@ export default function SpecialAbilitySelect() {
   const preview1 = activeSelection === 1 ? preview : selectedId1 ? getSpecialAbility(selectedId1) : undefined;
   const preview2 = activeSelection === 2 ? preview : selectedId2 ? getSpecialAbility(selectedId2) : undefined;
 
-  const selectSpecialAbility = (id: string) => {
+  const selectSpecialAbility = (id: string, isDisabled: boolean) => {
+    if (isDisabled) {
+      return;
+    }
+
     if (!readyState[0]) {
       setSelectedId1(id);
     } else {
@@ -180,14 +184,20 @@ export default function SpecialAbilitySelect() {
           {SLOTS.map((slotAbility, index) => {
             const isHighlighted = spaceship1.suggestedSpecialAbilities.includes(slotAbility?.id);
 
+            const isDisabledMultiplayer = slotAbility?.conditions?.multiplayerOnly && !isMultiplayer;
+            const isDisabled = Boolean(isDisabledMultiplayer);
+            const disabledText = isDisabledMultiplayer ? 'Unavailable in singleplayer' : '';
+
             return slotAbility ? (
               <button
                 key={slotAbility.id}
                 type="button"
                 className={classNames({ slot: true, highlighted: isHighlighted })}
+                disabled={isDisabled}
+                title={disabledText}
                 aria-label={slotAbility.id}
                 aria-pressed={slotAbility.id === selectedId1}
-                onClick={() => selectSpecialAbility(slotAbility.id)}
+                onClick={() => selectSpecialAbility(slotAbility.id, isDisabled)}
                 onMouseEnter={() => setHoveredId(slotAbility.id)}
                 onMouseLeave={() => setHoveredId(null)}
                 onFocus={() => setHoveredId(slotAbility.id)}

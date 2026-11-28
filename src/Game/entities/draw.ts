@@ -1,9 +1,27 @@
 import { getAsteroidPolygon } from '../asteroids';
+import { GAME_HEIGHT } from '../hud';
 import { Point } from '../models';
 import { AbilityAlmanac, AbilityClass, Spaceship } from '../spaceships';
-import { clamp01, darken, easeOutCubic, hash, lighten, withAlpha } from '../utils';
-import { Bomb, Entity, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
-import { EXPLOSION_DURATION } from './tick';
+import { clamp01, darken, easeOutBack, easeOutCubic, hash, lighten, withAlpha } from '../utils';
+import {
+  Bomb,
+  Entity,
+  EntityType,
+  Explosion,
+  Laser,
+  PlasmaJet,
+  Rocket,
+  ScienceProbe,
+  ShieldTunnel,
+  Shockwave
+} from './entities';
+import {
+  EXPLOSION_DURATION,
+  SHIELD_TUNNEL_CORNER_RADIUS,
+  SHIELD_TUNNEL_HEIGHT,
+  SHIELD_TUNNEL_SHATTER_DURATION,
+  SHIELD_TUNNEL_Y_MARGIN
+} from './tick';
 
 const ENTITY_LAYER_LOOKUP: Record<EntityType, number> = {
   // Layer 0: Projectiles
@@ -17,6 +35,7 @@ const ENTITY_LAYER_LOOKUP: Record<EntityType, number> = {
 
   // Layer 2: Large global effects
   [EntityType.SHOCKWAVE]: 2,
+  [EntityType.SHIELD_TUNNEL]: 2,
 
   // Layer 3: Explosions
   [EntityType.EXPLOSION]: 3
@@ -52,6 +71,9 @@ export function drawEntities(ctx: CanvasRenderingContext2D, entities: Entity[], 
         case EntityType.PLASMA_JET:
           drawPlasmaJet(ctx, entity, time);
           break;
+        case EntityType.SHIELD_TUNNEL:
+          drawShieldTunnel(ctx, entity);
+          break;
       }
     }
   }
@@ -65,8 +87,15 @@ const ROCKET_FLAME_BOTTOM_COLOR = 'rgba(255, 90, 30, 0)';
 const ROCKET_FIN_COLOR = '#9db4c0';
 const ROCKET_BODY_COLOR = '#e8f1f2';
 const ROCKET_NOSE_COLOR = '#ff5d5d';
+const ROCKET_POWERFUL_FLAME_TOP_COLOR = 'rgba(36, 255, 160, 0.9)';
+const ROCKET_POWERFUL_FLAME_BOTTOM_COLOR = 'rgba(138, 255, 204, 0)';
+const ROCKET_POWERFUL_NOSE_COLOR = '#303eff';
 
 function drawRocket(ctx: CanvasRenderingContext2D, rocket: Rocket): void {
+  const flameTopColor = rocket.isPowerful ? ROCKET_POWERFUL_FLAME_TOP_COLOR : ROCKET_FLAME_TOP_COLOR;
+  const flameBottomColor = rocket.isPowerful ? ROCKET_POWERFUL_FLAME_BOTTOM_COLOR : ROCKET_FLAME_BOTTOM_COLOR;
+  const noseColor = rocket.isPowerful ? ROCKET_POWERFUL_NOSE_COLOR : ROCKET_NOSE_COLOR;
+
   ctx.save();
   ctx.translate(rocket.x, rocket.y);
 
@@ -77,8 +106,8 @@ function drawRocket(ctx: CanvasRenderingContext2D, rocket: Rocket): void {
     0,
     ROCKET_FLAME_Y_OFFSET + ROCKET_FLAME_HEIGHT
   );
-  flameGradient.addColorStop(0, ROCKET_FLAME_TOP_COLOR);
-  flameGradient.addColorStop(1, ROCKET_FLAME_BOTTOM_COLOR);
+  flameGradient.addColorStop(0, flameTopColor);
+  flameGradient.addColorStop(1, flameBottomColor);
   ctx.fillStyle = flameGradient;
   ctx.beginPath();
   ctx.moveTo(-ROCKET_FLAME_WIDTH / 2, ROCKET_FLAME_Y_OFFSET);
@@ -101,7 +130,7 @@ function drawRocket(ctx: CanvasRenderingContext2D, rocket: Rocket): void {
   // Body and nose
   ctx.fillStyle = ROCKET_BODY_COLOR;
   ctx.fillRect(-2.5, -8, 5, 14);
-  ctx.fillStyle = ROCKET_NOSE_COLOR;
+  ctx.fillStyle = noseColor;
   ctx.beginPath();
   ctx.moveTo(0, -15);
   ctx.lineTo(-2.5, -8);
@@ -606,4 +635,196 @@ function tracePlasma(
   ctx.beginPath();
   [...left, ...right].forEach(([x, y], i) => (i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
   ctx.closePath();
+}
+
+interface ShieldTunnelBounds {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
+function getShieldTunnelBounds(tunnel: ShieldTunnel): ShieldTunnelBounds {
+  const bottom = GAME_HEIGHT - SHIELD_TUNNEL_Y_MARGIN;
+
+  return { left: tunnel.x1, right: tunnel.x2, top: bottom - SHIELD_TUNNEL_HEIGHT, bottom };
+}
+
+const SHIELD_TUNNEL_FADE_IN_TIME = 0.2;
+const SHIELD_TUNNEL_FADE_OUT_TIME = 0.5;
+const SHIELD_TUNNEL_WARNING_TIME = 0.6;
+const SHIELD_TUNNEL_HEX_COUNT_ACROSS_HEIGHT = 3;
+const SHIELD_TUNNEL_SWEEP_SPEED = 480;
+const SHIELD_TUNNEL_SWEEP_WIDTH = 60;
+const SHIELD_TUNNEL_SWEEP_SLANT = 0.7; // how far the stripe leans over its height. 1 is 45 degrees.
+
+function drawShieldTunnel(ctx: CanvasRenderingContext2D, shieldTunnel: ShieldTunnel): void {
+  const bounds = getShieldTunnelBounds(shieldTunnel);
+
+  if (shieldTunnel.shatter) {
+    drawShatter(ctx, shieldTunnel, bounds);
+    return;
+  }
+
+  const { left, top, right, bottom } = bounds;
+  const width = right - left;
+  const height = bottom - top;
+  const timeLeft = shieldTunnel.duration - shieldTunnel.age;
+  const flicker = timeLeft < SHIELD_TUNNEL_WARNING_TIME && Math.sin(timeLeft * 45) < 0 ? 0.5 : 1;
+  const alpha =
+    Math.min(clamp01(shieldTunnel.age / SHIELD_TUNNEL_FADE_IN_TIME), clamp01(timeLeft / SHIELD_TUNNEL_FADE_OUT_TIME)) *
+    flicker;
+  if (alpha <= 0 || width <= 0) {
+    return;
+  }
+
+  const appear = easeOutBack(clamp01(shieldTunnel.age / SHIELD_TUNNEL_FADE_IN_TIME));
+  const middle = (top + bottom) / 2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.translate(0, middle);
+  ctx.scale(1, Math.max(0.05, appear));
+  ctx.translate(0, -middle);
+
+  const tube = () => ctx.roundRect(left, top, width, height, Math.min(SHIELD_TUNNEL_CORNER_RADIUS, height / 2));
+
+  // Body
+  const body = ctx.createLinearGradient(0, top, 0, bottom);
+  body.addColorStop(0, `rgba(200, 245, 255, ${0.34 * alpha})`);
+  body.addColorStop(0.2, `rgba(120, 220, 255, ${0.12 * alpha})`);
+  body.addColorStop(0.5, `rgba(90, 200, 255, ${0.04 * alpha})`);
+  body.addColorStop(0.8, `rgba(120, 220, 255, ${0.12 * alpha})`);
+  body.addColorStop(1, `rgba(200, 245, 255, ${0.34 * alpha})`);
+  ctx.beginPath();
+  tube();
+  ctx.fillStyle = body;
+  ctx.fill();
+
+  ctx.save();
+  ctx.beginPath();
+  tube();
+  ctx.clip();
+
+  // Sweep
+  const slantedWidth = height * SHIELD_TUNNEL_SWEEP_SLANT;
+  const travel = width + slantedWidth + SHIELD_TUNNEL_SWEEP_WIDTH * 4;
+  const sweepX = left - SHIELD_TUNNEL_SWEEP_WIDTH * 2 + ((shieldTunnel.age * SHIELD_TUNNEL_SWEEP_SPEED) % travel);
+
+  // Honeycomb
+  ctx.lineWidth = 1;
+  forEachHexagon(bounds, (cx, cy, size) => {
+    const distance = cx - (cy - top) * SHIELD_TUNNEL_SWEEP_SLANT - sweepX; // sideways distance from the stripe
+    const glow = Math.exp(-((distance / SHIELD_TUNNEL_SWEEP_WIDTH) ** 2));
+
+    ctx.strokeStyle = `rgba(170, 235, 255, ${(0.08 + 0.45 * glow) * alpha})`;
+    hexagonPath(ctx, cx, cy, size);
+    ctx.stroke();
+  });
+
+  ctx.save();
+  ctx.transform(1, 0, SHIELD_TUNNEL_SWEEP_SLANT, 1, -SHIELD_TUNNEL_SWEEP_SLANT * top, 0);
+  const shine = ctx.createLinearGradient(sweepX - SHIELD_TUNNEL_SWEEP_WIDTH, 0, sweepX + SHIELD_TUNNEL_SWEEP_WIDTH, 0);
+  shine.addColorStop(0, 'rgba(255, 255, 255, 0)');
+  shine.addColorStop(0.5, `rgba(235, 252, 255, ${0.34 * alpha})`);
+  shine.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = shine;
+  ctx.fillRect(sweepX - SHIELD_TUNNEL_SWEEP_WIDTH, top, SHIELD_TUNNEL_SWEEP_WIDTH * 2, height);
+  ctx.restore();
+
+  ctx.restore(); // the clip
+
+  // Rim, and a highlight just inside the top edge
+  ctx.beginPath();
+  tube();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = `rgba(190, 240, 255, ${0.85 * alpha})`;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(left + SHIELD_TUNNEL_CORNER_RADIUS, top + 4);
+  ctx.lineTo(right - SHIELD_TUNNEL_CORNER_RADIUS, top + 4);
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 * alpha})`;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function forEachHexagon(
+  { left, top, right, bottom }: ShieldTunnelBounds,
+  callback: (cx: number, cy: number, size: number, index: number) => void
+): void {
+  const size = (bottom - top) / SHIELD_TUNNEL_HEX_COUNT_ACROSS_HEIGHT;
+  const columnWidth = size * Math.sqrt(3);
+  const rowHeight = size * 1.5;
+  const rows = Math.ceil((bottom - top) / rowHeight) + 1;
+  let index = 0;
+
+  for (let row = -1; row <= rows; row++) {
+    const offset = row & 1 ? columnWidth / 2 : 0;
+
+    for (let cx = left - columnWidth + offset; cx <= right + columnWidth; cx += columnWidth) {
+      callback(cx, top + row * rowHeight, size, index++);
+    }
+  }
+}
+
+function hexagonPath(ctx: CanvasRenderingContext2D, cx: number, cy: number, radius: number): void {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = Math.PI / 6 + (i * Math.PI) / 3;
+    const px = cx + Math.cos(angle) * radius;
+    const py = cy + Math.sin(angle) * radius;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+}
+
+/** The pieces of glass flying apart from where the iron asteroid hit, each one a hexagon of the grid. */
+function drawShatter(ctx: CanvasRenderingContext2D, tunnel: ShieldTunnel, bounds: ShieldTunnelBounds): void {
+  const shatter = tunnel.shatter!;
+  const t = clamp01(shatter.age / SHIELD_TUNNEL_SHATTER_DURATION);
+  const fly = 1 - (1 - t) ** 2; // fast at first, slowing down
+  const fade = (1 - t) ** 1.4;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // A flash where it was hit
+  const flashRadius = 40 + 60 * t;
+  const flash = ctx.createRadialGradient(shatter.x, shatter.y, 0, shatter.x, shatter.y, flashRadius);
+  flash.addColorStop(0, `rgba(230, 250, 255, ${0.9 * clamp01(1 - t * 2.5)})`);
+  flash.addColorStop(1, 'rgba(120, 220, 255, 0)');
+  ctx.fillStyle = flash;
+  ctx.beginPath();
+  ctx.arc(shatter.x, shatter.y, flashRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  forEachHexagon(bounds, (cx, cy, size, index) => {
+    if (cx < bounds.left - size || cx > bounds.right + size || cy < bounds.top - size || cy > bounds.bottom + size) {
+      return;
+    }
+
+    const direction = Math.atan2(cy - shatter.y, cx - shatter.x) + (hash(index) - 0.5) * 1.4;
+    const distance = (50 + 240 * hash(index + 7)) * fly;
+    const x = cx + Math.cos(direction) * distance;
+    const y = cy + Math.sin(direction) * distance + 140 * t * t * hash(index + 3); // some of them start to fall
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate((hash(index + 13) - 0.5) * 7 * t);
+    ctx.scale(1 - 0.4 * t, 1 - 0.4 * t);
+    hexagonPath(ctx, 0, 0, size * 0.92);
+    ctx.fillStyle = `rgba(120, 220, 255, ${0.14 * fade})`;
+    ctx.fill();
+    ctx.lineWidth = 1.3;
+    ctx.strokeStyle = `rgba(190, 240, 255, ${0.85 * fade})`;
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  ctx.restore();
 }

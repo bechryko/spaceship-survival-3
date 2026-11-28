@@ -21,5 +21,10 @@ export const HANDBOOK_TIPS: Record<string, string[]> = {
   ['special-ability_' + SpecialAbilityName.SHIELD_GENERATOR]: [],
   ['special-ability_' + SpecialAbilityName.URGENT_ORDERS]: [
     'Use this special ability on spaceships that have combo abilities, that have to be casted at the same time.'
-  ]
+  ],
+  ['special-ability_' + SpecialAbilityName.ROCKET_SUPPORT]: [
+    'Never have more than 1 player who selected this, because you cannot use the support more that way.'
+  ],
+  ['special-ability_' + SpecialAbilityName.REBUILD]: ['Always a good choice when playing multiplayer.'],
+  ['special-ability_' + SpecialAbilityName.SHIELD_TUNNEL]: []
 };

@@ -1,6 +1,6 @@
 import { explode } from '../entities';
 import { GameState } from '../hud';
-import { between } from '../utils';
+import { between, randomAngle } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import { createIceShardBlueprint } from './blueprints';
 import { pushAsteroid, spawnAsteroid } from './tick';
@@ -13,12 +13,17 @@ const ICE_ASTEROID_MAX_SHARD_SPEED = 150;
 
 const ASTEROID_TYPES_NOT_COUNTING_TOWARDS_STATISTICS = [AsteroidType.ICE_SHARD];
 
-export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionRadiusMultiplier = 1): boolean {
+export function destroyAsteroid(
+  asteroid: Asteroid,
+  state: GameState,
+  explosionRadiusMultiplier = 1,
+  explosionColor?: string
+): boolean {
   if (asteroid.type === AsteroidType.IRON) {
     return false;
   }
 
-  explode(state, asteroid.x, asteroid.y, asteroid.r * explosionRadiusMultiplier);
+  explode(state, asteroid.x, asteroid.y, asteroid.r * explosionRadiusMultiplier, explosionColor);
 
   if (!ASTEROID_TYPES_NOT_COUNTING_TOWARDS_STATISTICS.includes(asteroid.type)) {
     state.statistics.asteroidsDestroyed++;
@@ -26,7 +31,7 @@ export function destroyAsteroid(asteroid: Asteroid, state: GameState, explosionR
 
   if (asteroid.type === AsteroidType.ICE) {
     for (let i = 0; i < between(ICE_ASTEROID_MIN_SHARD_RELEASE, ICE_ASTEROID_MAX_SHARD_RELEASE); i++) {
-      const angle = Math.random() * Math.PI * 2;
+      const angle = randomAngle();
       const distanceMultiplier = Math.min(
         between(0, 1, { squaredDistribution: true, floor: false }),
         ICE_ASTEROID_MAX_SHARD_DISTANCE_MULTIPLIER

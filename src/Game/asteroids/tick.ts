@@ -1,6 +1,6 @@
 import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
 import { destroySpaceship, isSpaceshipImmune } from '../spaceships';
-import { between, boundingRadius, chance, clamp01, polygonsCollide, transformPolygon } from '../utils';
+import { between, boundingRadius, chance, clamp01, polygonsCollide, randomAngle, transformPolygon } from '../utils';
 import { Asteroid, AsteroidType } from './asteroid';
 import {
   createIceShardBlueprint,
@@ -80,7 +80,6 @@ export function tickAsteroids(state: GameState, deltaTime: number): boolean {
           { floor: false }
         );
 
-        const angle = Math.random() * Math.PI * 2;
         const iceShard = spawnAsteroid(state, {
           blueprint: createIceShardBlueprint(asteroid),
           x: asteroid.x,
@@ -91,7 +90,7 @@ export function tickAsteroids(state: GameState, deltaTime: number): boolean {
         pushAsteroid(
           iceShard,
           between(ICE_ASTEROID_ICE_SHARD_MIN_VELOCITY, ICE_ASTEROID_ICE_SHARD_MAX_VELOCITY),
-          angle
+          randomAngle()
         );
       }
     }

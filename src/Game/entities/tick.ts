@@ -2,15 +2,26 @@ import { Asteroid, AsteroidType, destroyAsteroid, getAsteroidPolygon, pushAstero
 import { GAME_HEIGHT, GameState } from '../hud';
 import { Point } from '../models';
 import { AbilityAlmanac, AbilityClass, SpecialAbilityAlmanac, SpecialAbilityName } from '../spaceships';
-import { chance, clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide } from '../utils';
+import { chance, clamp, clamp01, easeOutCubic, isAboveScreen, polygonsCollide, randomAngle } from '../utils';
 import { explode } from './create';
-import { Bomb, EntityType, Explosion, Laser, PlasmaJet, Rocket, ScienceProbe, Shockwave } from './entities';
 import {
+  Bomb,
+  EntityType,
+  Explosion,
+  Laser,
+  PlasmaJet,
+  Rocket,
+  ScienceProbe,
+  ShieldTunnel,
+  Shockwave
+} from './entities';
+import {
+  findFirstContact,
   getAsteroidSpanInBeam,
   getDistanceToAsteroid,
-  getSweptCircleContactY,
   isAsteroidHitByLaser,
-  type LaserBeam
+  isAsteroidTouchingRect,
+  LaserBeam
 } from './hit-tests';
 
 export const EXPLOSION_DURATION = 0.6;
@@ -43,13 +54,20 @@ export function tickEntities(state: GameState, deltaTime: number): void {
       case EntityType.PLASMA_JET:
         tickPlasmaJet(entity, state, deltaTime);
         break;
+      case EntityType.SHIELD_TUNNEL:
+        tickShieldTunnel(entity, state, deltaTime);
+        break;
     }
   }
 }
 
-const ROCKET_EXPLOSION_RADIUS_MULTIPLIER = 1.25;
-const ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS = 90;
 const ROCKET_RADIUS = 5;
+const ROCKET_EXPLOSION_RADIUS_MULTIPLIER = 1.25;
+const ROCKET_POWERFUL_EXPLOSION_RADIUS_MULTIPLIER = 1.75;
+const ROCKET_POWERFUL_EXPLOSION_COLOR = '#7dffbe';
+const ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS = 90;
+const ROCKET_POWERFUL_UNSUCCESSFUL_EXPLOSION_RADIUS = 135;
+const ROCKET_POWERFUL_PUSH_FORCE = 600;
 
 function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
   const { asteroids } = state;
@@ -58,13 +76,30 @@ function tickRocket(rocket: Rocket, deltaTime: number, state: GameState): void {
 
   const contact = findFirstContact(rocket.x, fromY, rocket.y, ROCKET_RADIUS, asteroids);
   if (contact) {
-    rocket.y = contact.y;
     const target = asteroids[contact.index];
+    const explosionRadiusMultiplier = rocket.isPowerful
+      ? ROCKET_POWERFUL_EXPLOSION_RADIUS_MULTIPLIER
+      : ROCKET_EXPLOSION_RADIUS_MULTIPLIER;
+    const explosionColor = rocket.isPowerful ? ROCKET_POWERFUL_EXPLOSION_COLOR : undefined;
 
-    const success = destroyAsteroid(target, state, ROCKET_EXPLOSION_RADIUS_MULTIPLIER);
+    const success = destroyAsteroid(target, state, explosionRadiusMultiplier, explosionColor);
     rocket.active = false;
+
     if (!success) {
-      explode(state, rocket.x, rocket.y, ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS);
+      const explosionRadius = rocket.isPowerful
+        ? ROCKET_POWERFUL_UNSUCCESSFUL_EXPLOSION_RADIUS
+        : ROCKET_UNSUCCESSFUL_EXPLOSION_RADIUS;
+
+      explode(state, rocket.x, contact.y, explosionRadius, explosionColor);
+
+      if (rocket.isPowerful) {
+        const dx = target.x - rocket.x;
+        const dy = target.y - rocket.y;
+        const originalAngle = Math.atan2(dy, dx) - Math.PI / 2;
+        const angle = originalAngle <= Math.PI ? originalAngle / 2 : Math.PI + originalAngle / 2;
+
+        pushAsteroid(target, ROCKET_POWERFUL_PUSH_FORCE, angle);
+      }
     }
   } else if (rocket.y < -30) {
     rocket.active = false;
@@ -322,37 +357,58 @@ function tickPlasmaJet(plasmaJet: PlasmaJet, state: GameState, deltaTime: number
   }
 }
 
-// =====================================================================================
-// Helper functions
-// =====================================================================================
+export const SHIELD_TUNNEL_Y_MARGIN = 15;
+export const SHIELD_TUNNEL_HEIGHT = 100;
+export const SHIELD_TUNNEL_SHATTER_DURATION = 0.7;
+export const SHIELD_TUNNEL_CORNER_RADIUS = 10;
 
-/**
- * Swept test along a rocket's or bomb's path this frame, against each asteroid's real outline, so a fast
- * projectile can't skip an asteroid on a long frame. Returns the first asteroid it meets travelling up
- * (not just the first in the list) and the y where they touched, or null.
- */
-function findFirstContact(
-  x: number,
-  fromY: number,
-  toY: number,
-  radius: number,
-  asteroids: readonly Asteroid[]
-): { index: number; y: number } | null {
-  let best: { index: number; y: number } | null = null;
+function tickShieldTunnel(shieldTunnel: ShieldTunnel, state: GameState, deltaTime: number): void {
+  if (shieldTunnel.shatter) {
+    shieldTunnel.shatter.age += deltaTime;
+    if (shieldTunnel.shatter.age >= SHIELD_TUNNEL_SHATTER_DURATION) {
+      shieldTunnel.active = false;
+    }
+    return;
+  }
 
-  for (let i = 0; i < asteroids.length; i++) {
-    if (!asteroids[i].active) {
+  shieldTunnel.age += deltaTime;
+  if (shieldTunnel.age >= shieldTunnel.duration) {
+    shieldTunnel.active = false;
+    return;
+  }
+
+  let hitByIron: { x: number; y: number } | null = null;
+
+  // A copy of the list: destroying an asteroid can add new ones (the pieces of an icy asteroid)
+  for (const asteroid of [...state.asteroids]) {
+    const bottom = GAME_HEIGHT - SHIELD_TUNNEL_Y_MARGIN;
+    const top = bottom - SHIELD_TUNNEL_HEIGHT;
+
+    if (
+      !asteroid.active ||
+      !isAsteroidTouchingRect(asteroid, shieldTunnel.x1, top, shieldTunnel.x2, bottom, SHIELD_TUNNEL_CORNER_RADIUS)
+    ) {
       continue;
     }
 
-    const y = getSweptCircleContactY(asteroids[i], x, fromY, toY, radius);
-    if (y !== null && (best === null || y > best.y)) {
-      best = { index: i, y };
+    if (asteroid.type === AsteroidType.IRON) {
+      hitByIron ??= {
+        x: Math.min(shieldTunnel.x2, Math.max(shieldTunnel.x1, asteroid.x)),
+        y: Math.min(bottom, Math.max(top, asteroid.y))
+      };
+    } else {
+      destroyAsteroid(asteroid, state);
     }
   }
 
-  return best;
+  if (hitByIron) {
+    shieldTunnel.shatter = { ...hitByIron, age: 0 };
+  }
 }
+
+// =====================================================================================
+// Helper functions
+// =====================================================================================
 
 const BOMB_BLAST_RADIUS = 150;
 const BOMB_BLAST_SPEED = 200;
@@ -376,7 +432,7 @@ export function detonateBomb(state: GameState, bomb: Bomb): void {
     }
 
     const strength = 1 - (edgeDistance / BOMB_BLAST_RADIUS) * (1 - BOMB_BLAST_MIN_SPEED_MULTIPLIER);
-    const angle = isBombClose ? Math.random() * Math.PI * 2 : Math.atan2(dy, dx);
+    const angle = isBombClose ? randomAngle() : Math.atan2(dy, dx);
     pushAsteroid(asteroid, BOMB_BLAST_SPEED * strength, angle);
   }
 

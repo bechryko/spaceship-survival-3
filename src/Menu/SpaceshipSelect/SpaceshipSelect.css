@@ -346,7 +346,8 @@
   }
 }
 
-.slot-empty {
+.slot-empty,
+.slot[disabled] {
   border-color: rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.03);
   box-shadow: none;

@@ -7,11 +7,12 @@ import {
   PlasmaJet,
   Rocket,
   ScienceProbe,
+  ShieldTunnel,
   Shockwave,
   spawnEntity
 } from '../entities';
-import { GameState } from '../hud';
-import { forEachAbility } from '../utils';
+import { GAME_HEIGHT, GAME_WIDTH, GameState } from '../hud';
+import { between, forEachAbility } from '../utils';
 import { AbilityAlmanac, SpecialAbilityAlmanac, SpecialAbilityName } from './ability-almanac';
 import { AbilityClass } from './ability-class';
 import { SpaceshipEffectType, startEffect } from './effects';
@@ -153,6 +154,8 @@ export const abilities: Record<AbilityClass, SpaceshipAbilitiesProfile> = {
 };
 
 const BOMB_SPAWN_Y_OFFSET = 16;
+const ROCKET_SUPPORT_MARGIN_X = 0.05;
+const SHIELD_TUNNEL_X_MARGIN = 35;
 
 export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfile> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
@@ -217,6 +220,68 @@ export const specialAbilities: Record<SpecialAbilityName, SpaceshipAbilityProfil
       });
 
       return isDisabled;
+    }
+  },
+  [SpecialAbilityName.ROCKET_SUPPORT]: {
+    type: SpaceshipAbilityType.DEVICE,
+    callback: (spaceship: Spaceship, state: GameState) => {
+      const { delay, rocketAmount, rocketSpeed, additionalDelayPerRocket, cooldown } =
+        SpecialAbilityAlmanac[SpecialAbilityName.ROCKET_SUPPORT];
+
+      const speed = Number(rocketSpeed);
+      const y = GAME_HEIGHT + speed * Number(delay);
+      const yOffsetPerRocket = speed * Number(additionalDelayPerRocket);
+
+      for (let i = 0; i < Number(rocketAmount); i++) {
+        spawnEntity<Rocket>(
+          {
+            type: EntityType.ROCKET,
+            x: between(ROCKET_SUPPORT_MARGIN_X * GAME_WIDTH, (1 - ROCKET_SUPPORT_MARGIN_X) * GAME_WIDTH),
+            y: y + yOffsetPerRocket * i,
+            speed,
+            isPowerful: true
+          },
+          state
+        );
+      }
+
+      for (const player of state.players) {
+        if (player === spaceship || player.abilities.special !== SpecialAbilityName.ROCKET_SUPPORT) {
+          continue;
+        }
+
+        player.abilities.r.cooldownTimer = Number(cooldown);
+      }
+    }
+  },
+  [SpecialAbilityName.REBUILD]: {
+    type: SpaceshipAbilityType.DEVICE,
+    callback: (spaceship: Spaceship, state: GameState) => {
+      const deadPlayer = state.players.find(player => !player.alive)!;
+
+      deadPlayer.x = spaceship.x;
+      deadPlayer.y = spaceship.y;
+      deadPlayer.alive = true;
+    },
+    isDisabled: (_: Spaceship, state: GameState) => {
+      return state.players.every(player => player.alive);
+    }
+  },
+  [SpecialAbilityName.SHIELD_TUNNEL]: {
+    type: SpaceshipAbilityType.EQUIPMENT,
+    callback: (_: Spaceship, state: GameState) => {
+      const playerXPositions = state.players.map(player => player.x);
+
+      spawnEntity<ShieldTunnel>(
+        {
+          type: EntityType.SHIELD_TUNNEL,
+          x1: Math.min(...playerXPositions) - SHIELD_TUNNEL_X_MARGIN,
+          x2: Math.max(...playerXPositions) + SHIELD_TUNNEL_X_MARGIN,
+          age: 0,
+          duration: Number(SpecialAbilityAlmanac[SpecialAbilityName.SHIELD_TUNNEL].duration)
+        },
+        state
+      );
     }
   }
 };

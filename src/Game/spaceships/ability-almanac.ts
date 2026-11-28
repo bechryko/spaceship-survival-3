@@ -122,7 +122,10 @@ export enum SpecialAbilityName {
   STRONGER_ENGINES = 'Stronger Engines',
   BOMB = 'Bomb',
   SHIELD_GENERATOR = 'Shield Generator',
-  URGENT_ORDERS = 'Urgent Orders'
+  URGENT_ORDERS = 'Urgent Orders',
+  ROCKET_SUPPORT = 'Rocket Support',
+  REBUILD = 'Rebuild',
+  SHIELD_TUNNEL = 'Shield Tunnel'
 }
 
 interface SpecialAbilityAlmanacEntry {
@@ -131,12 +134,16 @@ interface SpecialAbilityAlmanacEntry {
   longDescription: string[];
   activeTime: number;
   cooldown?: number;
+  isMultiplayerOnly?: boolean;
   [key: string]: string | string[] | number | boolean | undefined;
 }
 
 const STRONGER_ENGINES_SPEED_BONUS_PERCENT = (STRONGER_ENGINES_MOVEMENT_SPEED_MULTIPLIER - 1) * 100;
 const BOMB_EXPLOSION_DELAY = 3;
 const SHIELD_GENERATOR_DURATION = 3;
+const ROCKET_SUPPORT_DELAY_S = 0.9;
+const ROCKET_SUPPORT_ROCKET_AMOUNT = 6;
+const SHIELD_TUNNEL_DURATION = 3;
 
 export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlmanacEntry> = {
   [SpecialAbilityName.STRONGER_ENGINES]: {
@@ -182,5 +189,42 @@ export const SpecialAbilityAlmanac: Record<SpecialAbilityName, SpecialAbilityAlm
     activeTime: 0,
     cooldown: 30,
     cooldownMultiplier: 0.5
+  },
+  [SpecialAbilityName.ROCKET_SUPPORT]: {
+    summary: 'Calls support from your fleet to shoot rockets in your aid.',
+    shortDescription: `After a ${ROCKET_SUPPORT_DELAY_S}-second delay your fleet shoots ${ROCKET_SUPPORT_ROCKET_AMOUNT} powerful rockets in random positions from behind you. This ability has a shared cooldown across all spaceships.`,
+    longDescription: [
+      `Calls support from your fleet that sends ${ROCKET_SUPPORT_ROCKET_AMOUNT} rockets in your aid after a ${ROCKET_SUPPORT_DELAY_S}-second delay. The rockets are positioned horizontally randomly, and are flying upwards.`,
+      'These rocket are from the more powerful ones, which means on hit they can push Iron asteroids.',
+      'This ability has a shared cooldown across all spaceships, so only one player should select it for maximum usage.'
+    ],
+    activeTime: 0,
+    cooldown: 30,
+    delay: ROCKET_SUPPORT_DELAY_S,
+    additionalDelayPerRocket: 0.25,
+    rocketAmount: ROCKET_SUPPORT_ROCKET_AMOUNT,
+    rocketSpeed: 1500
+  },
+  [SpecialAbilityName.REBUILD]: {
+    summary: "Rebuilds the destroyed spaceship, even if it's your own!",
+    shortDescription: 'Rebuilds the destroyed spaceship if there is where the intact ship is.',
+    longDescription: [
+      "Rebuilds the other player's spaceship if destroyed, or yours, because it's a Device ability. The ship gets rebuilt where the other spaceship is at the moment."
+    ],
+    activeTime: 0,
+    cooldown: 75,
+    isMultiplayerOnly: true
+  },
+  [SpecialAbilityName.SHIELD_TUNNEL]: {
+    summary: 'Creates a shield tunnel for all spaceships to traverse space safely.',
+    shortDescription: `Creates a tunnel so that every spaceship is protected by it for ${SHIELD_TUNNEL_DURATION} seconds.`,
+    longDescription: [
+      `Creates a shield tunnel so that every spaceship is protected and can move safely inside it. It lasts ${SHIELD_TUNNEL_DURATION} seconds.`,
+      'An Iron asteroid shatters the tunnel on contact, every other asteroid is destroyed immediately.'
+    ],
+    activeTime: SHIELD_TUNNEL_DURATION,
+    cooldown: 35,
+    duration: SHIELD_TUNNEL_DURATION,
+    isMultiplayerOnly: true
   }
 } as const;
