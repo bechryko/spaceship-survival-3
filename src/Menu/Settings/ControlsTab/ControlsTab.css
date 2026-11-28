@@ -92,6 +92,11 @@
   }
 }
 
+.swap-player-control-button {
+  margin: 1rem auto 0;
+  width: min(16rem, 100%);
+}
+
 @keyframes controls-key-wait {
   0%,
   100% {

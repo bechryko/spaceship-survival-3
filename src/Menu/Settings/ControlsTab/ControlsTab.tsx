@@ -86,6 +86,14 @@ export default function ControlsTab({ controls, onChange }: Props) {
 
   const listening = ALL_CONTROLS.find(control => control.id === listeningId);
 
+  const swapPlayerControls = (controls: ControlsSettings) => {
+    onChange({
+      ...controls,
+      player1: { ...controls.player2 },
+      player2: { ...controls.player1 }
+    });
+  };
+
   return (
     <div className="controls-tab">
       <p className="controls-hint">Click a key to change it, then press the new key. Escape cancels.</p>
@@ -121,6 +129,17 @@ export default function ControlsTab({ controls, onChange }: Props) {
               </div>
             );
           })}
+
+          {group.id === SettingsControlGroup.PLAYER_2 && (
+            <button
+              type="button"
+              className="button swap-player-control-button blur-background"
+              aria-label="Swap player controls"
+              onClick={() => swapPlayerControls(controls)}
+            >
+              Swap player controls
+            </button>
+          )}
         </section>
       ))}
     </div>
