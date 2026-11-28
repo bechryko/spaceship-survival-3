@@ -54,8 +54,8 @@ export function drawStars(ctx: CanvasRenderingContext2D, stars: readonly Star[])
 // =====================================================================================
 type BackgroundFeature = 'galaxy' | 'supernova' | 'pulsar' | 'nebula' | 'cosmic-dust';
 
-const NEBULA_CHANCE = 0.3;
-const GALAXY_CHANCE = 0.1;
+const NEBULA_CHANCE = 0.35;
+const GALAXY_CHANCE = 0.15;
 const SUPERNOVA_CHANCE = 0.025;
 const PULSAR_CHANCE = 0.01;
 // Default is cosmic dust
@@ -77,7 +77,7 @@ function pickFeature(): BackgroundFeature {
   return 'cosmic-dust';
 }
 
-const TWIN_GALAXIES_CHANCE = 0.1;
+const TWIN_GALAXIES_CHANCE = 0.05;
 const COSMIC_DUST_MIN_AMOUNT = 2;
 const COSMIC_DUST_MAX_AMOUNT = 4;
 

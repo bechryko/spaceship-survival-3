@@ -41,6 +41,19 @@ export function choose<T>(array: T[], seed?: number): T {
   return array[between(0, array.length, { includeMax: false, seed })];
 }
 
+export function chooseMultiple<T>(array: T[], amount: number): T[] {
+  const copy = [...array];
+  const ret: T[] = [];
+
+  for (let i = 0; i < amount; i++) {
+    const chosen = choose(copy);
+    copy.splice(copy.indexOf(chosen), 1);
+    ret.push(chosen);
+  }
+
+  return ret;
+}
+
 export function chance(chance = 0.5): boolean {
   return Math.random() < chance;
 }

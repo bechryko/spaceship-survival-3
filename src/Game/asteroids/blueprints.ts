@@ -10,6 +10,7 @@ export interface AsteroidBlueprint {
   sizeIncreases: AsteroidSizeIncrease[];
   vertexCount: number | Range;
   maxReachIn: number;
+  minFullRadiusVertices: number;
   color: HSLColor<number | Range>;
   craters: {
     count: number | Range;
@@ -51,6 +52,7 @@ export const regularAsteroidBlueprint: AsteroidBlueprint = {
     max: 13
   },
   maxReachIn: 0.25,
+  minFullRadiusVertices: 3,
   color: {
     hue: {
       min: 15,
@@ -98,6 +100,7 @@ export const iceAsteroidBlueprint: AsteroidBlueprint = {
     max: 16
   },
   maxReachIn: 0.65,
+  minFullRadiusVertices: 1,
   color: {
     hue: {
       min: 195,
@@ -151,6 +154,7 @@ export const ironAsteroidBlueprint: AsteroidBlueprint = {
     max: 13
   },
   maxReachIn: 0.1,
+  minFullRadiusVertices: 5,
   color: {
     hue: 0,
     lightness: {

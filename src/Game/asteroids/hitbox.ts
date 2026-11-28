@@ -1,5 +1,5 @@
 import { Point } from '../models';
-import { between, getNumberOrRangeValue } from '../utils';
+import { between, chooseMultiple, getNumberOrRangeValue } from '../utils';
 import { AsteroidBlueprint } from './blueprints';
 
 const VERTEX_ROTATION_JITTER = 0.3;
@@ -18,19 +18,29 @@ export function createAsteroidShape(blueprint: AsteroidBlueprint): AsteroidShape
   }
   chance -= SPECIAL_ASTEROID_SHAPE_REGULAR_CHANCE;
 
-  if (chance < SPECIAL_ASTEROID_SHAPE_STAR_CHANCE && vertexCount % 2 === 0) {
+  if (
+    chance < SPECIAL_ASTEROID_SHAPE_STAR_CHANCE &&
+    vertexCount % 2 === 0 &&
+    blueprint.minFullRadiusVertices <= vertexCount / 2
+  ) {
     return createSpecialAsteroidShapeStar({ ...blueprint, vertexCount });
   }
 
   const averageRotation = (Math.PI * 2) / vertexCount;
 
   const points: Point[] = [];
-  points.push([between(1 - blueprint.maxReachIn, 1, { floor: false }), 0]);
+
+  const vertexIndexes = Array.from({ length: vertexCount }, (_, index) => index);
+  const fullRadiusVertexIndexes = chooseMultiple(vertexIndexes, blueprint.minFullRadiusVertices);
+
+  const maxReachIn = fullRadiusVertexIndexes.includes(0) ? 0 : blueprint.maxReachIn;
+  points.push([between(1 - maxReachIn, 1, { floor: false }), 0]);
 
   for (let i = 0; i < vertexCount - 1; i++) {
     const angle =
       averageRotation * (i + between(1 - VERTEX_ROTATION_JITTER, 1 + VERTEX_ROTATION_JITTER, { floor: false }));
-    const radius = between(1 - blueprint.maxReachIn, 1, { floor: false });
+    const maxReachIn = fullRadiusVertexIndexes.includes(i + 1) ? 0 : blueprint.maxReachIn;
+    const radius = between(1 - maxReachIn, 1, { floor: false });
 
     points.push([Math.cos(angle) * radius, Math.sin(angle) * radius]);
   }
