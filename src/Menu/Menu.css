@@ -34,7 +34,7 @@
 
 aside.news-panel {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto 1fr auto;
   grid-column-start: 3;
   place-self: center;
   width: 70%;
@@ -48,13 +48,38 @@ aside.news-panel {
     font-size: 2rem;
     line-height: 1;
     margin: 0;
+
+    & + p {
+      margin-top: 1rem;
+    }
   }
 
-  svg {
-    place-self: center;
-    height: 100%;
-    padding: 1rem;
-    box-sizing: border-box;
+  .container {
+    position: relative;
+    color: white;
+
+    span {
+      --size: 6rem;
+
+      position: absolute;
+      width: var(--size);
+      height: var(--size);
+
+      &:nth-child(1) {
+        top: 2rem;
+        left: 2rem;
+      }
+
+      &:nth-child(2) {
+        bottom: 2rem;
+        right: 2rem;
+      }
+
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
   }
 
   p {

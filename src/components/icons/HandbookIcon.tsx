@@ -1,5 +1,6 @@
 import { loadColor } from 'spaceship-survival-3/localstorage';
 
+/** Unused, preserved for the future. */
 export function HandbookIcon() {
   const mainColor = loadColor();
   const screenColor = '#8e8e8e';

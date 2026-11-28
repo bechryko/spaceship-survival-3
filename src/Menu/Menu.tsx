@@ -1,7 +1,8 @@
 import './Menu.css';
 
 import { NavLink } from 'react-router';
-import { HandbookIcon } from 'spaceship-survival-3/components';
+import { SpecialAbilityIcon } from 'spaceship-survival-3/components';
+import { SpecialAbilityName } from 'spaceship-survival-3/Game/spaceships';
 import { Page, useLastUrlSegment } from 'spaceship-survival-3/hooks';
 import { appVersion } from 'spaceship-survival-3/version';
 import Settings from './Settings/Settings';
@@ -10,9 +11,17 @@ import StarBackground from './StarBackground';
 function NewsPanel() {
   return (
     <aside className="news-panel main-panel">
-      <h2>Your handbook is here!</h2>
-      <HandbookIcon></HandbookIcon>
-      <p>Captain's Handbook is available for you to browse the game's mechanics in Beta v0.4!</p>
+      <h2>Bring a friend along!</h2>
+      <p>Survive together the harsh environment of space in Beta v0.5!</p>
+      <div className="container">
+        <span title={SpecialAbilityName.REBUILD}>
+          <SpecialAbilityIcon id={SpecialAbilityName.REBUILD}></SpecialAbilityIcon>
+        </span>
+        <span title={SpecialAbilityName.SHIELD_TUNNEL}>
+          <SpecialAbilityIcon id={SpecialAbilityName.SHIELD_TUNNEL}></SpecialAbilityIcon>
+        </span>
+      </div>
+      <p>Try the new special abilities, only in multiplayer!</p>
     </aside>
   );
 }
@@ -37,10 +46,10 @@ export default function Menu() {
             <NavLink className="button blur-background" to={Page.GAME} state={{ players: 1, quickPlay: true }}>
               Quick Play
             </NavLink>
-            <NavLink className="button blur-background" to={Page.SPACESHIP_SELECTION}>
+            <NavLink className="button blur-background highlighted" to={Page.SPACESHIP_SELECTION}>
               Play
             </NavLink>
-            <NavLink className="button blur-background highlighted" to={Page.HANDBOOK}>
+            <NavLink className="button blur-background" to={Page.HANDBOOK}>
               Captain's Handbook
             </NavLink>
             <NavLink className="button blur-background separator" to={Page.SETTINGS}>

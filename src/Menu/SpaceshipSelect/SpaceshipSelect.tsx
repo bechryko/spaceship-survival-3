@@ -158,7 +158,7 @@ export default function SpaceshipSelect() {
 
         <section className={classNames({ 'player-selection': true, active: activeSelection === 2 && isMultiplayer })}>
           {!isMultiplayer ? (
-            <button className="button add-player blur-background" onClick={() => setMultiplayer(true)}>
+            <button className="button add-player blur-background highlighted" onClick={() => setMultiplayer(true)}>
               <span className="plus-sign">+</span>
               <p>Add player</p>
             </button>
